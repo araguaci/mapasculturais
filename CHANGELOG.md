@@ -1,18 +1,595 @@
 # Changelog
+
 Todas as mudanças notáveis no projeto serão documentadas neste arquivo.
 
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-[unreleased]
-## Novas Funcionalidades
+## [unreleased - 7.4]
+### Novas funcionalidades
+- Implementa botão de aplicar avaliações para avaliações técnicas
+- Implementa exibição de parecer na avaliação documental
+- Implementa exibição de parecer na avaliação qualificação documental
+- Implementa campo de dados bancários vinculado ao agente responsável via campo @
+- Implementa botão que faz a sincronia das inscrições entre as fases
+
+### Melhorias
+- Nova lib instalada (league/csv), para geração de arquivos csv.
+- Adicionado novo ícone para o histórico de alterações.
+- Adiciona data de envio da inscrição na tela de impressão da ficha
+- Implementa novos componentes vuejs para trabalhar implementação de tabelas 
+- Refatora listagem de inscrições para uma tabela visualmente mais agradavel
+- Insere a opção de alterar o tipo dos agentes no modo de edição do perfil quando o usuario logado tem essa permissão
+- Exibe campo de pessoa idosa na single do agente
+- Implementa a exibição de nova coluna na listagem de inscrições para baixar os anexos
+- Altera nome da coluna resultado final da avaliação para "Avaliação" na listagem de inscrições
+- Implementa estêncil circular para definir tamanho do avatar durante o recorte
+- torna o preenchimento do nome da fase de avaliação opcional, definindo automaticamente o tipo de avaliação como nome
+- possibilidade de passar vários termos para a busca por palavra-chave, separando-os por ponto e vírgula
+- melhoria de performance na criação de novas revisões, deixando o salvamento de todas as entidades mais rápidas
+- log de hooks agora exibe um backtrace
+
+### Correções
+- Corrige seleção de relacionamentos OneToOne
+- Corrige erro da instalação do npm após o node.
+- Corrige extrações de planilhas em excel das entidades via API
+- Corrige erro na exibição do paracer técnico da avaliação técnica, quando nao existe avaliações enviadas
+- Ajusta em ordem alfabética os tipos de entidades nas entidades opportunity, space e project
+- Ajusta o disparo de e-mails de criação e envio da inscrição para que sejam feitos em toda fase da coleta de dados
+- Corrige permissão de visualização de arquivos privados
+- Ajusta métodos de listagem de fases para devolver tambem os arquivos das fases
+- Corrige configuração do crop da imagem do avatar
+- Corrige método para limpeza de hooks
+
+## [7.3.40] - 2024-04-04
+### Correçoes
+- Corrige o retorno dos selos das oportunidades na api
+
+### Melhorias
+- Adiciona mensagem para o avaliador informando que o período de avaliação já se ecerrou
+- Exibe todos os selos nos cards das entidades
+
+## [7.3.39] - 2024-04-04
+### Correçoes
+- Corrige exibição da imagem do selo após a vinculação deste com uma entidade
+- Oculta botão de carregar mais eventos quando não houver mais eventos a serem carregados
+
+## [7.3.38] - 2024-04-04
+### Correçoes
+- Corrige paginação das ocorrências dos eventos
+
+## [7.3.37] - 2024-04-02
+### Correçoes
+- Corrige campos @ das redes sociais
+
+## [7.3.36] - 2024-04-02
+### Correçoes
+- Corrige hooks duplicados no componente mc-header
+
+## [7.3.35] - 2024-04-01
+### Melhorias
+- Cria novos hooks no componente mc-header
+
+## [7.3.34] - 2024-03-28
+### Correções
+- Corrige texto no modal de confirmação de criação de eventos
+
+## [7.3.33] - 2024-03-21
+### Correções
+- Evita que um agente de suporte que tenha controle sobre o edital, seja redirecionado para o modulo de suporte ao acessar uma inscrição atrvéz da listagem de inscrições
+- Corrige erro ao acessar a lista de inscrição sendo do grupo de suporte, mas nao ter permissões de acesso aos campos definidas
+
+## [7.3.32] - 2024-03-20
+### Correções
+- Corrige exibição da label Área de atuação e Área de interesse nos cads de listagem de entidades
+
+## [7.3.31] - 2024-03-20
+- Corrige conflito do embedtools entre o módulo de relatórios e tabela de inscrições
+
+## [7.3.30] - 2024-03-19
+### Correções
+-  Corrige filtro do módulo de relatórios
+
+## [7.3.29] - 2024-03-15
+### Correções
+-  Corrige erro que quebrava exibição do texto isncrições abertas da seção oportunidades do momento
+
+## [7.3.28] - 2024-03-15
+### Correções
+- corrige erro no carregamento do avatar na seção Oportunidades do momento
+
+## [7.3.27] - 2024-03-13
+### Melhorias
+- Exibe a hora de início e fim das fases na listagem de fases das abas Configurações de fases e Inscrições e resultados
+
+### Correções
+- Corrige a sincronização de inscrições entre a fase de publicação de resultado e as demais
+- Corrige erro do que impedia a mudança de status na listagem de inscrições
+
+## [7.3.26] - 2024-03-11
+### Correções
+- Corrige filtro por status do módulo de relatórios
+- Corrige visualização de relatórios de fases de avaliação
+
+## [7.3.25] - 2024-03-11
+### Melhorias
+- Implementa aba para definir os avaliadores manualmente na single da inscrição
+
+## [7.3.24] - 2024-03-06
+### Correções
+- Corrige exibição do botão publicar resultados e suas frases de advertência para que sejam exibidos e funcionais somente quando a fase estiver terminada
+- Corrigido o erro que impedia o botão de exclusão da fase de coleta de dados de ficar ativo para uso
+- Corrige erro na criação de fase de coleta de dados
+
+## [7.3.23] - 2024-03-01
+### Correções
+- Corrige extração de planilha de inscritos para compatibilidade com o php 8.2
+
+## [7.3.22] - 2024-03-01
+### Correções
+- Ajusta para que o terceiro banner carregue a imagem correta.
+
+## [7.3.21] - 2024-03-01
+### Correções
+- Ajusta para que os os links do terceiro banner da home funcione.
+
+## [7.3.20] - 2024-03-01
+### Correções
+- Corrige erro ao enviar avaliações do tipo qualificação documental.
+
+### Melhorias
+- Implementa opção de inserir um terceiro banner na home do mapas.
+
+## [7.3.19] - 2024-02-26
+### Correções
+- Corrige exibição da data de fechamento dos editais no card de editais relacionados na single do agente 
+
+## [7.3.18] - 2024-02-26
+### Correções
+- Corrige redirecionamentos do método de autenticação OpauthAuthentik
+
+## [7.3.17] - 2024-02-23
+### Correções
+- Corrige redirecionamento após a autenticação
+- Corrige componente de mudança de entidade vinculada das oportunidades
+
+## [7.3.16] - 2024-02-23
+### Melhorias
+- Faz o botão "Entrar" sempre redirecionar para a página atual após a autenticação
+
+## [7.3.15] - 2024-02-23
+### Correções
+- Cria aba para listar os subprojetos na entidade Project
+- Ajusta tamanho do botão de inscreva-se 
+
+## [7.3.14] - 2024-02-23
+### Correções
+- Ajusta estilização do componente que lista as áreas de interesse na single da oportunidade
+- Remove duplicidade da mensagem de erro da falta de area de interesse no modal de criação de oportunidade
+- Corrige texto do erro no campo 'área de interesse'
+
+## [7.3.13] - 2024-02-22
+### Melhorias
+- Ajusta para que o crop do avatar inicie no tamanho da imagem quando a mesma for do tamanho correto do avatar
+
+## [7.3.12] - 2024-02-22
+### Melhorias
+- Ajusta crop e stencil do avatar
+
+## [7.3.11] - 2024-02-16
+### Melhorias
+- Faz com que a imagem de compartilhamento use a imagem da entidade corrente ao invez da padrão
+
+## [7.3.10] - 2024-02-15
+### Correções
+- Executa a validação de erros da avaliação independentemente da mesma precisar ser enviada para validar
+- Corrige erro ao abrir fase de inscrição, sem ter nehuma avaliação criada
+
+## [7.3.9] - 2024-02-07
+### Melhorias
+- Corrige CHANGELOG.md
+
+## [7.3.8] - 2024-02-07
+### Melhorias
+- Cria novos hooks na tela de edição dos agentes
+
+## [7.3.7] - 2024-01-26
+### Melhorias
+- Inserir nova comunidade tradicional
+
+## [7.3.6] - 2024-01-24
+### Correções
+- Corrige datas do CHANGELOG.md
+
+## [7.3.5] - 2024-01-24
+### Correções
+- Corrige erro ao exibir resumo de uma fase de avaliação após a última correção não contemplar a lista de inscrição
+
+## [7.3.4] - 2024-01-24
+### Correções
+- Corrige erro ao exibir resumo de uma fase de avaliação, quando existem 2 avaliações sequênciais
+
+## [7.3.3] - 2024-01-23
+### Melhorias
+- Implementa revisões iniciais na entidade de oportunidades
+- Implementa a criação de usuário atravéz do fake-autenticate
+
+### Correções- Corrige erro na listagem de inscrições de um edital quando não exitia nehuma inscrição
+- Corrige erro que ocorria no momento da publicação de resultado final ocasionado pela tentativa de enviar os e-mails
+- Corrige validação de metadados preenchidos com valores que o php, com cast para boolean, resolve como false (Ex: 0, [], '')
+- Corrige criação de fase de coleta de dados que ficou quebrada após a implementação das áreas de interesse
+
+## [7.3.2] - 2023-12-15
+### Correções
+- Corrige erro que conflitava edição de uma inscrição de um agente com permissão de avaliação e de suporte
+
+## [7.3.1] - 2023-12-14
+### Correções
+- Corrige erro ao carregar ícone que exibe as novas notificações
+
+## [7.3.0] - 2023-12-12
+### Novas funcionalidades
+- Possibilita a publicação do parecer de fases de avaliação documental para os proponentes
+
+### Melhorias
+- Insere a taxonomia área de interesse na intidade oportunidade
+
+### Correções
+- Redireciona o usuario para a primeira fase quando o mesmo tenta acessar a oportunidade com o id de uma fase posterior
+
+### Ajustes
+- Ajusta botão de sair do modo de edição das entidades para que o mesmo não salve a entidade
+
+## [7.2.10] - 2023-12-06
+### Correções
+- Redireciona o usuario para a primeira fase quando o mesmo tenta acessar a oportunidade com o id de uma fase posterior
+
+## [7.2.11] - 2023-12-07
+### Correções
+- Corrige erro no resumo de inscrições nas fases de avaliações, quando não existia inscrições a serem carregadas
+
+## [7.2.10] - 2023-12-06
+### Correções
+- Corrige erro que fazia contagem errada nos cards coloridos de resumo das avaliações
+
+## [7.2.9] - 2023-12-06
+### Correções
+- Corrige exibição dos resumos das inscrições nas fases de avaliações
+
+## [7.2.8] - 2023-12-05
+### Correções
+- Corrige o carregamento das midias sociais nas entidades relacionadas a inscrição após a padronização das mesmas
+
+## [7.2.7] - 2023-12-05
+### Correções
+- Ajusta erro de carregamento das medias sociais no formulário de inscrição apos a padronização
+
+### Melhorias
+- Melhora desempenho na verificação de exibição dos pareceres no acompanhamento da inscrição
+
+## [7.2.6] - 2023-12-05
+### Correções
+- Corrige erro ao acessar acompanhamento de uma inscrição cuja o edital esta configurado para exibir os pareceres porem na inscrição existe avaliações enviadas
+
+## [7.2.5] - 2023-12-04
+### Melhorias
+- Insere opção de selecionar o país no cadastro do agente deixando em aberto o preenchimento dos campos de estado e munícípio, caso nao seja selecionado um país diferente do Brasil
+
+### Correções
+- corrige a ordenação de inscrições em fases de avaliação técnica
+- Corrige o problema que impedia a exibição dos pareceres da avaliação técnica ao publicar uma fase e configurar para que eles fossem exibidos.
+
+## [7.2.4] - 2023-11-29
+### Ajustes
+- Faz com que ao selecionar o Estado e o município o pin do Mapa seja posicionado
+
+### Correções
+- Corrige erro de duplicidades no front da lista de inscrição
+
+## [7.2.3] - 2023-11-28
+### Novas funcionalidades
+- Implementa configuração que possibilita Habilitar ou Desabilitar a exibição dos ids das entidades
+
+## [7.2.2] - 2023-11-24
+### Correções
+- Corrige resolução do avatar das entidades no componente que exibe os avatares
+
+## [7.2.1] - 2023-11-24
+### Ajustes
+- Faz com que o componente panel-entity-tabs retorne no status de publicado, todas as inscrições que estão no mínimo enviadas
+
+## [7.2.0] - 2023-11-24
+### Novas funcionalidades
+- Possibilidade de configuração do sistema para autenticação com Authentik
+
+### Ajustes
+- Oculta a seção de destaque de oportunidades da home quando não há oportunidades ativas
+- Modifica o tempo padrão de duração de sessão para 12 horas
+- Implementa botão para acessar o formulário de inscrição de uma fase de coleta de dados diretamente na ficha de inscrição
+
+## [7.1.4] - 2023-11-23
+### Correções
+- Corrige rota de acessos as avaliações no componente evaluation-card
+
+## [7.1.3] - 2023-11-23
+### Correções
+- Corrige exebição dos botões que adicionam e remove as funções de usuarios
+
+## [7.1.2] - 2023-11-23
+### Novas funcionalidades
+- Implementa filtro que possibilida a remoção dos rascunhos na lista de inscritos
+
+### Correções
+- Faz com que o select de seleção de funções apareça novamente na gestão de usuários
+
+## [7.1.0] - 2023-11-15
+### Novas funcionalidades
+- Autenticação fake para desenvolvimento no BaseV2, para não necessitar do switch theme
+- Adiciona nova tela "Minhas avaliações" no painel de controle
+- Adiciona listagem de suportes disponíveis na tela principal do painel de controle
+- No Thema do subsite, evita que quebre o codigo ao tentar criar a pasta do sass do subsite caso a mesma já exista
+- Possibilita a publicação do parecer de fases de avaliação técnica para os proponentes
+
+### Correções
+- Corrige erro ao tentar acessar a propriedade CNPJ do agente e o mesmo fro agente individual
+
+## [7.0.4] - 2023-11-14
+### Melhorias
+- Na lista de inscritos, faz a ordenação da tabela pela nota da avaliação quando for uma avaliação técnic
+- Possibilita que um gestor de uma oportunidade envie uma inscrição
+
+### Correções
+- Corrige condicionais que exibiam os botões de açoes das avaliações na tela de avaliação
+- Corrige erro que impedia uma entidade de ser salva parcialmente
+
+## [7.0.3] - 2023-11-10
+- exibe a nota da avaliação técnica para o proponente quando o resultado estiver publicado.
+
+## [7.0.2] - 2023-11-10
+- correção para possibilitar a utilização do sistema em sistema de arquivo case insensitive
+
+## [7.0.1] - 2023-11-06
+- correção na estilização do footer do FAQ
+
+## [7.0.0] - 2023-11-06
+### Melhorias
+- Adiciona vinculação de entidade no gerenciamento da oportunidade.
+- Atualiza versão do PHP para 8.2
+- Atualiza todas as bibliotecas PHP
+- Adiciona status na edição das entidades
+- Definine forma de alterar o título do modal do componente entity-file
+- Adiciona o status 'carregando' enquanto é gerada a impressão da ficha de inscrição
+- Atualiza componente avatar e de titulo
+- Exibe informação sobre o tamanho máximo do arquivo para upload
+- Impede que o número de processos de geração de cache e de jobs ultrapasse o número de processadores disponíveis
+- Refatoração na criação dos pcache, processando somente para os usuários envolvidos
+- Melhoria de performance na distribuição de inscrições entre os avaliadores
+
+### Correções
+- Corrige funcionamento do módulo de recursos
+- Faz com que o status seja devolvido no jsonSerialize quando a inscrição estiver em ainda em Rascunho
+- Faz com que funcione a exibição do botão preencher formulário na timeline de acompanhamento
+- Evita que os userialize façam json_decode sobre valor null no modulo RegistrationFieldTypes
+- Possibilita que edite o nome das fases de coleta de dados que nao sejam a primeira fase
+- Faz com que o botçao de visualizar lista de inscrições seja exibito em todas as fases de coleta de dados
+- Corrige galeria de vídeos, aceitando links do youtube shorts
+- Evita que quebre a tela de avaliação quando nao existir avaliação iniciada
+- Faz com que seja exibida as as fichas de todas as fases de coleta de dados na single das inscrições
+- Corrige nome do botão de enviar o arquivo entity-file
+- Remoção do botão do zammad na impressão do formulário de inscrição
+- Corrige responsividade do componente entity-actions
+- Corrige a distribuição de inscrições entre os avaliadores
+- Corrige a configuração manual dos avaliadores de uma inscrição pelos checkboxes na ficha de inscrição
+
+## [6.0.19] - 2023-09-15
+- Atualiza componente de mc-title para utilizar tags html nos titulos e ajustar conforme o tamanho
+- Ajusta o painel de entidades recentemente editadas
+- Faz com que o botão Arquivar fique oculto após a entidade ser arquivada
+- Altera o nome do botão publicar das entidade para Salvar e publicar no componente entity-action
+- Faz com que o botão Salvar e publicar seja exibido quando a entidade esteja arquvada
+- Implementa método isRequestedEntityMine que devolve se o agente é dono ou não da entidade no módulo Entities
+
+## [6.0.18] - 2023-09-14
+### Correções
+- Corrige componente que lista as inscrições em aberto do usuário no painel que não estava funcionando no Safari
+- Insere componente entity-admins na edit da oportunidade para inserir agentes que possam administrar a entidade
+- Insere componente entity-admins na single da oportunidade para vizualizar o agentes que podem controlar a entidade
+
+## [6.0.17] - 2023-09-14
+### Correções
+- Faz com que os usuarios que tenham alguma Role definida entre no processamento de cache
+- Evita que o método entityTime se quebre quando nao existir data de abertura ou fechamento de inscrição
+- Corrige a verificação de permissão no embedtools no endpoint GET_registrationview para verificar quem pode ver ao invéz de quem tem controle
+- Ajusta estilo conforme o figma para a visão do parecerista na inscrição do proponente no campo coletivo
+
+## [6.0.16] - 2023-09-14
+### Correções
+- Corrige salvamento de campos de formulário qunado não havia opções definidas
+
+## [6.0.15]
+### Correções
+- Adiciona quebra de linha nas descrições longas das entidades
+- Implementa lógica no componente entity-card que mostra textos diferentes em função da data de abertura e fechamento da entidade
+- Resolve sobreposição do slot na listagem do painel nas entidades.
+
+## [6.0.14] - 2023-09-05
+### Correções
+- Verifica se existem termos de uso e privacidade a serem aceitos antes de tentar gerar o hash e salvar no usuário
+
+## [6.0.13] - 2023-09-04
+### Correções
+- Corrige rota que é carregada no final do processo de importação de formulário
+- Corrige shortcuts de rotas que continham id como parâmetro
+
+## [6.0.12] - 2023-09-04
+### Correções
+- Corrige erro ao executar importação de formulario
+
+## [6.0.11] - 2023-09-01
+### Correções
+- Correção da exibição dos recursos de acessibilidade na single de espaço
+- Corrige a exibição do mapa na single de espaço
+- Remove botão 'Ajuda' na página de conta e privacidade
+- Resolve erro nos campos de seleção múltipla
+- Implementa exibição de campo obrigatório no componente entity-location nos campos Estado e Município
+- Cria estilo para definir sequêcias em ordem alfabética nas listas ordenadas no termos de uso e condições
+- Faz com que o componente entity-files-list aceite tambem aquivos registrados como unique
+- Corrige erro de listagem de arquivos no componente enitity-fiels-list
+- Corrige carregamento do Thema padrão para o BaseV2 no Ambiente de desenvolvimento
+- Ajusta internacionalização de textos do componente entity-files-list
+- Faz com que o componente entity-fields exiba a descrição longa
+- Corrige exibição do campo longDescription na edit dos agentes para que sempre seja exibido em modo de edição
+
+### Melhorias
+- Cria novos templatehooks dentro do componente main-footer
+- Melhora campo de definição de privacidade da localização dos agentes
+- Diminui o tamanho das imagens da home para melhorar o tempo de carregamento
+
+## [6.0.10] - 2023-08-29
+### Melhorias
+- Cria hooks no registrationFieldTypes para cnseguir manipular o retorno método getAgentFields
+- Cria hooks no registrationFieldTypes para cnseguir manipular o retorno método getSpaceFields
+- Cria hooks no registrationFieldTypes para cnseguir manipular o retorno método saveToEntity
+- Cria hooks no registrationFieldTypes para cnseguir manipular o retorno método fetchFromEntity
+- Cria hooks no arquivo agent-collective-field-config.php para conseguir injetar e manipular dados do template
+- Cria hooks no arquivo agent-collective-field.php para conseguir injetar e manipular dados do template
+- Cria hooks no arquivo agent-owner-field-config.php para conseguir injetar e manipular dados do template
+- Cria hooks no arquivo agent-owner-field.php para conseguir injetar e manipular dados do template
+
+## [6.0.9] - 2023-08-28
+### Correções
+- Cria mc-update para atualizar dados legados para a nova estrutura de condicionalidade de campos
+- Corrige importação de formularios para interpretar a nova estrutura de condicionalidade de campos
+
+## [5.8.3] - 2023-10-18
+### Correções
+- Corrige a configuração manual dos avaliadores de uma inscrição pelos checkboxes na ficha de inscrição
+
+## [5.8.1] - 2023-10-18
+### Correções
+- Corrige a distribuição de inscrições entre os avaliadores
+
+## [5.8.0] - 2023-10-17
+### Melhorias
+- Impede que o número de processos de geração de cache e de jobs ultrapasse o número de processadores disponíveis
+- Refatoração na criação dos pcache, processando somente para os usuários envolvidos
+- Melhoria de performance na distribuição de inscrições entre os avaliadores
+
+## [5.7.6] - 2023-09-12
+### Melhorias
+- Permite que a busca de agentes no gerenciador de usuários faça busca pelo nomeCompleto, nomeSocial, CPF e agentes ainda em rascunho
+
+## [5.7.5] - 2023-08-28
+### Correções
+- Cria mc-update para atualizar dados legados para a nova estrutura de condicionalidade de campos
+- Corrige importação de formularios para interpretar a nova estrutura de condicionalidade de campos
+
+## [6.0.8] - 2023-08-25
+- Corrige a altura dos gráficos de linha do módulo de relatorios das oportunidades
+- Atualização das bibliotecas PHP para as últimas versões compatíveis com o PHP 7.2
+
+## [5.7.4] - 2023-08-24
+### Melhorias
+- atualização das bibliotecas PHP para as últimas versões compatíveis com o PHP 7.2
+
+## [5.7.3] - 2023-08-23
+### Correções
+- Corrige a altura dos gráficos de linha do módulo de relatorios das oportunidades
+
+## [6.0.7] - 2023-08-18
+### Correções
+- Corrige validação das taxonomias (área de atuação e linguagem) nas págians de edição das entidades
+- Corrige erro de carregamento na listagem de oportunidades
+
+## [6.0.6] - 2023-08-17
+### Correções
+- Aumenta o tempo para o autosave dos campos de configuração das fases das oportunidades para 3 segundos, antes estava em 300 milisegundos
+- Faz o autosave dos campos ocorrerem imediatamente após o campo perder o foco
+- Corrige comportamento estranho dos seletores de data e hora que aparecia os segundos e depois removia, parecendo piscar o campo
+
+## [6.0.5] - 2023-08-17
+### Correções
+- Remove build da imagem develop-cli
+- Remove propriedade break-all do v-2 nos componentes de texto
+- Corrige a exibição do entity-card no carrosel na versão desktop
+- Corrige a exibição dos titulos nos componentes da home que utilizam o carrosel
+- Corrige a versão mobile dos componentes que utilizam carrosel e entity-card
+
+## [6.0.4] - 2023-08-16
+### Correções
+- Corrige bug no entity-card na listagem de oportunidades
+- Corrige fluxo de salvar e enviar a inscrição criando botões de salvar e sair e salvar
+
+## [6.0.3] - 2023-08-16
+### Correções
+- Corrige bug no entity-card na listagem de oportunidades
+- Corrige fluxo de salvar e enviar a inscrição criando botões de salvar e sair e salvar
+
+## [6.0.2] - 2023-08-15
+### Correções
+- Corrige problema no módulo de suporte que não salva a inscrição mesmo com permissão para alterar o campo
+- Corrige bug no carregamento dos campos que devem ser exibidos para o agente de support
+
+### Melhorias
+- Melhora nome do arquivo do sistema de lock de requisições
+- Implementa hooks para manipular o resultado do Opportunity::registrationFieldConfiguration e Opportunity::registrationFileConfiguration
+
+## [6.0.1] - 2023-08-11
+- Correção no posicionamento do logo quando este é apenas uma imagem sem label
+- Melhoria na busca por palavra-chave na gestão de usuário, retornando por documento, nome social e nome completo
+
+## [6.0.0] - 2023-08-11
+### Modernização da interface
+- Construção de nova base de código para o desenvolvimento dos componentes do frontend, construido em cima do Vue 3
+- Redesenho e implementação de:
+  - Nova home do sistema, destacando as oportunidades abertas no momento e as entidades com selos certificadores
+  - Novas páginas de busca de agentes, espaços, projetos, eventos e oportunidades
+  - Novo painel do usuário
+  - Novas páginas de agentes, espaços, projetos, eventos e oportunidades
+  - Novas páginas de edição de agentes, espaços, projetos e eventos
+  - Novo fluxo para a gestão de oportunidades
+  - Novo fluxo para avaliação de inscrições
+  - Novo fluxo inscrição e acompanhamento da inscrição em oportunidades
+  - Novo fluxo para suporte a inscritos nas oportunidades
+
+### Gestão de usuários
+- Nova seção de gestão de usuários no painel
+- Gestão de papeis de usuário possibilitando a criação de novos perfis com níveis de acesso customizados, além dos 4 pré-definidos.
+
+### Modificações na API
+- API de busca de inscrições
+- Nas APIs de busca, adiciona a possibilidade de seleção de arquivos, mata lists, agentes relacionados, relações de agentes, selos e permissões do usuário autenticado
+
+## [5.7.1] - 2023-07-21
+### Correções
+- Ajusta CSS do sidebar direito para evitar que o header sobrescreva os conteúdos dos editbox
+
+## [5.7.1] - 2023-07-21
+### Correções
+- Ajusta CSS do sidebar direito para evitar que o header sobrescreva os conteúdos dos editbox
+
+## [5.7.0] - 2023-07-13
+### Novas Funcionalidades
 - Implementa novo método de avaliação EvaluationMethodQualification
 - Implementa opção para condicionar campos do tipo a nexos
-## Melhorias
-- Faz refatorações para que o módulo de relatório busque campo da fase em questão e tambem fases anteriores
+
+### Melhorias
 - Ajusta definição de cores na listagem de avaliações na tela do avaliador nos métodos simples e documental
 - Ajusta estrutura de condicionalidade de campo criando colunas específicas na tabela registration_field_configuration
 - Não obriga mais um campos ser obrigatorio para ser condicionado a outro campo
+
+## [5.6.21] - 2023-07-13
+### Melhorias
+- Faz refatorações para que o módulo de relatório busque campo da fase em questão e tambem fases anteriores
+- Aplica novos filtros no módulo de relatórios
+- Remove dados mínimos exigidos para geração de grafico no módulo de relatórios
+- Ajusta posicionamento do filtro na tela do módulo de relatorios, deixando facil interpretar quais gráficos serão afetados com o filtro
+
+## [5.6.20] - 2023-06-06
+### Melhorias
+- define o tempo de duração das sessões para 2 horas, por padrão
+- possibilidade de configurar o tempo de duração das sessões pela variável de ambiente `SESSION_TIMEOUT`
+
 ## [5.6.19] - 2023-05-25
 ### Correções
 - Cria pasta DoctrineProxies durante o build, corrindo redeploy da aplicação que estava quebrado por falta da pasta
@@ -45,7 +622,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Correções
 - corrige configuração de vinculação de espaço relacionado na configuração do formulário de inscrição em oportunidades
 
-### Melhorias 
+### Melhorias
 - adiciona MailHog no ambiente de desenvolvimento para teste dos envios
 
 ## [5.6.17] - 2023-05-18
@@ -107,6 +684,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [5.6.5] - 2023-03-28
 ### Melhorias
 - Adiciona botão para fazer a validação de erros da inscrição no formulario de inscrição
+
 ### Correção
 - Redefine método saveRegistration para apenas salvar a inscrição e não computar erros do formulário
 - Ajusta o scroll para que quando existir error no formulário ele pare corretamente sobre o elemento
@@ -124,6 +702,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [5.6.2] - 2023-03-14
 ### Correções
 - Corrige filtro de avaliações na tela do avaliador
+
 ## [5.6.1] - 2023-03-10
 ### Correções
 - Evita que ao importar inscrições entre fases, não seja disparado e-mail de notificação de envio da inscrição
@@ -153,6 +732,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [5.5.15] - 2023-03-06
 ### Correções
 - Ajusta verificação que evita que quebre quando não existe dados do lockedFields
+
 ## [5.5.14] - 2023-03-06
 ### Correções
 - Evita que ao importar inscrições entre fases, não seja disparado e-mail de notificação da criação da inscrição
@@ -182,6 +762,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Melhorias
 - Cria hooks que possibilitam manipular sidebar direito na ficha de inscrição
 - Cria novo template de e-mail para o recurso usando padrão header+footer+imagem
+
 ### Correções
 - seta como vazio campo escolaridade do agent caso esteja com valor não informado
 - Corrige função append do ajaxUpload para entender quando o registro do grupo do arquivo for para um único arquivo
@@ -199,6 +780,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Evita que autosave execute na ficha de inscrição após a mesma estar enviada
 - Corrige erros de carregamento do thumbnail do avatar nos templates referente ao agente caso nao encontre o avatar
 - Corrige problema de duplicidade ao processar a planilha de importação de eventos
+
 ## [5.5.4] - 2022-12-30
 ### Correções
 - corrige validação de CNPJ e CPF após criação dos novos metadados
@@ -231,13 +813,13 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Novas Funcionalidade
 - Bloqueio dos campos através dos selos
-- Adciona novos campos para o cadastro de agente individual: 
-    - Nome social
-    - Escolaridade
-    - Pessoa com deficiência
-    - Comunidades tradicionais
-    - CNPJ (MEI)
-    - Pessoa idosa
+- Adciona novos campos para o cadastro de agente individual:
+  - Nome social
+  - Escolaridade
+  - Pessoa com deficiência
+  - Comunidades tradicionais
+  - CNPJ (MEI)
+  - Pessoa idosa
 
 ## [5.4.10] - 2023-04-17
 ### Melhorias
@@ -256,6 +838,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Evita que autosave execute na ficha de inscrição após a mesma estar enviada
 - Corrige erros de carregamento do thumbnail do avatar nos templates referente ao agente caso nao encontre o avatar
 - Corrige problema de duplicidade ao processar a planilha de importação de eventos
+
 ## [5.4.4] - 2022-12-28
 - Corrige redirecionamento após criação de App
 
@@ -276,8 +859,10 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [5.4.0] - 2022-12-14
 ### Correções
 - Atualiza updateTimestamp das entidades quando modificado um metadado
+
 ### Novas Funcionalidade
 - Importação de eventos por planilha
+
 ## [5.3.43] - 2023-04-17
 ### Melhorias
 - melhora performance do endpoint que retorna avaliações
@@ -304,9 +889,23 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Correções
 - corrige definição de valor default para os metadados
 
+## [feature/BaseV2]
+### Novas funcionalidades
+- Cria coluna que registra data e horário de publicação automática dos resultados de uma oportunidade
+- Possibilidade de selecionar files pelo parâmetro @select da api (#1994)
+- Possibilidade de selecionar metalists pelo parâmetro @select da api (#2000)
+- Possibilidade de selecionar agentes relacionados (relatedAgents) e relações de agentes (agentRelations) pelo parâmetro @select da api (#1999)
+- Possibilidade de selecionar as permissões do usuário autenticado (currentUserPermissions) pelo parâmetro @select da api (#2001)
+- Possibilidade de selecionar tudo e mais um pouco (@select=\*,agentRelations)
+- Possibilidade de filtrar agentes e espaço utilizando um delimitador de latitude e longitude (\_geoLocation=GEOBOUNDING([lng1,lat1],[lng2,lat2]))
+
+### Quebra de compatibilidade
+- Não é mais possível selecionar entidades reacionadas utilizando várias vezes o nome da entidade (ex: `@select=owner.id,owner.name`). Deve-se substituir por `@select=owner.{id,name}`
+
 ## [5.3.36] - 2022-11-16
 ### Correções
-- typo no módulo Notifications 
+- typo no módulo Notifications
+
 ### Melhorias
 - Cria novos campos no cadastro do agente
 
@@ -352,7 +951,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [5.3.26] - 2022-08-19
 ### Melhorias
-- Cria dp-update que define permissão em todos os campos nas permissões dos avaliadores para oportunidades legadas 
+- Cria dp-update que define permissão em todos os campos nas permissões dos avaliadores para oportunidades legadas
 
 ## [5.3.25] - 2022-08-16
 ### Correções
@@ -376,7 +975,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Garante que ao acessar a single do subsite esteja em modo de edição
 
 ## [5.3.21] - 2022-07-25
-- Ajusta local de tipagem para array da variavel $_field_val
+- Ajusta local de tipagem para array da variavel $\_field_val
 - Ajusta entripoint para setar permissão correta na pasta DoctrineProxies
 
 ## [5.3.20] - 2022-07-21
@@ -406,9 +1005,10 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [5.3.14] - 2022-06-07
 ### Correções
 - Evita criação duplicada de metadados
+
 ### Melhorias
 - Novos hooks
-  
+
 ## [5.3.13] - 2022-06-07
 ### Correções
 - Melhora configuração do recapcha no módulo CompliantSuggestion
@@ -420,8 +1020,9 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Impede que as avaliações sejam enviadas antes do prazo final da fase
 - Evita que o nome do agente e categoria da inscrição seja exibida na listagem de inscrições a serem avaliadas na tela do avaliador caso não tenha permissão para visualizar
 - Faz com que nas politicas afirmativas que a inscrição se enquandar, caso seja um campo multiseleção salve somente o campo correto e não todos
-- Corrige erro de nao deixar associar espaço na tela de edição da inscrição 
+- Corrige erro de nao deixar associar espaço na tela de edição da inscrição
 - Corrige erro na política afirmativa que fazia o botão de adicionar administradores nao aparecesse na tela de edição da oportunidade
+
 ### Melhorias
 - Trunca em 80 caractéres o tamanho do título do campo ao exibir no select de configuração das políticas afirmativa
 - Ajusta classe do ID do campo na listagem de campos para liberação para o avaliador padronizando com a configuração do formulário
@@ -439,23 +1040,24 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [5.3.10] - 2022-05-24
 ### Correções
-- Aplica reverse na máscara do campo caso  o mesmo tenha aclasse  js-mask-currency
+- Aplica reverse na máscara do campo caso o mesmo tenha aclasse js-mask-currency
 
-## [5.3.9] - 2022-05-23 
+## [5.3.9] - 2022-05-23
 ### Correções
 - Corrige erro na abertura da tag php
 
-## [5.3.8] - 2022-05-23 
+## [5.3.8] - 2022-05-23
 ### Melhorias
 - Cria campo no agente chamado Agente agente itinerante
 
-## [5.3.7] - 2022-05-23 
+## [5.3.7] - 2022-05-23
 ### Correções
 - Ajuste nas fontes dos cartões das entidades
 - Ajuste dos itens faltantes do cartão das entidades
 - Ajuste da posição da tag
 - Corrige css do select que define o tipo de um espaço
 - Utiliza função mb_strlen para contar os caractéres da descrição curta, levando em conta que podem existir caracteres multibyte
+
 ### Melhorias
 - Limita acesso ao botão de download da planila de agentes a administradores
 - Informa numero de caracteres preenchidos na descrição curta do agente
@@ -465,16 +1067,18 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Quando o agente é redirecionado para a tela de edição por nao ter os dados mínimos preenchidos, eexibe opção de sair "Deslogar"
 - Faz com que o filtro de eventos na gestão de usuários busque todos os eventos independente de existir espaço ou ocorrencias
 
-## [5.3.6] - 2022-05-23 
+## [5.3.6] - 2022-05-23
 - Corrige erro que nao deixava exibir campos condicionados a outros nas configurações das politicas afirmativas
 
-## [5.3.5] - 2022-05-19 
+## [5.3.5] - 2022-05-19
 ## Correções
+
 - Reconsolida a avaliação da inscrição caso em fases posteriores exista avaliação técnica com políticas afirmativas aplicadas
 - Na planilha de inscritos, corrige exibição dos valores de politicas afirmativas atribídas a inscrição
 
-## [5.3.4] - 2022-05-18 
+## [5.3.4] - 2022-05-18
 ## Correções
+
 - Altera o texto das politicas afirmativas no botão de utilização e correção do bug do ckeckbox
 
 ## [5.3.3] - 2022-05-17
@@ -484,7 +1088,8 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [5.2.13] - 2022-06-07
 ### Correções
 - evita criação duplicada de metadados
-- 
+-
+
 ### Melhorias
 - Novos hooks
 
@@ -495,12 +1100,14 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [5.3.2] - 2022-05-13
 ### Correções
 - Corrige listagem de campos das fases anteriores que ficavam vazios em algumas situações
+
 ### Melhorias
 - Libera avaliações antes do término das inscrições
 
 ## [5.2.11] - 2022-05-13
 ### Correções
 - Corrige listagem de campos das fases anteriores que ficavam vazios em algumas situações
+
 ### Melhorias
 - Libera avaliações antes do término das inscrições
 
@@ -517,10 +1124,11 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [5.2.10] - 2022-05-06
 ### Melhorias
 - Após a inscrição ser enviada, pega os dados dos @campo diretamente do metadado e não mais do agente
-  
+
 ## [5.2.9] - 2022-05-03
 ### Correções
 - Corrige atualização de geo localização ao se atualizar endereço do agente
+
 ### Melhorias
 - Revisão dos scripts e arquivos de configuração para ambiente de desenvolvimento
 - Deixa o cadastro do agente em conformidade com a LGPD
@@ -545,38 +1153,43 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [5.2.4] - 2022-04-25
 - Adição de hooks na tela de gestão de usuários
-  
+
 ## [5.2.3] - 2022-04-18
 - Remove chamada do método requireAuthentication desnecessário no template part info-admin
 
 ## [5.2.2] - 2022-04-14
 ### Correções
-- Remove chamada do parent::__construct()  do controlador
+- Remove chamada do parent::\_\_construct() do controlador
 
 ## [5.2.1] - 2022-04-14
-- Deixa as configuações do modulo LGPD por default  vazia para evitar redirecionamento sem configurações de termos
+- Deixa as configuações do modulo LGPD por default vazia para evitar redirecionamento sem configurações de termos
 
 ## [5.2.0] - 2022-04-14
 ### Novas funcionalidades
 - Novo módulo LGPD com redirecionamento para aceitação dos termos de uso e politica de privacidade, se o usuário ainda não tiver aceito ou sempre que houver modificação nos textos dos termos
+
 ### Melhorias
 - Novo formato de changelog
 - Refatoração no trait MagicCaller para disparar exceção quando não existe o método, além de hook para criação de novos métodos (hook `Class::newMethod`)
+- API agora executa o unserialize dos metadados
 
 ### Correções
 - altera identidade do usuário que executa os scripts de jobs e recriação de pcache pendente
 - corrige várias chamadas para métodos inexistentes, que não davam erro por conta do trait MagicCaller
 
 # [5.1.55] - 2022-03-25
+
 ### Correções
 - Corrige o filtro por avaliador no endpoint findEvaluations
 - Adiciona na API a possibilidade de filtrar pela permissão de outros usuários (@permissionsUser)
 
 # [5.1.54] - 2022-03-24
+
 ### Correções
 - Corrige filtro por categoria na aba de avaliações na tela do avaliador
 
 # [5.1.53] - 2022-03-23
+
 ### Correções
 - Corrige filtro de categorias no endpoint findEvaluation
 - Seta valor padrão como desabilitado no plugin ProfileCompletion
@@ -589,6 +1202,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Correção
 - Corrige mascara campo de moeda
 - Remove chamada de método desnecessário no módulo de relatŕorios
+
 ### Melhorias
 - Insere hook para controlar exibição do botão de download de planilhas nas telas das entidades
 
@@ -618,6 +1232,8 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Correção
 - Impede que campos obrigatórios sejam enviados com essas sujeiras e interpretados como valores verdadeiros
 
+> > > > > > > develop
+
 ## [5.1.44] - 2022-01-24
 ### Correção
 - Corrige erro no endpoint findEvaluation quando não existe avaliadores cadastrados na oportunidade #1874
@@ -633,8 +1249,8 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [5.1.42] - 2022-01-14
 ### Melhorias
-
 - Insere opções para cadastros das redes sociais Linkedin, Spotify, YouTube e pinterest nas entidades
+
 ## [5.1.41] - 2022-01-13
 ### Melhorias
 - Remove opção de inserir link da rede social google+ do perfil do agente
@@ -657,31 +1273,28 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Correções
 - Checa se metadado accountabilityPhase existe antes de exibir inscrições de prestação de contas no painel de controle
 - Altera forma de atuação do autosave das avaliações para evitar que registre avaliações dublicadas
+
 ### Novas LIB's php
 - Instala lib spreadsheet para geração de planilhas
+
 ### Melhorias
 - Melhora função createMailMessage para ser capaz de interpetrar mailer.bcc e mailer.replyTo
-
 
 ## [5.1.37] - 2021-11-16
 ### Correções
 - Ajusta autosave das avaliações para evitar requisições duplicadas ao finalizar a avaliação
 
-
 ## [5.1.36] - 2021-11-10
 ### Correções
 - Ajusta momento de chamada do metodo includeGeocodingAssets
-
 
 ## [5.1.35] - 2021-11-10
 ### Correções
 - remove resquício do LocationPatch
 
-
 ## [5.1.34] - 2021-11-10
 ### Correções
 - remove resquício do LocationPatch
-
 
 ## [5.1.33] - 2021-11-09
 ### Correções
@@ -723,6 +1336,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - coloca o template part da seleção de espaços para dentro do controller de oportunidade
 - refatora seleção de agentes e espaço na ficha de inscrição para ficarem dentro do controller de inscrição
 - melhoria no feedback de erro no formulário de inscrição
+
 ### Correções
 - Escapa valores do enum na procedure de exclusão de órfãos
 - Corrige mensagem de erro do botão enviar inscrição
@@ -765,7 +1379,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [5.1.13] - 2021-08-25
 ### Correções
 - Remove duplicidade da informação required nos campos de telefone e data
-- Faz correção no sufixo dos hooks "reports-footer e home-searsh-form" nos arquivos opportunity-reports.php e home-search.php 
+- Faz correção no sufixo dos hooks "reports-footer e home-searsh-form" nos arquivos opportunity-reports.php e home-search.php
 - Corrige merge dos campos em oportunidades multi-fases
 
 ### Melhorias
@@ -783,7 +1397,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - API para confirmar presença e interesse em eventos
 - No painel dos administradores, adiciona nova aba para exibir todos os selos que ele tem permissão de editar
 - Painel de gestão de usuários
-    - Admins podem alterar email e password de agentes pelo painel de controle (refs #1490)
+  - Admins podem alterar email e password de agentes pelo painel de controle (refs #1490)
 - Painel de gestão de administradores
 - Habilitação de login e cadastros por dispositivos móveis
 - Novos endpoints para validação de campos e de entidades, sem a necessidade de mandar salvar a entidade (`/{entity}/validateProperties` e `/{entity}/validateEntity`)
@@ -814,7 +1428,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Proprietário da oportunidade pode devolver uma avaliação já enviada para que o avaliador realize a revisão/alteração da mesma
 - Refatoração do importador de campos das oportunidades para funcionar com os novos tipos de campos
 - Exibe o id do campo na configuração do formulário
-- Possibilidade de adicionar campos do espaço e dos agentes responsável e coletivo para preenchimento na ficha de inscrição de oportunidade (refs #1467 e #1468) 
+- Possibilidade de adicionar campos do espaço e dos agentes responsável e coletivo para preenchimento na ficha de inscrição de oportunidade (refs #1467 e #1468)
 - Novo tipo de campo Caixa de verificação
 - Novo tipo de campo `brPhone` para os formulários de inscrição em oportunidades
 - Novo tipo de campo de listagem de pessoas nos formulários de oportunidades
@@ -840,11 +1454,11 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Corrige seleção manual de avaliadores, que não exibia corretamente os avaliadores da inscrição
 - Corrige link para inscrição no aba de avaliações para usuários administradores
 - Corrige salvamento de critérios de avaliação técnica que, em algumas situações, podia deixar critérios órfãos de seções, quebrando o formulário de avaliação
+
 #### Outros
 - remove versão 1 da api de leitura
 
 ### Modificações nao funcionais no código
-
 #### Utilidades
 - Função para criar arquivo de documentação das configurações
 - Script para executar scripts dentro do container de desenvolvimento
@@ -863,7 +1477,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Refatoraçao da criação dos caches de permissão para execurarem paralelamente impedindo criação de fila
 - Modifica método `unregisterEntityMetadata` para permitir desresgistrar todos os metadados registrados
 - Possibilidade de configurar o caminho da pasta de arquivos privados
-- Adiciona ao Dockerfile suporte ao Redis para utilizaçào como cache 
+- Adiciona ao Dockerfile suporte ao Redis para utilizaçào como cache
 - Possibilidade de configurar o local de salvamento das sessões (caminho dos arquivos ou Redis)
 - Refatoração do registro de tipos de campos das oportunidades, agrupando-os todos no módulo `RegistrationFieldTypes`
 - Substitui o `uglify-js` pelo `terser` para possibilitar utilização de ECMAScript >= 6 (refs: #1488)
@@ -909,6 +1523,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Adiciona o método `registerRegistrationMetadata` no trait `Traits/RegisterFunctions`
 - Refatora o `Opportunity::getSentRegistration` para só pegar do banco as inscrições enviadas
 - Trata retorno da funcao `valueToString` dos métodos de avaliacao simplificada e documental para retornar o $value quando definido
+
 #### Correções
 - Adiciona função fixPosition na diretiva editBox
 - Adiciona parâmetro ao Entity::getPropertiesMetadata para retornar também os nomes das colunas das propriedades
@@ -931,6 +1546,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Corrige `ErrorException` no `Trait\EntityAgentRelation` quando não havia usuários com controle da entidade, que podia quebrar a geração de `pcache`
 - Corrige mensagem da revisão de entidade criada quando esta não é criada pelo endpoint
 - Correções na verificação de permissão para avaliar incrição
+
 #### Novos hooks
 - template hooks no footer
 - Hook `mapasculturais.isEditable` para manipular o resultado da função `Theme::isEditable`
@@ -943,7 +1559,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Executa o hook `auth.login` após definir o usuário logado
 - Template hook na tabela de inscritos: `registration-list-header` e `registration-list-item`
 - Hook `controller(opportunity).reconsolidateResult` para possibilidar manipulação do array de avaliações antes da reconsolidação
-- Hook `entity(Registration).consolidateResult` para possibilitar a filtragem do resultado consolidado das avaliações 
+- Hook `entity(Registration).consolidateResult` para possibilitar a filtragem do resultado consolidado das avaliações
 - Template hooks no início e no fim das sidebars das singles: `sidebar-left` e `sidebar-right`
 - Template hook `header-inscrito:actions` nos botões da tabela de inscritos nas oportunidades
 - Hook `opportunity.registrations.reportCSV` para manipular o CSV de inscritos em oportunidades
@@ -986,7 +1602,6 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - remove redirecionamento específico do tema do MinC
 - corrige problema que quebrava o edit-box do upload de arquivos no caso de haver um registrationFieldConfiguration com id igual ao do registrationFileConfiguration
 
-
 ## [4.5.1] - 2019-02-26
 ### Melhorias
 - Marca a obrigatoriedade do campo "Área de atuação" dos agentes (ref. #121)
@@ -1004,11 +1619,11 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 #### Correção
 - Corrige sobrecarga/timeout da página quando ocorre acesso direto à URL '/busca/#', sem nenhum parâmetro.
-- 
+-
+
 ## [4.4.9] - 2018-12-14
 ### Correções
 - Corrige minificação dos scripts
-
 
 ## [4.4.8] - 2018-11-30
 ### Melhoria
@@ -1018,16 +1633,14 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Corrige alguns casos onde o filtro da aba inscritos não funciona parâmetro "Inválida";
 - Corrige typos na documentação
 
-
 ## [4.4.7] - 2018-11-13
 ### Correções
 - corrige loop infinito no recreatePermissionCache quando há referência circular nas entidades
 
-
 ## [4.4.7.1] - 2018-11-22
 ### Melhorias
 - Melhorias de usabilidade para admin ao adicionar/remover avaliadores para cada inscrição. (culturagovbr/mapasculturais#216)
-  
+
 ### Correções
 - Corrige link da avaliação na listagem geral para dono do edital (culturagovbr/mapasculturais#229)
 
@@ -1050,13 +1663,14 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [4.4.4] - 2018-10-17
 ### Melhorias
 - Inclui inscrições não avaliadas na exportação da planilha para o proprietário do edital;
-- Melhorias nas labels relacionadas à exequibilidade da inscrição nas exportações; 
+- Melhorias nas labels relacionadas à exequibilidade da inscrição nas exportações;
 
 ## [4.4.3] - 2018-10-11
 ### Melhorias
-- Proprietário da oportunidade não pode alterar notas das avaliações 
+- Proprietário da oportunidade não pode alterar notas das avaliações
+
 ### Ajustes
-- Aprimora verificação de preenchimento do campo de exequibilidade 
+- Aprimora verificação de preenchimento do campo de exequibilidade
 
 ## [4.4.2] - 2018-10-10
 ### Melhorias
@@ -1070,28 +1684,24 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - melhorias relacionadas ao permission cache
 - correção no deploy da refatoração do número da inscrição
 
-
 ## [4.4.0] - 2018-10-10
 ### Melhorias
 - o número da inscrição agora permanece o mesmo entre as fases das oportunidades
 - refatoração da forma como o pcache é mantido atualizado: agora acontece por um processo em background no servidor
-
 
 ## [4.3.5] - 2018-10-10
 ### Melhorias
 - Adiciona campo metadado `event_attendance`para registrar público presente nos eventos
 - Adiciona critério de inabilitação por exequibilidade em avaliações técnicas
 
-
 ## [4.3.4] - 2018-10-10
 ### Melhorias
 - Melhoria em botão de solicitação de recurso (módulo de oportunidades)
 - Corrige Dockerfile, adicionando suporte JPEG ao GD
 
-
 ## [4.3.3] - 2018-09-14
 ### Correções
-- Corrige exibição de caracteres HTML maliciosos 
+- Corrige exibição de caracteres HTML maliciosos
 
 ## [4.3.2] - 2018-09-11
 ### Correções
@@ -1104,7 +1714,6 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Corrige bug das cores personalizadas via painel. Elas não eram aplicadas ao tema extendido do Subsite (#211);
 - Modificado range de datas dos datepickers para 10 anos pra frente;
 
-
 ## [4.3.0] - 2018-09-03
 ### Correções
 - Corrige bug no css que agrupava todos os selos, no painel de subsite, ao adicionar um selo verificador (#209)
@@ -1116,7 +1725,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Adiciona constraint na tabela de oportuniades para não aceitar `agent_id` nulo
 
 ### Documentação
-- Adiciona documentação da API para agentes, eventos, projetos, selos e espaços 
+- Adiciona documentação da API para agentes, eventos, projetos, selos e espaços
 
 ## [4.2.0] - 2018-08-17
 ### Diversos
@@ -1155,18 +1764,15 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Corrige função env do config.php utilizado pelas imagens docker que não estava aceitando false como valor.
 - Dockerfile de desenvolvimento e script para iniciar desenvolvimento.
 
-
 ## [4.1.1] - 2018-07-31
 Corrige erro de tabela apontando para sequencia errada
 
-
 ## [4.1.0] - 2018-07-31
-
 - Novo painel de administração de usuários
 
 - Realizar logout do ID Cutura ao utilizar o menu sair;
 - Alterar o serviço de geolocalização para utilizar o Google;
-- Incluir diferenciação para o "Meu Perfil"; 
+- Incluir diferenciação para o "Meu Perfil";
 - Incluir o separador dos "Informações Geográficas";
 - Correção ao utilizar geocoder do google na busca por endereço no Mapa;
 - Correção de envio de mensages de contato para o email privado do agente responsável;
@@ -1184,19 +1790,19 @@ Corrige erro de tabela apontando para sequencia errada
 * Corrige update de dados geográfico ao posicionar o PIN no mapa ([#188](https://github.com/culturagovbr/mapasculturais/issues/188))
 
 ## [4.0.0] - 2018-07-30
-* Corrige campo de bairro quando se utiliza um CEP geral de uma cidade e a informação de bairro vem vazia
-* Adicona ao "describe" da API a lista dos grupos de arquivos disponíveis para o seletor @files.
+- Corrige campo de bairro quando se utiliza um CEP geral de uma cidade e a informação de bairro vem vazia
+- Adicona ao "describe" da API a lista dos grupos de arquivos disponíveis para o seletor @files.
 
-* Faz com que a pesquisa por palavra-chave para eventos seja executada  usando o nome do espaço e o nome do evento.
-* Corrige a posição dos marcadores de possição no mapa.
-* Corrige os erros de interface para validação de campos de data e retorno JS de edição de ocorrências pendentes por usuários não-admin (Issue #1111)
-* Adicona ao "describe" da API a lista dos grupos de arquivos disponíveis para o seletor @files.
-* Altera a propriedade `app.geoDivisionsHierarchy` no config, adicionando o atributo `[showLayer]` para isso alterando a representação da estrutura de dados.
-* Acrescenra taxonomias personallizadas na extração de planilhas (#145)
-* Na página de inscrição em uma oportunidade, o campo "Agente responsável" já vem com o Agente Padrão do usuário logado preenchido
-* Adiciona opção para ordenação na busca quando a opção de visualização por lista é selecionada.
-* Após fazer login, redireciona usuário para página em que estava navegando
-* Envia e-mails com as mensagens de denúncia apenas para os admins do subsite, e e-mails das mensagens de contato para os admins do subsite, a entidade e responsável
+- Faz com que a pesquisa por palavra-chave para eventos seja executada usando o nome do espaço e o nome do evento.
+- Corrige a posição dos marcadores de possição no mapa.
+- Corrige os erros de interface para validação de campos de data e retorno JS de edição de ocorrências pendentes por usuários não-admin (Issue #1111)
+- Adicona ao "describe" da API a lista dos grupos de arquivos disponíveis para o seletor @files.
+- Altera a propriedade `app.geoDivisionsHierarchy` no config, adicionando o atributo `[showLayer]` para isso alterando a representação da estrutura de dados.
+- Acrescenra taxonomias personallizadas na extração de planilhas (#145)
+- Na página de inscrição em uma oportunidade, o campo "Agente responsável" já vem com o Agente Padrão do usuário logado preenchido
+- Adiciona opção para ordenação na busca quando a opção de visualização por lista é selecionada.
+- Após fazer login, redireciona usuário para página em que estava navegando
+- Envia e-mails com as mensagens de denúncia apenas para os admins do subsite, e e-mails das mensagens de contato para os admins do subsite, a entidade e responsável
 
 ## [3.3] - 2017-08-17
 ### Novas Seleções na API (@SELECT)
@@ -1206,18 +1812,14 @@ Corrige erro de tabela apontando para sequencia errada
 
 ### Correções
 - internacionalização da diretiva angular que estava em espanhol
-- chamada da API relations.{*,relation.{*}}
-
+- chamada da API relations.{_,relation.{_}}
 
 ## [3.3.7] - 2017-12-13
 ### Alterações
-
 - Adiciona tipo de espaço Núcleos de Produção Digital
-
 
 ## [3.3.6] - 2017-12-12
 ### Alterações
-
 - redireciona o usuário para a edição do perfil enquanto ele não tiver o perfil publicado
 - omite o botão arquivar para o agente padrão
 - verifica a permissão de arquivar ou deletar ao mudar o status para ARCHIVED e TRASH
@@ -1229,40 +1831,31 @@ Corrige erro de tabela apontando para sequencia errada
 - Correção de erro na visualização do botão de impressão de selos por usuários anônimos
 - Correção da ordem de execução dos hooks com mesma prioridade
 
-
 ## [3.3.5] - 2017-09-19
 ### Correções
-
 - Chamada por wildcard no @select da API para as relações das entidade (subquery)
-
 
 ## [3.3.4] - 2017-09-14
 ### Alterações
-
 - retira a codificação das propriedades das entidades para evitar problemas de compatibilidade
 - corrige #1302
 - corrige serialização do objeto subsite no php 5.5
 
-
 ## [3.3.2] - 2017-09-02
-
 ### Correções
-
-* Fix tipologias adiciona pontos de memoria a subsite-types
-* Corrige o bug que estava impedindo o update_timestamp de ser atualizado
-* Atualiza o update_timestamp baseado na data da última revisão
-
+- Fix tipologias adiciona pontos de memoria a subsite-types
+- Corrige o bug que estava impedindo o update_timestamp de ser atualizado
+- Atualiza o update_timestamp baseado na data da última revisão
 
 ## [3.3.1] - 2017-08-17
 ### Correções
 - Valida os campos impedindo que sejam utilizadas algumas tags html no conteúdo salvo.
 
-
 ## [3.2] - 2017-07-06
 ### Link para Instagram
 Adiciona link para Instagram na lista de links das redes sociais das entidades
 
-O usuário pode adicionar seu username do instagram no formato @username, e  o link o leva para seu perfil no site do Instagram
+O usuário pode adicionar seu username do instagram no formato @username, e o link o leva para seu perfil no site do Instagram
 
 ### Recorte manual de imagens
 Permite que o usuário recorte manualmente as fotos enviadas para o avatar e para a imagem de cabeçalho
@@ -1271,17 +1864,15 @@ Permite que o usuário recorte manualmente as fotos enviadas para o avatar e par
 Agora é possível adicionar uma descrição para as fotos da galeria, que são exibidas embaixo da imagem quando a galeria é aberta
 
 ### Substituição de textos
-* Agora a interface não fala mais em "ocorrência" de eventos, mas em "local e data"
-* A aba Permissões, que mostra os agentes que tem controle sobre a entidade, passa a se chamar Reponsáveis
-
+- Agora a interface não fala mais em "ocorrência" de eventos, mas em "local e data"
+- A aba Permissões, que mostra os agentes que tem controle sobre a entidade, passa a se chamar Reponsáveis
 
 ### Correções
-* Cor dos pins dos espaços nos subsites (https://github.com/culturagovbr/mapasculturais/issues/69)
+- Cor dos pins dos espaços nos subsites (https://github.com/culturagovbr/mapasculturais/issues/69)
 
-### Exportação de planilha 
-* Adicionado a possibilidade de gerar uma planilha a partir dos perfis de espaço, agente e projeto
-* Mudando a estrutura da planilha de eventos, com os dados separados (ver https://github.com/hacklabr/mapasculturais/issues/1165)
-
+### Exportação de planilha
+- Adicionado a possibilidade de gerar uma planilha a partir dos perfis de espaço, agente e projeto
+- Mudando a estrutura da planilha de eventos, com os dados separados (ver https://github.com/hacklabr/mapasculturais/issues/1165)
 
 ## [3.2.2] - 2017-08-17
 ### Correçoes
@@ -1292,11 +1883,11 @@ Agora é possível adicionar uma descrição para as fotos da galeria, que são 
 ### Ajustes
 - hook para alteracao dos administradores das entidades tornando possível bypassar o subsiteId da entidade
 
-
 ## [3.2.1] - 2017-08-02
 ### Configuração de Filtros
 Corrige a configuração da chave `options` de um filtro na busca, sem que o filtro precise estar relacionado a Metadata, EntityType ou Term.
 Ex:
+
 ```
 'label' => i::__('Selos'),
 'placeholder' => i::__('Selecione os Selos'),
@@ -1316,9 +1907,9 @@ Ex:
 ```
 
 ### Correçoes
-* Correção do plugin que insere botão para impressão do certificado
-* Adicionado novo hook no seal relation, permitindo que metadados não listados no core sejam possíveis de serem impressos no texto do certificado
-* Correção ao tentar ceder propriedade de um selo
+- Correção do plugin que insere botão para impressão do certificado
+- Adicionado novo hook no seal relation, permitindo que metadados não listados no core sejam possíveis de serem impressos no texto do certificado
+- Correção ao tentar ceder propriedade de um selo
 
 ### Ajustes
-* Removendo comportamento de abrir o primeiro campo de edição obrigatorio quando tentar salvar e ele não tiver preenchido. (apenas avisa)
+- Removendo comportamento de abrir o primeiro campo de edição obrigatorio quando tentar salvar e ele não tiver preenchido. (apenas avisa)
