@@ -10,13 +10,14 @@ $this->import('
     mc-loading
 ');
 ?>
-<vue-final-modal v-model="modalOpen" :attach="teleport" :classes="['modal-container',classes]" content-class="modal-content" transition="modal" modalPosition="fixed" :modalClasses="['modal-fixed']" esc-to-close>
+<vue-final-modal v-model="modalOpen" :attach="teleport" :classes="['modal-container',classes]" content-class="modal-content" transition="modal" modalPosition="fixed" :modalClasses="['modal-fixed']" :esc-to-close="escToClose" :click-to-close="clickToClose" @closed="closed()">
     <template v-if="modalOpen">
         <div class="modal__header">
             <span v-if="title" class="modal__title">{{title}}</span>
+            <h6 v-if="subtitle">{{subtitle}}</h6>
             <button v-if="closeButton" class="modal__close" @click="close()"> <mc-icon name="close"></mc-icon> </button>
         </div>
-        <div class="modal__content">
+        <div class="modal__content scrollbar">
             <slot :close="close" :open="open" :isOpen="modalOpen" :toggle="toggle" :loading="loading"></slot>
         </div>
         <div class="modal__action">

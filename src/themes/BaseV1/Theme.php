@@ -153,7 +153,7 @@ class Theme extends MapasCulturais\Theme {
             ],
             'site: howto' => [
                 'name' => i::__('como usar do site'),
-                'description' => i::__('usado para orientar o usuário a utilizar a plataforma Mapas Culturais'),
+                'description' => i::__('usado para orientar o usuário a utilizar a plataforma Mapa da Cultura'),
                 'examples' => [i::__('como Usar'), i::__('Manual do Usuário'), i::__('Manual de Utilização')],
                 'text' => i::__('Como Usar')
             ],
@@ -168,7 +168,7 @@ class Theme extends MapasCulturais\Theme {
             'home: welcome' => [
                 'name' => i::__('texto de boas-vindas'),
                 'description' => i::__('texto que aparece embaixo da mensagem de boas-vindas na home do site'),
-                'text' => i::__('O Mapas Culturais é uma plataforma livre, gratuita e colaborativa de mapeamento cultural.')
+                'text' => i::__('O Mapa da Cultura é uma plataforma livre, gratuita e colaborativa de mapeamento cultural.')
             ],
             'home: abbreviation' => [
                 'name' => i::__('abreviação ou sigla da instituição responsável pelo site'),
@@ -188,7 +188,7 @@ class Theme extends MapasCulturais\Theme {
                 'name' => i::__('texto do botão colabore'),
                 'description' => i::__('texto do botão que chama o usuário para colaborar com o mapeamento'),
                 'examples' => [i::__('Colabore com o SNIIC'), i::__('Colabore com o Mapa da Cultura'), i::__('Colabore com o SpCultura')],
-                'text' => i::__('Colabore com o Mapas Culturais')
+                'text' => i::__('Colabore com o Mapa da Cultura')
             ],
             'home: events' => [
                 'name' => i::__('texto da seção "eventos" da home'),
@@ -218,7 +218,7 @@ class Theme extends MapasCulturais\Theme {
             'home: home_devs' => [
                 'name' => i::__('texto da seção "desenvolvedores" da home'),
                 'description' => '',
-                'text' => i::__('Existem algumas maneiras de desenvolvedores interagirem com o Mapas Culturais. A primeira é através da nossa <a href="https://github.com/hacklabr/mapasculturais/blob/master/documentation/docs/mc_config_api.md" target="_blank" rel="noopener noreferrer">API</a>. Com ela você pode acessar os dados públicos no nosso banco de dados e utilizá-los para desenvolver aplicações externas. Além disso, o Mapas Culturais é construído a partir do sofware livre <a href="http://institutotim.org.br/project/mapas-culturais/" target="_blank" rel="noopener noreferrer">Mapas Culturais</a>, criado em parceria com o <a href="http://institutotim.org.br" target="_blank" rel="noopener noreferrer">Instituto TIM</a>, e você pode contribuir para o seu desenvolvimento através do <a href="https://github.com/hacklabr/mapasculturais/" target="_blank" rel="noopener noreferrer">GitHub</a>.')
+                'text' => i::__('Existem algumas maneiras de desenvolvedores interagirem com o Mapa da Cultura. A primeira é através da nossa <a href="https://github.com/hacklabr/mapasculturais/blob/master/documentation/docs/mc_config_api.md" target="_blank" rel="noopener noreferrer">API</a>. Com ela você pode acessar os dados públicos no nosso banco de dados e utilizá-los para desenvolver aplicações externas. Além disso, o Mapa da Cultura é construído a partir do sofware livre <a href="http://institutotim.org.br/project/mapas-culturais/" target="_blank" rel="noopener noreferrer">Mapa da Cultura</a>, criado em parceria com o <a href="http://institutotim.org.br" target="_blank" rel="noopener noreferrer">Instituto TIM</a>, e você pode contribuir para o seu desenvolvimento através do <a href="https://github.com/hacklabr/mapasculturais/" target="_blank" rel="noopener noreferrer">GitHub</a>.')
             ],
 
             // TEXTOS UTILIZADOS NA PÁGINA DE BUSCA, MAPA
@@ -1547,13 +1547,13 @@ class Theme extends MapasCulturais\Theme {
             $this->jsObject['entity']['object']->id = $current_registration->id;
             $this->jsObject['entity']['object']->opportunity = $current_registration->opportunity;
             $this->jsObject['entity']['canUserEvaluate'] = $current_registration->canUser('evaluate');
+            $this->jsObject['entity']['evaluateOnTime'] = $current_registration->canUser('evaluateOnTime');
             $this->jsObject['entity']['canUserModify'] = $current_registration->canUser('modify');
             $this->jsObject['entity']['canUserSend'] = $current_registration->canUser('send');
             $this->jsObject['entity']['canUserViewUserEvaluations'] = $current_registration->canUser('viewUserEvaluations');
     
             
             $this->jsObject['registration']->id = $current_registration->id;
-            $this->jsObject['registration']->status = $current_registration->status;
             $this->jsObject['registration']->opportunity = $current_registration->opportunity;            
     
         }
@@ -2024,7 +2024,7 @@ class Theme extends MapasCulturais\Theme {
             'entity.directive.editableSingleselect',
         ));
         $this->localizeScript('entityApp', [
-            'requestSent' =>  i::__('Sua requisição para enviar um contato pelo Mapas Culturais foi enviada com sucesso.'),
+            'requestSent' =>  i::__('Sua requisição para enviar um contato pelo Mapa da Cultura foi enviada com sucesso.'),
         ]);
 
         $this->enqueueScript('app', 'mc.directive.multiselect', 'js/ng.mc.directive.multiselect.js', array('ng-mapasculturais'));
@@ -2152,7 +2152,8 @@ class Theme extends MapasCulturais\Theme {
             'fieldsDisabled' => i::__('Atenção, você tentou marcar campos que estão debilitados por algum tipo de condicional ou vinculado a alguma categoria, verifique se todos foram que deseja marcar foram marcados corretamente'),
             'providingAccount' => i::__('Ao enviar a prestação de contas, não será mais permitido editar os campos. tem certeza que deseja continuar?'),
             'disableColumns' => i::__('Não é permitido desabilitar todas as colunas da tabela'),
-            'columnDisabling' => i::__('Não é permitido desabilitar a coluna')
+            'columnDisabling' => i::__('Não é permitido desabilitar a coluna'),
+            'fileTooBig' => i::__('O tamanho do arquivo excede o limite estabelecido')
         ]);
 
         $this->enqueueScript('app', 'entity.module.subsiteAdmins', 'js/ng.entity.module.subsiteAdmins.js', array('ng-mapasculturais'));
@@ -2700,6 +2701,7 @@ class Theme extends MapasCulturais\Theme {
         $this->jsObject['entity']['registrationFileConfigurations'] = (array) $entity->registrationFileConfigurations;
         $this->jsObject['entity']['registrationFieldConfigurations'] = (array) $entity->registrationFieldConfigurations;
         $this->jsObject['entity']['registrationStatuses'] = $registrationStatuses;
+        $this->jsObject['entity']['registrationFieldTypes'] = $app->config['module.registrationFieldTypes'];
 
         usort($this->jsObject['entity']['registrationFileConfigurations'], function($a,$b){
 
@@ -2768,6 +2770,7 @@ class Theme extends MapasCulturais\Theme {
         $this->jsObject['entity']['spaceData'] = $entity->getSpaceData();
 
         $this->jsObject['entity']['canUserEvaluate'] = $entity->canUser('evaluate');
+        $this->jsObject['entity']['evaluateOnTime'] = $entity->canUser('evaluateOnTime');
         $this->jsObject['entity']['canUserModify'] = $entity->canUser('modify');
         $this->jsObject['entity']['canUserSend'] = $entity->canUser('send');
         $this->jsObject['entity']['canUserViewUserEvaluations'] = $entity->canUser('viewUserEvaluations');

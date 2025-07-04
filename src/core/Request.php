@@ -4,8 +4,9 @@ namespace MapasCulturais;
 
 use Psr\Http\Message\ServerRequestInterface as RequestInterface;
 
+
 class Request {
-    public \Slim\Psr7\Request $psr7request;
+    public RequestInterface $psr7request;
     public array $headers;
 
     public $controllerId;
@@ -29,10 +30,7 @@ class Request {
     }
 
     public function params() {
-        return array_merge(
-            (array) $this->psr7request->getParsedBody(), 
-            (array) $this->psr7request->getQueryParams()
-        );
+        return (array) $this->psr7request->getQueryParams();
     }
 
     function getMethod() {

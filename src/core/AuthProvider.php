@@ -2,7 +2,14 @@
 namespace MapasCulturais;
 
 use MapasCulturais\Entities\Notification;
+use MapasCulturais\Entities\User;
+use MapasCulturais\Exceptions\PermissionDenied;
 
+/**
+ * @property Entities\User|GuestUser $authenticatedUser
+ * 
+ * @package MapasCulturais
+ */
 abstract class AuthProvider {
     use Traits\MagicCallers,
         Traits\MagicGetter,
@@ -23,7 +30,12 @@ abstract class AuthProvider {
 
         $app->hook('auth.successful', function() use($app){
             $user = $app->user;
-            $user->getEntitiesNotifications($app);
+
+            $preventOverhead = (bool) ($user->metadata['preventOverhead'] ?? false);
+            if (!$preventOverhead) {
+                $user->getEntitiesNotifications($app);
+            }
+
             $user->lastLoginTimestamp = new \DateTime;
             $user->save(true);
         });
@@ -110,25 +122,35 @@ abstract class AuthProvider {
         return $redirect;
     }
 
-    protected final function _setAuthenticatedUser(Entities\User $user = null){
+    protected final function _setAuthenticatedUser(Entities\User|null $user = null){
         $this->_authenticatedUser = $user;
         App::i()->applyHookBoundTo($this, 'auth.login', [$user]);
+    }
+
+    /**
+     * Define o usuário autenticado.
+     *
+     * @param Entities\User|null $user O usuário autenticado, ou null se não houver usuário autenticado.
+     */
+    protected function setAuthenticatedUser(Entities\User|null $user = null){
+        $this->_authenticatedUser = $user;
     }
 
     abstract function _getAuthenticatedUser();
 
     final function getAuthenticatedUser(){
         $user = $this->_authenticatedUser;
-        if (is_null($user)) {
+        
+        if (!$user instanceof User) {
             return $this->_guestUser;
-        } else {
-            if ($user->status < 1) {
-                $this->logout();
-                die(i::__('Usuário não está ativo'));
-            } else {
-                return $user;
-            }
+        } 
+
+        if ($user->status < 1) {
+            $this->logout();
+            throw new PermissionDenied($user, message: i::__('Usuário inativo'));
         }
+
+        return $user;
 
     }
 

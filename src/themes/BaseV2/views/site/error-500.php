@@ -1,25 +1,23 @@
 <?php
-
 use MapasCulturais\i;
+
+$this->layout = "default";
 
 $this->import('
     mc-link
 ');
 ?>
-
-
 <div class="error-page">
     <div class="error-card">
         <div class="content">
             <div class="left">
                 <h1 class="left__title"><?= i::__('Erro 500') ?></h1>
-                <label class="left__message">Erro na página</label>
+                <label class="left__message"><?= i::__('Erro na página') ?></label>
                 <div class="error-footer">
                     <div class="message-error">
                         <label class="text"><br><?= i::__('Identificamos um problema no servidor aqui do nosso lado, mas não se preocupe. ') ?></br></label>
                         <label class="text">
-                            <?= i::__('Já estamos investigando o que aconteceu.
-Tente novamente após alguns minutos..') ?></label>
+                            <?= i::__('Já estamos investigando o que aconteceu. Tente novamente após alguns minutos..') ?></label>
                         </label>
                     </div>
                     <div class="btn">
@@ -33,9 +31,9 @@ Tente novamente após alguns minutos..') ?></label>
 
         </div>
         <?php if($display_details): ?>
-            <pre style="font-size: 12px;"><code><?= $exception ?? '' ?></code>
+            <pre style="font-size: 12px;">
+                <code><?= $exception ?? '' ?></code>
+            </pre>
         <?php endif ?>
-        </pre>
     </div>
-
 </div>

@@ -1,9 +1,12 @@
 <?php
 
-use MapasCulturais\App;
-use MapasCulturais\Entities\Registration;
 use MapasCulturais\i;
+use MapasCulturais\App;
 use MapasCulturais\Utils;
+use MapasCulturais\Entities\Agent;
+use MapasCulturais\Entities\Opportunity;
+use MapasCulturais\Entities\Registration;
+use MapasCulturais\Entities\EvaluationMethodConfigurationAgentRelation;
 
 return [
     'recreate pcache' => function () {
@@ -426,4 +429,228 @@ return [
         }
         $app->auth->logout();
     },
+
+    'sync last opportunity phases registrations' => function() {
+        DB_UPDATE::enqueue(Opportunity::class, "id in (SELECT object_id FROM opportunity_meta WHERE key = 'isLastPhase')", function (Opportunity $opportunity) {
+            if($opportunity->publishedRegistrations){
+                $opportunity->registrationsOutdated = true;
+                $opportunity->save(true);
+            } else {
+                $opportunity->enqueueRegistrationSync();
+            }
+        });
+    },
+    'Atualiza campo pessoa idosa' => function() {
+        DB_UPDATE::enqueue(Agent::class, "id > 0", function (Agent $agent) {
+            $app = \MapasCulturais\App::i();
+            $app->disableAccessControl();
+            if ($agent->dataDeNascimento) {
+                $today = new \DateTime('now');
+                $calc = (new \DateTime($agent->dataDeNascimento))->diff($today);
+                $idoso = ($calc->y >= 60) ? "1" : "0";
+                if($agent->idoso != $idoso){
+                    $agent->idoso = $idoso;
+                    $agent->save(true);
+                }
+            } 
+            $app->enableAccessControl();
+        });
+    },
+    'Reordena campo pessoa deficiente dos agentes' => function () use ($app) {
+        $ajust_array_value = function ($value) {
+            $result =  array_filter($value, function ($val) {
+                $val = trim($val);
+                $teste[$val] =  $val;
+
+                if ($val !== "" && $val != "null" && !is_null($val) && $val != "null;" && $val != "[]") {
+                    return $val;
+                }
+            });
+
+            $result = implode('","', $result);
+            $result = '["' . $result . '"]';
+
+            return $result ?: [""];
+        };
+
+        $app->disableAccessControl();
+
+        DB_UPDATE::enqueue(Agent::class, "id > 0", function (Agent $agent) use ($app, $ajust_array_value) {
+            $conn = $app->em->getConnection();
+            if($data = $conn->fetchAll("SELECT value from agent_meta WHERE object_id = {$agent->id} AND key = 'pessoaDeficiente'")) {
+                $_result = [""];
+                $value = json_decode($data[0]['value']);
+                $modify = false;
+                if(is_array($value)) {
+                    $_result = $ajust_array_value($value);
+                    $modify = true;
+                }else {
+                    $_value = explode(";", $value);
+                    if(is_array($_value)) {
+                        $_result = $ajust_array_value($_value);
+                        $modify = true;
+                    }
+                }
+                
+                if($modify) {
+                    $app->log->debug("Campo de pessoa com deficiencia alterado no agente {$agent->id}");
+                    $conn->executeQuery("UPDATE agent_meta set value = '{$_result}' where object_id = {$agent->id} AND key = 'pessoaDeficiente'");
+                }
+            }
+        });
+        $app->enableAccessControl();
+    },
+    'Reordena campo pessoa deficiente das inscrições' => function () use ($app) {
+        $conn = $app->em->getConnection();
+        $opportunity_ids = [];
+        $fields_data = [];
+        
+        if($values = $conn->fetchAll("SELECT * from registration_field_configuration WHERE field_type = 'agent-owner-field' and config LIKE '%pessoaDeficiente%'")) {
+            foreach($values as $value) {
+                $field_name = "field_{$value['id']}";
+                $fields_data[$value['opportunity_id']] = $field_name;
+            }
+        }
+
+        $ajust_array_value = function ($value) {
+            $result =  array_filter($value, function ($val) {
+                $val = trim($val);
+                $teste[$val] =  $val;
+
+                if ($val !== "" && $val != "null" && !is_null($val) && $val != "null;" && $val != "[]") {
+                    return $val;
+                }
+            });
+
+            $result = implode('","', $result);
+            $result = '["' . $result . '"]';
+
+            return $result ?: [""];
+        };
+
+        $opportunity_ids =  array_keys($fields_data);
+        foreach($opportunity_ids as $opp_id) {
+            DB_UPDATE::enqueue(Registration::class, "opportunity_id  = {$opp_id}", function (Registration $registration) use ($app, $fields_data, $opp_id, $ajust_array_value, $conn) {
+                $registration->registerFieldsMetadata();
+
+                $field_name =  $fields_data[$opp_id];
+                if($data = $conn->fetchAll("SELECT value from registration_meta WHERE object_id = {$registration->id} AND key = '{$field_name}'")) {
+                    $_result = [""];
+                    $value = json_decode($data[0]['value']);
+                    if(is_array($value)) {
+                        $_result = $ajust_array_value($value);
+                        $modify = true;
+                    }else {
+                        $_value = explode(";", $value);
+                        if(is_array($_value)) {
+                            $_result = $ajust_array_value($_value);
+                            $modify = true;
+                        }
+                    }
+
+                    if($modify) {
+                        $app->log->debug("Campo de pessoa com deficiencia alterado na inscrição {$registration->id}");
+                        $conn->executeQuery("UPDATE registration_meta set value = '{$_result}' where object_id = {$registration->id} AND key = '{$field_name}'");
+                    }
+                }
+            });
+        }
+    },
+
+    'Redistribui as avaliações de todas as oportunidades para os avaliadores novamente' => function() use ($app) {
+        DB_UPDATE::enqueue(Opportunity::class, "id in (select opportunity_id from evaluation_method_configuration)", function (Opportunity $opportunity) use($app) {
+            if($opportunity->getEvaluationMethodDefinition()){
+                $em = $opportunity->getEvaluationMethod();
+                $app->log->debug('distribuindo avaliações da oportunidade ' . $opportunity->id . ' - ' . $opportunity->name);
+                $em->redistributeRegistrations($opportunity);
+                foreach($opportunity->getEvaluationCommittee(true) as $relation) {
+                    $app->log->debug('atualiza sumário do avaliador ' . $relation->agent->id . ' - ' . $relation->agent->name);
+                    $relation->updateSummary();
+                }
+
+            }
+        });
+    },
+
+    'garante que os avaliadores dos editais sejam sempre os agentes principais de perfis' => function() use ($app) {
+        $filename = PUBLIC_PATH . "/evaluators-default-profiles/logs.txt";
+        $dirname = dirname($filename);
+
+        if (!file_exists($dirname)) {
+            mkdir($dirname, 0777, true);
+        }
+
+        if (!file_exists($filename)) {
+            touch($filename);
+        }
+
+        DB_UPDATE::enqueue(EvaluationMethodConfigurationAgentRelation::class, 'agent_id not in (select profile_id from usr where profile_id is not null)', function (EvaluationMethodConfigurationAgentRelation $relation) use($app, $filename) { 
+            $agent = $relation->agent;
+            $relation->agent = $agent->user->profile; 
+            $relation->save(true); 
+            $content ="-----\n";
+            $content.="Avaliador anterior: {$agent->name} - {$agent->id}\n";
+            $content.="Primeira fase: {$relation->owner->opportunity->firstPhase->name} ({$relation->owner->opportunity->firstPhase->id})\n";
+            $content.="Fase de avaliação: {$relation->owner->opportunity->name} ({$relation->owner->opportunity->id})\n";
+            $content.="Avaliador atual: {$agent->user->profile->name} - {$agent->user->profile->id}\n\n";
+            $content.="-----\n";
+            
+            $app->log->debug($content);
+
+            $relation->owner->opportunity->enqueueToPCacheRecreation([$agent->user]);
+            
+            file_put_contents($filename, $content, FILE_APPEND);
+        });
+    },
+
+    "Normalização das áreas de atuação" => function () {
+        $app = App::i();
+
+        $taxonomies = $app->getRegisteredTaxonomies(Agent::class);
+        $terms = $taxonomies['area']->restrictedTerms;
+
+        $normalize_for_comparison = function ($input) {
+            $input = Utils::sanitizeString($input, 'lower');
+
+            $input = preg_replace('/\b(e|&|and|\/)\b/i', '', $input);
+
+            $input = str_replace(['-', '_', ',', '.', '(', ')'], ' ', $input);
+
+            $input = preg_replace('/\s+/', ' ', $input);
+
+            return trim($input);
+        };
+
+        $terms_area = [];
+        foreach ($terms as $term) {
+            $terms_area[$term] = $normalize_for_comparison($term);
+        }
+
+        DB_UPDATE::enqueue('Agent', "id > 1", function (Agent $agent) use ($terms_area, $normalize_for_comparison) {
+            if ($areas = $agent->terms['area']) {
+                $result = [];
+
+                foreach ($areas as $area) {
+                    $normalized_area = $normalize_for_comparison($area);
+                    $matched = false;
+
+                    foreach ($terms_area as $correct_value => $normalized_reference) {
+                        if ($normalized_area === $normalized_reference) {
+                            $result[] = $correct_value;
+                            $matched = true;
+                            break;
+                        }
+                    }
+
+                    if (!$matched) {
+                        $result[] = $area;
+                    }
+                }
+
+                $agent->terms['area'] = $result;
+                $agent->save(true);
+            }
+        });
+    },
+
 ];

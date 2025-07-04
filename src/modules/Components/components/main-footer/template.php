@@ -24,9 +24,9 @@ $config = $app->config['social-media'];
             </div>
     
             <div class="main-footer__content--logo-share">
-                <?php foreach ($config as $conf) : ?>
+                <?php foreach ($config as $meta => $conf) : ?>
                     <a target="_blank" href="<?= $conf['link'] ?>">
-                        <mc-icon name='<?= $conf['title'] ?>'></mc-icon>
+                        <mc-icon name='<?= $conf['icon'] ?>'></mc-icon>
                     </a>
                 <?php endforeach; ?>
             </div>
@@ -98,6 +98,9 @@ $config = $app->config['social-media'];
                     
                     <li>
                         <a href="<?= $app->createUrl('faq') ?>"><?php i::_e('Dúvidas frequentes'); ?></a>
+                        <p style="margin-top: 15px !important;">
+                            <?= $this->text('description', "") ?>
+                        </p>
                     </li>
                     
                 <?php if (count($app->config['module.LGPD']) > 0): ?>
@@ -118,11 +121,12 @@ $config = $app->config['social-media'];
         <div class="main-footer__reg-content">
             <p>
                 <?php i::_e("plataforma criada pela comunidade") ?> 
-                <span class="mapas"> <mc-icon name="map"></mc-icon><?php i::_e("mapas culturais"); ?> </span> 
-                <?php i::_e("e desenvolvida por "); ?><strong>hacklab<span style="color: red">/</span></strong>
+                <span class="mapas"><?php i::_e("mapas culturais,"); ?></span> 
+                <?php i::_e("desenvolvida por "); ?><strong>hacklab<span style="color: red">/</span></strong>
+                e adaptada pelo <strong>minc</strong>
             </p>
 
-            <a class="link" href="https://github.com/mapasculturais">
+            <a class="link" href="https://github.com/culturagovbr/mapadacultura">
                 <?php i::_e("Conheça o repositório") ?>
                 <mc-icon name="github"></mc-icon>
             </a>

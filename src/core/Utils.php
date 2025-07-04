@@ -192,13 +192,107 @@ class Utils {
             $_value = preg_replace("~^(?:https?:\/\/)?(?:www\.)?~i", "", $_value);
             $_value = rtrim($_value, '/');
     
-            if (preg_match("/(?:{$domain})\/(profile\.php\?id=)?([\w\d\.]+)/i", $_value, $matches)) {
-                $result = $matches[2];
-            } else if(preg_match("/^@?([\w\d\.]+)$/i", $_value, $matches)){
+            if (preg_match("~(?:{$domain}/(?:profile\.php\?id=)?((@|channel/)?[-\w\d.]+))~i", $_value, $matches)) {
+                $result = $matches[1];
+            }
+            if (preg_match("~{$domain}/in/([-_\w\d]+)~i", $_value, $matches)) {
+                $result = $matches[1];
+            }
+            if (preg_match("~^open\.spotify\.com/user/([-_\w\d]+)~i", $_value, $matches)) {
+                $result = $matches[1];
+            }
+            else if(preg_match("/^((@|channel\/)?[-\w\d\.]+)$/i", $_value, $matches)){
                 $result = $matches[1];
             }
         }
-
         return $result;
     }
+
+    /**
+     * Converte uma string contendo valores separados por nova linha em um array.
+     *
+     * Esta função é útil para converter entradas de texto em uma lista de valores, como
+     * uma lista de tags ou categorias.
+     *
+     * @param string $string A string contendo os valores separados por nova linha.
+     * @return array Um array contendo os valores únicos e trimados da string de entrada.
+     */
+    static function nl2array(string $string): array
+    {
+        $values = preg_split('/\r\n|\r|\n/', $string);
+        $values = array_map('trim', $values);
+        $values = array_filter($values);
+        $values = array_unique($values);
+        return $values;
+    }
+
+    /**
+     * Detecta o formato de uma data
+     * @param string $dateString 
+     * @return string|bool 
+     */
+    static function detectDateFormat(string $dateString): string | bool
+    {
+        $patterns = [
+            'd/m/Y' => '/^\d{2}\/\d{2}\/\d{4}$/', // dd/mm/yyyy
+            'm/d/Y' => '/^\d{2}\/\d{2}\/\d{4}$/', // mm/dd/yyyy
+            'Y-m-d' => '/^\d{4}-\d{2}-\d{2}$/',    // yyyy-mm-dd
+            'd-m-Y' => '/^\d{2}-\d{2}-\d{4}$/',    // dd-mm-yyyy
+            'm-d-Y' => '/^\d{2}-\d{2}-\d{4}$/',    // mm-dd-yyyy
+            'Y/m/d' => '/^\d{4}\/\d{2}\/\d{2}$/'    // yyyy/mm/dd
+        ];
+
+        foreach ($patterns as $format => $pattern) {
+            if (preg_match($pattern, $dateString)) {
+                return $format;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Retorna o MIME type de um arquivo
+     *
+     * @param string $path
+     * @return string
+     */
+    static function getMimeType(string $path): string
+    {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime = finfo_file($finfo, $path); 
+        finfo_close($finfo);
+
+        return $mime;
+    }
+
+    /**
+     * Sanitiza uma string (ou array de strings), removendo acentos, ajustando o case e limpando espaços.
+     *
+     * - Se o input for um array, aplica recursivamente nos valores.
+     * - Remove acentos e espaços em excesso.
+     * - Converte para letras minúsculas ou maiúsculas conforme o parâmetro $case.
+     *
+     * @param string|array $input A string ou array de strings a serem normalizadas.
+     * @param string $case Define o case final da string. Pode ser 'lower' (padrão) ou 'upper'.
+     *
+     * @return string|array A string (ou array) sanitizada.
+     */
+    public static function sanitizeString(string|array $input, string $case = 'lower'): string|array
+    {
+        if (is_array($input)) {
+            $result = [];
+            foreach ($input as $key => $value) {
+                $result[$key] = self::sanitizeString($value, $case);
+            }
+            return $result;
+        }
+
+        $input = mb_convert_encoding((string)$input, 'UTF-8', mb_detect_encoding($input));
+        $input = self::removeAccents($input);
+        $input = trim($input);
+
+        return $case === 'upper' ? mb_strtoupper($input, 'UTF-8') : mb_strtolower($input, 'UTF-8');
+    }
+
 }

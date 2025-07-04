@@ -2,16 +2,14 @@ app.component('mc-modal', {
     template: $TEMPLATES['mc-modal'],
     emits: ['open', 'close'],
 
-    data() {
-        return {
-            modalOpen: false,
-            processing: false,
-        }
-    },
     props: {
         title: {
             type: String,
             default: ''
+        },
+        subtitle: {
+            type: String,
+            default: null
         },
         classes: {
             type: [String, Array],
@@ -29,10 +27,24 @@ app.component('mc-modal', {
             type: Boolean,
             default: true
         },
+        escToClose: {
+            type: Boolean,
+            default: true
+        },
+        clickToClose: {
+            type: Boolean,
+            default: true
+        },
         teleport: {
             type: null,
             default: false
         },
+    },
+    data() {
+        return {
+            processing: false,
+            modalOpen: false
+        }
     },
     methods: {
         open () {
@@ -43,6 +55,8 @@ app.component('mc-modal', {
         close () {
             this.processing = false;
             this.modalOpen = false;
+        },
+        closed() {
             this.$emit('close', this);
         },
         loading (active) {

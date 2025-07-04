@@ -5,6 +5,7 @@ use MapasCulturais\i;
 $this->layout = 'entity';
 
 $this->import('
+    country-address-form
     confirm-before-exit 
     entity-actions
     entity-admins
@@ -15,11 +16,11 @@ $this->import('
     entity-gallery-video
     entity-header
     entity-links
-    entity-location
     entity-owner
     entity-parent-edit
     entity-profile
     entity-related-agents
+    entity-renew-lock
     entity-social-media
     entity-status
     entity-terms
@@ -39,6 +40,7 @@ $this->breadcrumb = [
 ?>
 
 <div class="main-app">
+    <entity-renew-lock :entity="entity"></entity-renew-lock>
     <mc-breadcrumb></mc-breadcrumb>
     <entity-header :entity="entity" editable></entity-header>
 
@@ -63,19 +65,19 @@ $this->breadcrumb = [
                                     </div>
                                     <div class="col-9 sm:col-12">
                                         <div class="grid-12">
-                                            <entity-field :entity="entity" classes="col-12" label="Nome do espaço" prop="name"></entity-field>
-                                            <entity-field :entity="entity" classes="col-12" label="Tipo do espaço" prop="type"></entity-field>
+                                            <entity-field :entity="entity" classes="col-12" label="<?php i::_e('Nome do espaço'); ?>" prop="name"></entity-field>
+                                            <entity-field :entity="entity" classes="col-12" label="<?php i::_e('Tipo do espaço'); ?>" prop="type"></entity-field>
                                         </div>
                                     </div>
                                     <?php $this->applyTemplateHook('entity-info','end') ?>
                                 </div>
-                                <entity-field :entity="entity" classes="col-12" prop="shortDescription"></entity-field>
-                                <entity-field :entity="entity" classes="col-12" label="Link para página ou site do espaço" prop="site"></entity-field>
+                                <entity-field :entity="entity" classes="col-12" prop="shortDescription" :max-length="400"></entity-field>
+                                <entity-field :entity="entity" classes="col-12" label="<?php i::_e('Link para página ou site do espaço'); ?>" prop="site"></entity-field>
                             </div>
                         </div>
                         <div class="divider"></div>
                         <div class="right">
-                            <entity-terms :entity="entity" classes="col-12" taxonomy="area" editable title="Área de atuação"></entity-terms>
+                            <entity-terms :entity="entity" classes="col-12" taxonomy="area" editable title="<?php i::_e('Área de atuação'); ?>"></entity-terms>
                             <entity-social-media :entity="entity" classes="col-12" editable></entity-social-media>
                         </div>
                     </template>
@@ -87,7 +89,7 @@ $this->breadcrumb = [
                         </template>
                         <template #content>
                             <div class="grid-12">
-                                <entity-location :entity="entity" classes="col-12" editable hide-label></entity-location>
+                                <country-address-form :entity="entity" classes="col-12"></country-address-form>
                             </div>
                         </template>
                     </mc-card>
@@ -132,8 +134,8 @@ $this->breadcrumb = [
                                 <entity-field :entity="entity" classes="col-12" prop="emailPublico"></entity-field>
                                 <entity-field :entity="entity" classes="col-12" prop="emailPrivado"></entity-field>
                                 <entity-field :entity="entity" classes="col-12" prop="telefonePublico"></entity-field>
-                                <entity-field :entity="entity" classes="col-12" label="Telefone privado 1" prop="telefone1"></entity-field>
-                                <entity-field :entity="entity" classes="col-12" label="Telefone privado 2" prop="telefone2"></entity-field>
+                                <entity-field :entity="entity" classes="col-12" label="<?php i::_e('Telefone privado 1'); ?>" prop="telefone1"></entity-field>
+                                <entity-field :entity="entity" classes="col-12" label="<?php i::_e('Telefone privado 2'); ?>" prop="telefone2"></entity-field>
                             </div>
                         </template>
                     </mc-card>
@@ -158,10 +160,10 @@ $this->breadcrumb = [
                         <template #content>
                             <div class="grid-12">
                                 <entity-admins :entity="entity" classes="col-12" editable></entity-admins>
-                                <entity-terms :entity="entity" classes="col-12" taxonomy="tag" title="Tags" editable></entity-terms>
+                                <entity-terms :entity="entity" classes="col-12" taxonomy="tag" title="<?php i::_e('Tags'); ?>" editable></entity-terms>
                                 <entity-related-agents :entity="entity" classes="col-12" editable></entity-related-agents>
                                 <permission-publish :entity="entity"></permission-publish>
-                                <entity-owner :entity="entity" classes="col-12" title="Publicado por" editable></entity-owner>
+                                <entity-owner :entity="entity" classes="col-12" title="<?php i::_e('Publicado por'); ?>" editable></entity-owner>
                                 <entity-parent-edit :entity="entity" classes="col-12" type="space" label="<?php i::esc_attr_e('Adicionar Supra Espaço') ?>"></entity-parent-edit>
                             </div>
                         </template>

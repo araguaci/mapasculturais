@@ -6,16 +6,11 @@
 
 use MapasCulturais\i;
 
-$entity = $this->controller->requestedEntity;
-if(!$entity->isFirstPhase){
-    $url = $app->createUrl("opportunity","edit",[$entity->firstPhase->id]);
-    $app->redirect($url);
-}
-
 $this->layout = 'entity';
 
 $this->import('
     entity-actions
+    entity-renew-lock
     entity-header
     entity-links
     mc-breadcrumb
@@ -38,6 +33,7 @@ $this->breadcrumb = [
 ?>
 
 <div class="main-app">
+    <entity-renew-lock :entity="entity"></entity-renew-lock>
     <mc-breadcrumb></mc-breadcrumb>
     <entity-header :entity="entity" editable></entity-header>
     <mc-tabs class="tabs" sync-hash>
@@ -46,7 +42,7 @@ $this->breadcrumb = [
             <opportunity-basic-info :entity="entity"></opportunity-basic-info>
         </mc-tab>
         <mc-tab label="<?= i::__('Configuração de fases') ?>" slug="config">
-            <opportunity-phases-config :entity="entity" tabs='config'></opportunity-phases-config>
+            <opportunity-phases-config :entity="entity" tab="config"></opportunity-phases-config>
         </mc-tab>
         <mc-tab label="<?= i::__('Inscrições e Resultados') ?>" slug="registrations">
             <opportunity-subscribe-results :entity="entity" tab="registrations"></opportunity-subscribe-results>

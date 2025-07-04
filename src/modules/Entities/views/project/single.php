@@ -8,7 +8,8 @@ $this->import('
     complaint-suggestion
     entity-actions
     entity-admins
-    entity-card 
+    entity-card
+    entity-data 
     entity-files-list
     entity-gallery
     entity-gallery-video
@@ -35,6 +36,16 @@ $this->breadcrumb = [
     ['label' => $label, 'url' => $app->createUrl('search', 'projects')],
     ['label' => $entity->name, 'url' => $app->createUrl('project', 'single', [$entity->id])],
 ];
+
+$children_id = [];
+foreach($entity->children as $children) {
+    $children_id[] = $children->id;
+}
+
+if($children_id ){
+    $children_id  = implode(",", $children_id );
+}
+
 ?>
 
 <div class="main-app">
@@ -42,8 +53,7 @@ $this->breadcrumb = [
     <entity-header :entity="entity">
         <template #metadata>
             <dl v-if="entity.id && global.showIds[entity.__objectType]" class="metadata__id">
-                <dt class="metadata__id--id"><?= i::__('ID') ?></dt>
-                <dd><strong>{{entity.id}}</strong></dd>
+                <entity-data class="metadata__id" :entity="entity" prop="id" label="<?php i::_e("ID:")?>"></entity-data>
             </dl> 
             <dl v-if="entity.type">
                 <dt><?= i::__('Tipo') ?></dt>
@@ -64,21 +74,11 @@ $this->breadcrumb = [
                         <div class="grid-12">
                             <div v-if="entity.emailPublico || entity.telefonePublico" class="col-12 additional-info">
                                 <h4 class="additional-info__title"><?php i::_e("Informações adicionais"); ?></h4>
-
-                                <div v-if="entity.telefonePublico" class="additional-info__item">
-                                    <p class="additional-info__item__title"><?php i::_e("telefone:"); ?></p>
-                                    <p class="additional-info__item__content">{{entity.telefonePublico}}</p>
-                                </div>  
-
-                                <div v-if="entity.emailPublico" class="additional-info__item">
-                                    <p class="additional-info__item__title"><?php i::_e("email:"); ?></p>
-                                    <p class="additional-info__item__content">{{entity.emailPublico}}</p>
-                                </div>
+                                <entity-data v-if="entity.telefonePublico" class="additional-info__item" :entity="entity" prop="telefonePublico" label="<?php i::_e("telefone:")?>"></entity-data>
+                                <entity-data v-if="entity.emailPublico" class="additional-info__item" :entity="entity" prop="emailPublico" label="<?php i::_e("email:")?>"></entity-data>
                             </div>
                             <div v-if="entity.longDescription!=null" class="col-12">
-                                <h2><?php i::_e('Descrição Detalhada'); ?></h2>
-                                <p v-html="entity.longDescription" class="single-project__longdescription"></p>
-
+                                <entity-data v-if="entity.longDescription!=null" class="additional-info__item col-12" :entity="entity" prop="longDescription" label="<?php i::_e("Descrição Detalhada")?>"></entity-data>
                             </div>
                             <entity-files-list v-if="entity.files.downloads!= null" :entity="entity" classes="col-12" group="downloads" title="<?php i::esc_attr_e('Arquivos para download'); ?>"></entity-files-list>
                             <entity-links :entity="entity" classes="col-12" title="<?php i::_e('Links'); ?>"></entity-links>
@@ -110,7 +110,7 @@ $this->breadcrumb = [
             <div class="single-project__subproject">
                 <mc-container>
                     <main class="grid-12">
-                        <mc-entities v-if="entity.children" type="project" select="name,type,shortDescription,files.avatar,seals,terms" :query="{id: `IN(${entity.children})`}" :limit="20" watch-query>
+                        <mc-entities v-if="entity.children" type="project" select="name,type,shortDescription,files.avatar,seals,terms" :query="{id: `IN(<?=$children_id?>)`}" :limit="20" watch-query>
                             <template #default="{entities}">
                                 <entity-card :entity="entity" v-for="entity in entities" :key="entity.__objectId" class="col-12">
                                     <template #avatar>

@@ -32,7 +32,9 @@ $this->import('
                 
                 
                     <template #title>
-                        <mc-title small tag="h4" :shortLength="0" :longlength="1000" class="bold">{{entity.parent?.name || entity.name}}</mc-title>
+                        <mc-link :entity="entity" route="userEvaluations">
+                            <mc-title small tag="h4" :shortLength="0" :longlength="1000" class="bold">{{entity.parent?.name || entity.name}}</mc-title>
+                        </mc-link>
                         <h5 class="panel--pending-evaluations__phase-name opportunity__color--dark">{{entity.phaseName}}</h5>
                     </template>
 
@@ -42,7 +44,7 @@ $this->import('
                     <template #default>
                         <div class="type-evaluation grid-12">
                             <div class="type-evaluation__type col-12">
-                                <label class="entity-label"><?php i::_e('Tipo:') ?></label> <strong class="opportunity__color entity-strong">{{entity.type.name}}</strong>
+                                <label class="entity-label"><?php i::_e('Tipo:') ?></label> <strong class="opportunity__color entity-strong">{{entity.type?.name}}</strong>
                             </div>
                             <div class="type-evaluation__content col-12">
                                 <label class="type-evaluation__content--label">{{ownerType(entity.ownerEntity)}}:</label> <strong class="type-evaluation__content--strong"><mc-link :entity="entity.ownerEntity"></mc-link></strong>

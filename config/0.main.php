@@ -48,6 +48,10 @@ return [
     */
     'app.mode' => env('APP_MODE', APPMODE_PRODUCTION),
 
+    'app.executeJobsImmediately' => env('APP_EXECUTE_JOBS_IMMEDIATELY', false),
+    'app.recreateCacheImmediately' => env('APP_RECREATE_CACHE_IMMEDIATELY', false),
+    
+
     /* 
     Define a moeda a ser utilizada. 
     É possível definir mais de uma moeda e desta forma a moeda será escolhida com base na configuração do navegador do usuário.
@@ -71,6 +75,9 @@ return [
     'app.sanitize_filename_function' => function($filename) {
         return $filename;
     },
+
+    /* Define quantidade de memória utilizada para exportação dos dados */
+    'app.export.memoryLimit' => env('EXPORT_MEMORY_LIMIT', '4096M'),
 
     /*
     Define valores de inicialização do PHP para rotas específicas
@@ -100,5 +107,8 @@ return [
         
     */
     'footer.supportMessage' => '',
+
+    /* Lista de MIME types bloqueados */
+    'app.not_allowed_mime_types' => env('APP_NOT_ALLOWED_MIME_TYPES', "html|php|javascript|css|executable|msdownload|bat|cmd|installer|bash|diskimage|android|java|octet-stream"),
 
 ];

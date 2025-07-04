@@ -7,8 +7,8 @@
             <?php echo $entity->number ?>
         </div>
     </div>
-    <div class="registration-fieldset ng-scope" ng-if="data.fields.length == 0"><?php \MapasCulturais\i::_e("Não existem campos disponíveis para suporte."); ?></div>
-    <div ng-if="data.fields.length > 0" id="registration-attachments" class="registration-fieldset">
+    <div class="registration-fieldset ng-scope" ng-if="!hasSupportFields(data.fields)"><?php \MapasCulturais\i::_e("Não existem campos disponíveis para suporte."); ?></div>
+    <div ng-if="hasSupportFields(data.fields)" id="registration-attachments" class="registration-fieldset">
         <!--
             <h4><?php \MapasCulturais\i::_e("Campos adicionais do formulário de inscrição."); ?></h4>
             -->
@@ -17,10 +17,10 @@
         <ul class="attachment-list" ng-controller="RegistrationFieldsController">
             <?php $this->applyTemplateHook('registration-field-list', 'begin') ?>
             <li ng-repeat="field in data.fields" ng-if="showField(field)" id="field_{{::field.id}}" data-field-id="{{::field.id}}" ng-class="{'js-field attachment-list-item registration-view-mode': (field.fieldType != 'section'), 'section': (field.fieldType == 'section')}">
-                <div ng-if="canUserEdit(field)">
+                <div ng-if="canSupportUserEdit(field)">
                     <?php $this->part('singles/registration-field-edit') ?>
                 </div>
-                <div ng-if="!canUserEdit(field)">
+                <div ng-if="!canSupportUserEdit(field)">
                     <?php $this->part('singles/registration-field-view') ?>
                 </div>
             </li>

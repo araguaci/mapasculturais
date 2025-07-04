@@ -11,11 +11,11 @@ app.component('search-list', {
     data() {
         return {
             query: {},
-            order: "createTimestamp DESC",
             typeText: '',
+            selectedOrder: 'createTimestamp DESC',
         }
     },
-    
+
     created() {
         if (this.type == "agent") {
             this.typeText = __('text', 'search-list');
@@ -69,6 +69,18 @@ app.component('search-list', {
                 case 'project':
                     return this.text('projeto');
             }
+        },
+
+        order () {
+            if (this.selectedOrder) {
+                return this.selectedOrder;
+            }
+    
+            const keyword = this.pseudoQuery['@keyword'] ?? '';
+            if ($DESCRIPTIONS[this.type].name && keyword.length >= 3) {
+                return 'name ASC';
+            }
+            return 'createTimestamp DESC';
         },
     },
 });

@@ -28,9 +28,15 @@ $this->import('
         :load-more="loadMore" 
         :query="query" 
         :refresh="refresh"></slot>
-    <slot v-else name="empty">
+    <slot 
+        v-else 
+        name="empty" 
+        :entities="entities" 
+        :query="query"
+        :refresh="refresh"
+        >
         <div class="panel__row noEntity">
-            <p><?= i::__('Nenhuma entidade encontrada') ?></p>
+            <p>{{emptyTextType ? showEmptyText(type) : '<?= i::__('Nenhuma entidade encontrada') ?>'}}</p>
         </div>
     </slot>
 </template>

@@ -4,48 +4,95 @@ app.component('opportunity-registrations-table', {
         phase: {
             type: Entity,
             required: true
-        }
+        },
+        visibleColumns: {
+            type: Array,
+            default: ["agent", "status", "category", "consolidatedResult", "editable","updateTimestamp","sentTimestamp","createTimestamp"],
+        },
+        identifier: {
+            type: String,
+            required: true,
+        },
+        avaliableColumns: Array,
+        hideFilters: Boolean,
+        hideSort: Boolean,
+        hideActions: Boolean,
+        hideTitle: Boolean,
+        hideHeader: Boolean,
+        statusNotEditable: Boolean,
     },
     setup() {
         // os textos estão localizados no arquivo texts.php deste componente
+        const messages = useMessages();
         const text = Utils.getTexts('opportunity-registrations-table');
-        return { text }
+
+        /* 
+            adiciona a definição de quotas, tiebreaker e region, 
+            que são retornados pela api mas nào são metadados, 
+            possibilitando a utilização na tabela 
+        */
+
+        $DESCRIPTIONS.registration['quotas'] = {
+            isMetadata: false,
+            isEntityRelation: false,
+            required: false,
+            readonly: true,
+            type: "array",
+            length: 255,
+            label: text("Elegível para as cotas"),
+            isPK: false
+        };
+
+        $DESCRIPTIONS.registration['usingQuota'] = {
+            isMetadata: false,
+            isEntityRelation: false,
+            required: false,
+            readonly: true,
+            type: "array",
+            length: 255,
+            label: text("Cotas aplicadas"),
+            isPK: false
+        };
+
+        $DESCRIPTIONS.registration['tiebreaker'] = {
+            isMetadata: false,
+            isEntityRelation: false,
+            required: false,
+            readonly: true,
+            type: "object",
+            length: 255,
+            label: text("Critérios de desempate"),
+            isPK: false
+        };
+
+        $DESCRIPTIONS.registration['region'] = {
+            isMetadata: false,
+            isEntityRelation: false,
+            required: false,
+            readonly: true,
+            type: "string",
+            length: 255,
+            label: text("Região"),
+            isPK: false
+        };
+
+        return { messages, text }
     },
     data() {
         const $DESC = $DESCRIPTIONS.registration;
-        const avaliableFields = [];
-
+        
         const isAffirmativePoliciesActive = $MAPAS.config.opportunityRegistrationTable.isAffirmativePoliciesActive;
         const hadTechnicalEvaluationPhase = $MAPAS.config.opportunityRegistrationTable.hadTechnicalEvaluationPhase;
         const isTechnicalEvaluationPhase = $MAPAS.config.opportunityRegistrationTable.isTechnicalEvaluationPhase;
         
-        let visibleColumns = "agent,status,category,consolidatedResult,score";
-        let order = 'score DESC';
-        let consolidatedResultOrder = 'consolidatedResult';
+        const defaultHeaders = $MAPAS.config.opportunityRegistrationTable.defaultHeaders;
+        const default_select = $MAPAS.config.opportunityRegistrationTable.defaultSelect;
+        const defaultAvailable = $MAPAS.config.opportunityRegistrationTable.defaultAvailable;
         
-        if(this.phase.registrationCategories?.length > 0) {
-            avaliableFields.push({
-                title: $DESC.category.label,
-                fieldName: 'category',
-                fieldOptions: this.phase.registrationCategories,
-            });
-        }
-
-        if(this.phase.registrationProponentTypes?.length > 0) {
-            avaliableFields.push({
-                title: $DESC.proponentType.label,
-                fieldName: 'proponentType',
-                fieldOptions: this.phase.registrationProponentTypes,
-            });
-        }
-
-        if(this.phase.registrationRanges?.length > 0) {
-            avaliableFields.push({
-                title: $DESC.range.label,
-                fieldName: 'range',
-                fieldOptions: this.phase.registrationRanges.map((item) => item.label),
-            });
-        }
+        let avaliableFields = defaultAvailable.length > 0 ? [...defaultAvailable] : [];
+        let visible = this.visibleColumns.join(',');
+        let order = 'status DESC,consolidatedResult DESC';
+        let consolidatedResultOrder = 'consolidatedResult';
 
         const fieldTypes = ['select', 'boolean', 'checkbox', 'multiselect', 'checkboxes', 'agent-owner-field', 'agent-collective-field'];
 
@@ -64,47 +111,72 @@ app.component('opportunity-registrations-table', {
             }
         }
 
+        const sortedAvaliableFields = [...avaliableFields];
+        const elementsWithDisplayOrder = avaliableFields.filter(item => item.displayOrder !== undefined);
+        const sortedElements = [...elementsWithDisplayOrder].sort((a, b) => a.displayOrder - b.displayOrder);
+
+        let sortedIndex = 0;
+        for (let i = 0; i < sortedAvaliableFields.length; i++) {
+            if (sortedAvaliableFields[i].displayOrder !== undefined) {
+                sortedAvaliableFields[i] = sortedElements[sortedIndex++];
+            }
+        }
+
+        avaliableFields = sortedAvaliableFields;
+
         if(isTechnicalEvaluationPhase){
             consolidatedResultOrder = 'consolidatedResult AS FLOAT';
         }
 
         const sortOptions = [
-            { value: `status DESC,${consolidatedResultOrder} DESC`, label: 'por status descendente' },
-            { value: `status ASC,${consolidatedResultOrder} ASC`, label: 'por status ascendente' },
-            { value: `${consolidatedResultOrder} DESC`, label: 'resultado das avaliações' },
-            { value: 'createTimestamp ASC', label: 'mais antigas primeiro' },
-            { value: 'createTimestamp DESC', label: 'mais recentes primeiro' },
-            { value: 'sentTimestamp ASC', label: 'enviadas a mais tempo primeiro' },
-            { value: 'sentTimestamp DESC', label: 'enviadas a menos tempo primeiro' },
+            { value: 'sentTimestamp ASC', label: this.text('enviadas há mais tempo primeiro') },
+            { value: 'sentTimestamp DESC', label: this.text('enviadas há menos tempo primeiro') },
         ];
 
-        if(hadTechnicalEvaluationPhase) {
-            order = 'score DESC';
-            sortOptions.splice(0, 0, {value: 'score DESC', label: 'pontuação final'});
-        }
-
-        if(isAffirmativePoliciesActive) {
-            avaliableFields.push({
-                title: __('concorrendo por cota', 'opportunity-registrations-table'),
-                fieldName: 'eligible',
-                fieldType: 'boolean'
-            });
-
-            visibleColumns += ',eligible';
-            order = '@quota';
-            sortOptions.splice(0, 0, {value: '@quota', label: 'classificação final'});
-        }
-
         if(this.phase.isLastPhase) {
-            order = `status DESC,${consolidatedResultOrder} DESC`;
-        }
+            order = `status DESC,score DESC`;
+            sortOptions.splice(0, 0, {value: 'score DESC,status DESC', label: this.text('pontuação final')});
+            sortOptions.splice(0, 0, { value: `status ASC,score ASC`, label: this.text('status ascendente' )});
+            sortOptions.splice(0, 0, { value: `status DESC,score DESC`, label: this.text('status descendente' )});
 
+        } else { 
+            sortOptions.splice(0, 0, { value: `${consolidatedResultOrder} DESC`, label: this.text('resultado das avaliações' )});
+            sortOptions.splice(0, 0, { value: `status ASC,${consolidatedResultOrder} ASC`, label: this.text('status ascendente' )});
+            sortOptions.splice(0, 0, { value: `status DESC,${consolidatedResultOrder} DESC`, label: this.text('status descendente' )});
+
+            if(hadTechnicalEvaluationPhase) {
+                order = 'score DESC,status DESC';
+                sortOptions.splice(0, 0, {value: 'score DESC', label: this.text('pontuação final')});
+            }
+            
+            if(isAffirmativePoliciesActive) {
+                avaliableFields.splice(0,0, {
+                    title: __('concorrendo por cota', 'opportunity-registrations-table'),
+                    fieldName: 'eligible',
+                    fieldType: 'boolean'
+                });
+
+                visible += ',eligible';
+                if(isTechnicalEvaluationPhase) {
+                    order = '@quota';
+                    sortOptions.splice(0, 0, {value: '@quota', label: this.text('classificação final')});
+                }
+            }   
+            
+            // Exibe por padrão as faixas/linhas quando as mesmas existe e estão configuradas
+            if(this.phase.registrationRanges && this.phase.registrationRanges.length > 0) {
+                visible += ',range';
+            }
+        }
+        
         return {
             sortOptions,
             filters: {},
             resultStatus:[],
             query: {
                 '@opportunity': this.phase.id,
+                'status': 'GTE(0)',
+                '@permission': 'view'
             },
             selectedCategories: [],
             selectedProponentTypes: [],
@@ -113,9 +185,13 @@ app.component('opportunity-registrations-table', {
             selectedAvaliation:null,
             order,
             avaliableFields,
-            visibleColumns,
+            visible,
             isAffirmativePoliciesActive,
             hadTechnicalEvaluationPhase,
+            isTechnicalEvaluationPhase,
+            defaultHeaders,
+            default_select,
+            downloadZipInLoandingEntity: null
         }
     },
 
@@ -127,7 +203,7 @@ app.component('opportunity-registrations-table', {
             return $MAPAS.config.opportunityRegistrationTable.evaluationStatusDict;
         },
         statusEvaluationResult () {
-            let evaluationType = this.phase.evaluationMethodConfiguration ? this.phase.evaluationMethodConfiguration.type : null;
+            let evaluationType = this.phase.evaluationMethodConfiguration ? this.phase.evaluationMethodConfiguration.type?.id : null;
             return evaluationType ? this.statusEvaluation[evaluationType] : null;
         },
         status () {
@@ -141,6 +217,10 @@ app.component('opportunity-registrations-table', {
             if (this.phase.registrationCategories && this.phase.registrationCategories.length > 0) {
                 const result = {};
                 for (let category of this.phase.registrationCategories) {
+                    if (!category) {
+                        continue;
+                    }
+
                     result[category.replace(/,/g, '\\,')] = category;
                 }
                 return result;
@@ -167,18 +247,74 @@ app.component('opportunity-registrations-table', {
             }
             return null;
         },
+        hasEvaluationMethodTechnical (){
+            const type = this.phase.evaluationMethodConfiguration?.type?.id;
+            const phases = $MAPAS.opportunityPhases;
+            let result = false;
+
+            for (const phase of phases){
+                if(phase.id == this.phase.id){
+                    break;
+                }
+
+                const phaseType = phase.evaluationMethodConfiguration ? phase.evaluationMethodConfiguration.type?.id : phase.type.id;
+
+                if(phaseType == "technical"){
+                    result = true;
+                    break;
+                }
+            }
+
+            return result;
+        },
         headers () {
-            let itens = [
-                { text: __('inscrição', 'opportunity-registrations-table'), value: "number", sticky: true, width: '160px' },
-                { text: __('agente', 'opportunity-registrations-table'), value: "owner.name", slug: "agent"},
-                ...this.avaliableFields.map((item) => { return {text: item.title, value: item.fieldName} }),
-                { text: __('anexos', 'opportunity-registrations-table'), value: "attachments" },
-                { text: __('data de criação', 'opportunity-registrations-table'), value: "createTimestamp" },
-                { text: __('data de envio', 'opportunity-registrations-table'), value: "sentTimestamp" },
-            ];
+            let itens = this.defaultHeaders;
+
+            const agentIndex = itens.findIndex(item => item.slug === 'agent');
+
+            if (agentIndex !== -1) {
+                itens.splice(agentIndex + 1, 0, ...this.avaliableFields.map(item => ({
+                    text: item.title,
+                    value: item.fieldName
+                })));
+            }
+            
 
             if(this.phase.evaluationMethodConfiguration){
                 itens.splice(2,0,{ text: "Avaliação", value: "consolidatedResult"});
+
+                if(this.isTechnicalEvaluationPhase) {
+                    const evaluationMethodConfiguration = this.phase.evaluationMethodConfiguration || {};
+                    const tiebreakerConfiguration = evaluationMethodConfiguration.tiebreakerCriteriaConfiguration || [];
+                    const quotaConfiguration = evaluationMethodConfiguration.quotaConfiguration || {};
+                    const geoQuotaConfiguration = evaluationMethodConfiguration.geoQuotaConfiguration || {};
+                    
+                    if(tiebreakerConfiguration?.length > 0) {
+                        itens.splice(3,0,{
+                            text: __('Critérios de desempate', 'opportunity-registrations-table'),
+                            value: 'tiebreaker',
+                        });
+                    }
+        
+                    if(quotaConfiguration.rules?.length > 0) {
+                        itens.splice(5,0,{
+                            text: __('Elegível para cotas', 'opportunity-registrations-table'),
+                            value: 'quotas',
+                        });
+
+                        itens.splice(6,0,{
+                            text: __('Cotas aplicadas', 'opportunity-registrations-table'),
+                            value: 'usingQuota',
+                        });
+                    }
+        
+                    if(geoQuotaConfiguration?.geoDivision) {
+                        itens.splice(7,0,{
+                            text: __('Região', 'opportunity-registrations-table'),
+                            value: 'region',
+                        });
+                    }
+                }
             }
 
             if(this.phase.isLastPhase){
@@ -188,14 +324,55 @@ app.component('opportunity-registrations-table', {
                 itens.push({ text: __('status', 'opportunity-registrations-table'), value: "status", width: '250px', stickyRight: true})
             }
 
-            itens.splice(3,0,{ text: "Pontuação", value: "score"});
+            const type = this.phase.evaluationMethodConfiguration?.type?.id;
+            const phases = $MAPAS.opportunityPhases;
+            let hasEvaluationMethodTechnical = false;
+
+            for (const phase of phases){
+                if(phase.id == this.phase.id){
+                    break;
+                }
+
+                const phaseType = phase.evaluationMethodConfiguration ? phase.evaluationMethodConfiguration.type?.id : phase.type.id;
+
+                if(phaseType == "technical"){
+                    hasEvaluationMethodTechnical = true;
+                    break;
+                }
+            }
+
+            const itensToRemove = ["score", "eligible"];
+            
+            if(type != "technical" || !this.hasEvaluationMethodTechnical) {
+                itens = itens.filter(item => !itensToRemove.includes(item.value));
+            }
+
+            if(this.avaliableColumns) {
+                itens = itens.filter((item) => {
+                    return this.avaliableColumns.indexOf(item.value) >= 0;
+                });
+            }
 
             return itens;
         },
         select() {
-            const fields = this.avaliableFields.map((item) => item.fieldName);
+            let avaliableFields = this.avaliableFields.map((item) => item.fieldName);
             
-            return ['number,consolidatedResult,score,status,sentTimestamp,createTimestamp,files,owner.{name,geoMesoregiao}', ...fields].join(',');
+            if(this.isTechnicalEvaluationPhase) {
+                avaliableFields.push('usingQuota')
+                avaliableFields.push('quotas')
+                avaliableFields.push('tiebreaker')
+            }
+
+            let fields = [...this.default_select.split(','), ...avaliableFields]; 
+            const itensToRemove = ["score", "eligible"];
+            
+            if(!this.isTechnicalEvaluationPhase || !this.hasEvaluationMethodTechnical) {
+                fields = fields.filter(item => !itensToRemove.includes(item));
+            }
+            
+            return fields.join(',');
+
         },
         previousPhase() {
             const phases = $MAPAS.opportunityPhases;
@@ -205,9 +382,20 @@ app.component('opportunity-registrations-table', {
     },
 
     methods: {
+        getStatus(actualStatus) {
+            return this.statusDict.find(status => status.value === actualStatus);
+        },
+
         setStatus(selected, entity) {
-            entity.status = selected.value;
-            entity.save();
+            const api = new API();
+            const url = Utils.createUrl('registration', 'setStatusTo', {id: entity.id});
+            api.POST(url, {status: selected.value}).then(res => res.json()).then(response => {
+                if(response.error) {
+                    this.messages.error(this.text(response.data))
+                } else {
+                    this.messages.success(this.text('status alterado com sucesso'))
+                }
+            });
         },
 
         clearFilters(entities) {
@@ -249,7 +437,7 @@ app.component('opportunity-registrations-table', {
             }
             entities.refresh();
         },
-        
+
         filterByCategories(entities) {
             if (this.selectedCategories.length > 0) {
                 this.query['category'] = `IN(${this.selectedCategories.toString()})`;
@@ -267,7 +455,7 @@ app.component('opportunity-registrations-table', {
             }
             entities.refresh();
         },
-        
+
         filterByRanges(entities) {
             if (this.selectedRanges.length > 0) {
                 this.query['range'] = `IN(${this.selectedRanges.toString()})`;
@@ -285,12 +473,15 @@ app.component('opportunity-registrations-table', {
                 delete this.query['consolidatedResult'];
             }
             entities.refresh();
-            
         },
 
         consolidatedResultToString(entity) {
+            if(entity.consolidatedResult == '@tiebreaker') {
+                return this.text('aguardando desempate');
+            }
+
             if(this.phase.evaluationMethodConfiguration){
-                let type = this.phase.evaluationMethodConfiguration.type.id || this.phase.evaluationMethodConfiguration.type;
+                let type = this.phase.evaluationMethodConfiguration?.type?.id || this.phase.evaluationMethodConfiguration?.type;
                 if(type == "technical"){
                     return entity.consolidatedResult;
                 }else{
@@ -301,13 +492,16 @@ app.component('opportunity-registrations-table', {
             }
             return "";
         },
-        
+
         statusToString(status) {
             return this.text(status)
         },
 
         isFuture() {
             const phase = this.phase;
+            if (phase.parent?.isContinuousFlow) {
+                return false;
+            }
             if (phase.isLastPhase) {
                 const previousPhase = this.previousPhase;
                 const date = previousPhase.evaluationTo || previousPhase.registrationTo;
@@ -329,6 +523,47 @@ app.component('opportunity-registrations-table', {
             } else {
                 return phase.registrationTo?.isPast();
             }
+        },
+
+
+        statusEditRegistration(registration) {
+            let editableUntil = registration.editableUntil ?? null;
+            let editSentTimestamp = registration.editSentTimestamp ?? null;
+
+            if(this.phase.registrationTo?.isFuture() && registration.status === 0) {
+                return false;
+            }
+
+            if(this.phase.registrationTo?.isPast() && registration.status === 0) {
+                return 'notEditable';
+            }
+
+            if (!editableUntil) {
+                return 'editable';
+            }
+
+            if (!editSentTimestamp && editableUntil.isFuture()) {
+                return 'open';
+            }
+
+            if (registration.editableFields && editSentTimestamp) {
+                return 'sent';
+            }
+
+            if (!editSentTimestamp && editableUntil.isPast()) {
+                return 'missed';
+            }
+        },
+        downloadZipInLoanding(entity) {
+            if(entity.id == this.downloadZipInLoandingEntity) {
+                return true;
+            }
+
+            return false;
+        },
+        generateOrDownloadZip(entity) {
+            const apiUrl = Utils.createUrl('registration', 'createZipFiles', { id: entity.id });
+            window.open(apiUrl, '_blank');
         }
     }
 });

@@ -73,6 +73,8 @@ class Module extends \MapasCulturais\Module{
          
         // para todos os requests
         $app->hook('workflow(<<*>>).create', function() use($app, $module) {
+            /** @var Request $this */
+
             if ($this->notifications) {
                 $app->disableAccessControl();
                 foreach ($this->notifications as $n) {
@@ -81,7 +83,7 @@ class Module extends \MapasCulturais\Module{
                 $app->enableAccessControl();
             }
 
-            $requester = $app->user;
+            $requester = $this->requesterUser;
             $profile = $requester->profile;
 
             $origin = $this->origin;//registration
@@ -223,6 +225,8 @@ class Module extends \MapasCulturais\Module{
                     break;
             }
 
+            $app->applyHookBoundTo($this, 'request(workflow.message).create:before', ['origin' => $origin, 'destination' => $destination, 'entityType' => $this->getClassName(), 'message_to_requester' => &$message_to_requester, 'send_message' => &$message, 'requester' => $requester]);
+
             if($message_to_requester){
                 // message to requester user
                 $notification = new Notification;
@@ -246,6 +250,7 @@ class Module extends \MapasCulturais\Module{
                 $notification->message = $message;
                 $notification->request = $this;
                 $notification->save(true);
+                $app->applyHookBoundTo($this, 'request(workflow.message.destination).sendMail', ['message' => &$message, 'notification' => $notification]);
                 $module->sendMail($user->email, $message, $subject);
             }
 
@@ -255,11 +260,14 @@ class Module extends \MapasCulturais\Module{
                 $notification->message = $message;
                 $notification->request = $this;
                 $notification->save(true);
+                $app->applyHookBoundTo($this, 'request(workflow.message.origin).sendMail', ['message' => &$message, 'notification' => $notification]);
                 $module->sendMail($origin->ownerUser->email, $message, $subject);
             }
         });
 
         $app->hook('workflow(<<*>>).approve:before', function() use($app) {
+            /** @var Request $this */
+
             $requester = $app->user;
             $profile = $requester->profile;
 
@@ -327,6 +335,8 @@ class Module extends \MapasCulturais\Module{
 
             $notified_user_ids = array();
 
+            $app->applyHookBoundTo($this, 'request(workflow.message).approve:before', ['origin' => $origin, 'destination' => $destination, 'entityType' => $this->getClassName(), 'send_message' => &$message, 'requester' => $requester]);
+
             foreach ($users as $u) {
                 // impede que a notificação seja entregue mais de uma vez ao mesmo usuário se as regras acima se somarem
                 if (in_array($u->id, $notified_user_ids))
@@ -343,6 +353,8 @@ class Module extends \MapasCulturais\Module{
 
 
         $app->hook('workflow(<<*>>).reject:before', function() use($app) {
+            /** @var Request $this */
+
             $requester = $app->user;
             $profile = $requester->profile;
 
@@ -435,6 +447,8 @@ class Module extends \MapasCulturais\Module{
             }
 
             $notified_user_ids = array();
+
+            $app->applyHookBoundTo($this, 'request(workflow.message).reject:before', ['origin' => $origin, 'destination' => $destination, 'entityType' => $this->getClassName(), 'send_message' => &$message, 'requester' => $requester]);
 
             foreach ($users as $u) {
                 // impede que a notificação seja entregue mais de uma vez ao mesmo usuário se as regras acima se somarem

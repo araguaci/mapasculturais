@@ -1,6 +1,11 @@
 app.component('opportunity-basic-info' , {
     template: $TEMPLATES['opportunity-basic-info'],
 
+    setup() {
+        const text = Utils.getTexts('opportunity-basic-info');
+        return { text }
+    },
+
     data () {
         return {
             phases: []
@@ -22,12 +27,4 @@ app.component('opportunity-basic-info' , {
             required: true
         }
     },
-
-
-    computed: {
-        lastPhase () {
-            const phase = this.phases.find(item => item.isLastPhase);
-            return phase;
-        }
-    }
 });

@@ -17,6 +17,7 @@ define('THEMES_PATH', APPLICATION_PATH . 'themes/');
 define('PLUGINS_PATH', APPLICATION_PATH . 'plugins/');
 define('MODULES_PATH', APPLICATION_PATH . 'modules/');
 define('VAR_PATH', PROTECTED_PATH . 'var/');
+define('LOGS_PATH', VAR_PATH . 'logs/');
 define('CONFIG_PATH', PROTECTED_PATH . 'config/');
 
 define('DOCTRINE_PROXIES_PATH', VAR_PATH . 'DoctrineProxies/');
@@ -43,11 +44,11 @@ if (env('MAPAS_HTTPS', false) || isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_
 }
 
 if(!is_dir(PRIVATE_FILES_PATH)){
-    mkdir(PRIVATE_FILES_PATH);
+   throw new Exception("Folder ". PRIVATE_FILES_PATH ."  is required");
 }
 
 if(!is_dir(DOCTRINE_PROXIES_PATH)){
-    mkdir(DOCTRINE_PROXIES_PATH);
+    mkdir(DOCTRINE_PROXIES_PATH, 0755);
 }
 
 if (REDIS_SESSION) {

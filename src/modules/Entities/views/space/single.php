@@ -6,6 +6,7 @@ $this->import('
     complaint-suggestion
     entity-actions
     entity-admins
+    entity-data 
     entity-files-list
     entity-gallery
     entity-gallery-video
@@ -39,8 +40,7 @@ $this->breadcrumb = [
     <entity-header :entity="entity">
         <template #metadata>
             <dl v-if="entity.id && global.showIds[entity.__objectType]" class="metadata__id">
-                <dt class="metadata__id--id"><?= i::__('ID') ?></dt>
-                    <dd><strong>{{entity.id}}</strong></dd>
+                <entity-data class="metadata__id" :entity="entity" prop="id" label="<?php i::_e("ID:")?>"></entity-data>
             </dl> 
             <dl v-if="entity.type">
                 <dt><?= i::__('Tipo') ?></dt>
@@ -65,7 +65,7 @@ $this->breadcrumb = [
                             </div>
                             <div v-if="entity.longDescription" class="col-12">
                                 <h2><?php i::_e('Descrição Detalhada');?></h2>
-                                <p v-html="entity.longDescription" class="single-space__longdescription"></p>
+                                <p class="description" v-html="entity.longDescription"></p>
                             </div>
                             <entity-files-list v-if="entity.files.downloads!= null" :entity="entity" classes="col-12" group="downloads" title="<?= i::_e('Arquivos para download'); ?>"></entity-files-list>                            
                             <entity-links :entity="entity" classes="col-12" title="<?php i::_e('Links'); ?>"></entity-links>

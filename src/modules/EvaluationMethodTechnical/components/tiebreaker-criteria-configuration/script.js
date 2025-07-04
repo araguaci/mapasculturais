@@ -16,6 +16,7 @@ app.component('tiebreaker-criteria-configuration', {
     
     updated () {
         this.save();
+        this.autoSaveTime = 3000;
     },
 
     data() {
@@ -25,6 +26,7 @@ app.component('tiebreaker-criteria-configuration', {
         let isActive = !!Object.keys(criteria).length;
 
         return {
+            autoSaveTime: 3000,
             isActive,
             totalCriteria,
             criteria,
@@ -78,8 +80,9 @@ app.component('tiebreaker-criteria-configuration', {
 
         unsetCriterion(id) {
             let counter = 1;
+            this.autoSaveTime = 200;
             for (const criterion in this.criteria) {
-                if (criterion == id) {
+                if (this.criteria[criterion].id == id) {
                     delete this.criteria[criterion];
                 }
                 counter++;
@@ -109,9 +112,49 @@ app.component('tiebreaker-criteria-configuration', {
             return criterion.selected ? !!allowedTypes.includes(criterion.selected.fieldType) : false 
         },
 
+        optionValue(option) {
+            let _option = option.split(':');
+            return _option[0];
+        },
+
+        optionLabel(option) {
+            let _option = option.split(':');
+            return _option.length > 1 ? _option[1] : _option[0];
+        },
+
         async save() {
-            this.phase.tiebreakerCriteriaConfiguration = this.criteria;
-            await this.phase.save(3000);
+            const criterias = Object.values(this.criteria);
+            if(criterias.length == 0) {
+                this.phase.tiebreakerCriteriaConfiguration = [];
+                await this.phase.save(this.autoSaveTime);
+                return;
+            }
+
+            const filled = criterias.filter(
+                cri => {
+                    checPreferences = function(value) {
+                        if(Array.isArray(value)) {
+                            return value.length > 0
+                        }
+
+                        if(value) {
+                            return true;
+                        }
+
+                        return false;
+                    };
+
+                    return cri.criterionType !== undefined 
+                    && cri.criterionType 
+                    && cri.preferences !== undefined 
+                    && checPreferences(cri.preferences)
+                }
+            );
+
+            if(filled.length) {
+                this.phase.tiebreakerCriteriaConfiguration = filled;
+                await this.phase.save(this.autoSaveTime);
+            }
         }
     },
 });

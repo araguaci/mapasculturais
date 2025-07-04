@@ -9,13 +9,16 @@ import * as Leaflet from 'leaflet';
 import { MarkerClusterGroup } from 'leaflet.markercluster';
 import Datepicker from '@vuepic/vue-datepicker';
 import * as CurrencyInput from 'vue-currency-input';
+import { VueDraggable } from 'vue-draggable-plus';
 import * as Dates from 'date-fns';
 import * as FloatingVue from 'floating-vue'
 import MediaQuery from './media-query'
 import { vMaska } from 'maska'
 import { VueRecaptcha } from 'vue-recaptcha';
 import Slider from '@vueform/slider'
-import Vue3EasyDataTable from 'vue3-easy-data-table';
+import VueQrcode from '@chenfengyuan/vue-qrcode';
+import Shepherd from 'shepherd.js';
+import 'shepherd.js/dist/css/shepherd.css'
 
 
 
@@ -29,7 +32,9 @@ app.component('Iconify', Icon)
 app.component('Cropper', VueAdvancedCropper)
 app.component('Datepicker', Datepicker);
 app.component('Slider', Slider);
-app.component('EasyDataTable', Vue3EasyDataTable);
+app.component('Draggable', VueDraggable);
+app.component('VueQrcode', VueQrcode);
+app.component('Shepherd', Shepherd);
 app.directive('maska', vMaska);
 app.use(MediaQuery)
 
@@ -47,7 +52,9 @@ globalThis.Datepicker = Datepicker
 globalThis.CurrencyInput = CurrencyInput
 globalThis.Dates = Dates;
 globalThis.VueRecaptcha = VueRecaptcha;
-// globalThis.Vue3EasyDataTable = Vue3EasyDataTable;
+globalThis.VueQrcode = VueQrcode;
+globalThis.Shepherd = Shepherd;
+
 
 
 globalThis.$MAPAS = typeof Mapas !== 'undefined' ? Mapas : MapasCulturais

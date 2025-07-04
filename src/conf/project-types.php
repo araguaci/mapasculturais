@@ -11,43 +11,43 @@ function compareNamesProject($a, $b){
 }
 
 $items = array(
-    1 =>  array( 'name' => \MapasCulturais\i::__("Festival")),
-    2 =>  array( 'name' => \MapasCulturais\i::__("Encontro")),
-    3 =>  array( 'name' => \MapasCulturais\i::__("Sarau")),
-    4 =>  array( 'name' => \MapasCulturais\i::__("Reunião")),
-    5 =>  array( 'name' => \MapasCulturais\i::__("Mostra")),
-    6 =>  array( 'name' => \MapasCulturais\i::__("Convenção")),
     7 =>  array( 'name' => \MapasCulturais\i::__("Ciclo")),
-    8 =>  array( 'name' => \MapasCulturais\i::__("Programa")),
-    9 =>  array( 'name' => \MapasCulturais\i::__("Edital")),
-    10 => array( 'name' => \MapasCulturais\i::__("Concurso")),
-    11 => array( 'name' => \MapasCulturais\i::__("Exposição")),
-    12 => array( 'name' => \MapasCulturais\i::__("Jornada")),
-    13 => array( 'name' => \MapasCulturais\i::__("Exibição")),
-    14 => array( 'name' => \MapasCulturais\i::__("Feira")),
-    15 => array( 'name' => \MapasCulturais\i::__("Intercâmbio Cultural")),
-    16 => array( 'name' => \MapasCulturais\i::__("Festa Popular")),
-    17 => array( 'name' => \MapasCulturais\i::__("Festa Religiosa")),
-    18 => array( 'name' => \MapasCulturais\i::__("Seminário")),
     19 => array( 'name' => \MapasCulturais\i::__("Congresso")),
-    20 => array( 'name' => \MapasCulturais\i::__("Palestra")),
-    21 => array( 'name' => \MapasCulturais\i::__("Simpósio")),
-    22 => array( 'name' => \MapasCulturais\i::__("Fórum")),
-    23 => array( 'name' => \MapasCulturais\i::__("Curso")),
-    24 => array( 'name' => \MapasCulturais\i::__("Oficina")),
-    25 => array( 'name' => \MapasCulturais\i::__("Jornada")),
+    6 =>  array( 'name' => \MapasCulturais\i::__("Convenção")),
+    10 => array( 'name' => \MapasCulturais\i::__("Concurso")),
     26 => array( 'name' => \MapasCulturais\i::__("Conferência Pública Setorial")),
     27 => array( 'name' => \MapasCulturais\i::__("Conferência Pública Nacional")),
     28 => array( 'name' => \MapasCulturais\i::__("Conferência Pública Estadual")),
+    122 => ['name' => \MapasCulturais\i::__("Consulta")],
     29 => array( 'name' => \MapasCulturais\i::__("Conferência Pública Municipal")),
+    23 => array( 'name' => \MapasCulturais\i::__("Curso")),
+    9 =>  array( 'name' => \MapasCulturais\i::__("Edital")),
+    2 =>  array( 'name' => \MapasCulturais\i::__("Encontro")),
+    11 => array( 'name' => \MapasCulturais\i::__("Exposição")),
+    13 => array( 'name' => \MapasCulturais\i::__("Exibição")),
+    14 => array( 'name' => \MapasCulturais\i::__("Feira")),
+    1 =>  array( 'name' => \MapasCulturais\i::__("Festival")),
+    16 => array( 'name' => \MapasCulturais\i::__("Festa Popular")),
+    17 => array( 'name' => \MapasCulturais\i::__("Festa Religiosa")),
+    22 => array( 'name' => \MapasCulturais\i::__("Fórum")),
+    35 => ['name' => \MapasCulturais\i::__("Inscrições")],
+    15 => array( 'name' => \MapasCulturais\i::__("Intercâmbio Cultural")),
+    25 => array( 'name' => \MapasCulturais\i::__("Jornada")),
+    12 => array( 'name' => \MapasCulturais\i::__("Jornada")),
+    5 =>  array( 'name' => \MapasCulturais\i::__("Mostra")),
+    24 => array( 'name' => \MapasCulturais\i::__("Oficina")),
+    20 => array( 'name' => \MapasCulturais\i::__("Palestra")),
     30 => array( 'name' => \MapasCulturais\i::__("Parada e Desfile Militar")),
     31 => array( 'name' => \MapasCulturais\i::__("Parada e Desfile Cívico")),
     32 => array( 'name' => \MapasCulturais\i::__("Parada e Desfile Festivo")),
     33 => array( 'name' => \MapasCulturais\i::__("Parada e Desfile Político")),
     34 => array( 'name' => \MapasCulturais\i::__("Parada e Desfile de Ações Afirmativas")),
-    35 => ['name' => \MapasCulturais\i::__("Inscrições")],
     121 => ['name' => \MapasCulturais\i::__("Pesquisa")],
-    122 => ['name' => \MapasCulturais\i::__("Consulta")]
+    8 =>  array( 'name' => \MapasCulturais\i::__("Programa")),
+    4 =>  array( 'name' => \MapasCulturais\i::__("Reunião")),
+    3 =>  array( 'name' => \MapasCulturais\i::__("Sarau")),
+    18 => array( 'name' => \MapasCulturais\i::__("Seminário")),
+    21 => array( 'name' => \MapasCulturais\i::__("Simpósio")),
 );
 
 uasort($items, 'compareNamesProject');
@@ -70,7 +70,7 @@ return array(
             'validations' => array(
                 "v::oneOf(v::urlDomain('facebook.com'), v::regex('/^@?([\w\d\.]+)$/i'))" => \MapasCulturais\i::__("O valor deve ser uma URL válida ou o nome ou id do usuário.")
             ),
-            'placeholder' => "nomedousuario ou iddousuario",
+            'placeholder' => \MapasCulturais\i::__('nomedousuario ou iddousuario'),
             'available_for_opportunities' => true
         ),
         'twitter' => array(
@@ -82,7 +82,7 @@ return array(
             'validations' => array(
                 "v::oneOf(v::urlDomain('twitter.com'), v::regex('/^@?([\w\d\.]+)$/i'))" => \MapasCulturais\i::__("O valor deve ser uma URL ou usuário válido.")
             ),
-            'placeholder' => "nomedousuario",
+            'placeholder' => \MapasCulturais\i::__('nomedousuario'),
             'available_for_opportunities' => true
         ),
         'instagram' => array(
@@ -95,7 +95,7 @@ return array(
             'validations' => array(
                 "v::oneOf(v::urlDomain('instagram.com'), v::regex('/^@?([\w\d\.]+)$/i'))" => \MapasCulturais\i::__("O valor deve ser uma URL ou usuário válido.")
             ),
-            'placeholder' => "nomedousuario",
+            'placeholder' => \MapasCulturais\i::__('nomedousuario'),
         ),
         'linkedin' => array(
             'type' => "socialMedia",
@@ -106,7 +106,7 @@ return array(
             'validations' => array(
                 "v::oneOf(v::urlDomain('linkedin.com'), v::regex('/^@?([\w\d\.]+)$/i'))" => \MapasCulturais\i::__("O valor deve ser uma URL ou usuário válido.")
             ),
-            'placeholder' => "nomedousuario",
+            'placeholder' => \MapasCulturais\i::__('nomedousuario'),
             'available_for_opportunities' => true
         ),
         'vimeo' => array(
@@ -118,7 +118,7 @@ return array(
             'serialize' =>function($value){
                 return Utils::parseSocialMediaUser('vimeo.com', $value);
             },
-            'placeholder' => "nomedousuario",
+            'placeholder' => \MapasCulturais\i::__('nomedousuario'),
             'available_for_opportunities' => true
         ),
         'spotify' => array(
@@ -130,7 +130,7 @@ return array(
             'serialize' =>function($value){
                 return Utils::parseSocialMediaUser('spotify.com', $value);
             },
-            'placeholder' => "nomedousuario",
+            'placeholder' => \MapasCulturais\i::__('nomedousuario'),
             'available_for_opportunities' => true
         ),
         'youtube' => array(
@@ -142,7 +142,7 @@ return array(
             'serialize' =>function($value){
                 return Utils::parseSocialMediaUser('youtube.com', $value);
             },
-            'placeholder' => "iddocanal",
+            'placeholder' => \MapasCulturais\i::__('iddocanal'),
             'available_for_opportunities' => true
         ),
         'pinterest' => array(
@@ -154,7 +154,19 @@ return array(
             'serialize' =>function($value){
                 return Utils::parseSocialMediaUser('pinterest.com', $value);
             },
-            'placeholder' => "nomedousuario",
+            'placeholder' => \MapasCulturais\i::__('nomedousuario'),
+            'available_for_opportunities' => true
+        ),
+        'tiktok' => array(
+            'type' => "socialMedia",
+            'label' => \MapasCulturais\i::__('Tiktok'),
+            'serialize' =>function($value){
+                return Utils::parseSocialMediaUser('tiktok.com', $value);
+            },
+            'validations' => array(
+                "v::oneOf(v::urlDomain('tiktok.com'), v::regex('/^@?([-\w\d\.]+)$/i'))" => \MapasCulturais\i::__("O valor deve ser uma URL ou usuário válido.")
+            ),
+            'placeholder' => \MapasCulturais\i::__('nomedousuario'),
             'available_for_opportunities' => true
         ),
 

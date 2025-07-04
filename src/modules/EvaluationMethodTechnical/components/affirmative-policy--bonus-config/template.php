@@ -24,7 +24,7 @@ $this->import('
                     <?= i::__('Percentual total de indução:') ?>
                 </label>
                 <span>
-                    <input type="number" v-model="entity.pointRewardRoof" @change="autoSave()" min="0" max="100" /> %
+                    <input type="number" v-model="entity.pointRewardRoof" @change="autoSave(true)" min="0" max="100" /> %
                 </span>
             </div>
         </div>
@@ -34,7 +34,7 @@ $this->import('
                 <h5 class="field__title--semibold"><?= i::__('Percentual') ?> {{index+1}}</h5>
 
 
-                <mc-select @change-option="setFieldName($event, quota)" :default-value="quota.field" placeholder="Selecione">
+                <mc-select @change-option="setFieldName($event, quota)" :default-value="quota.field" placeholder="<?= i::esc_attr__('Selecione um campo') ?>" show-filter>
                     <option v-for="(item, index) in entity.opportunity.affirmativePoliciesEligibleFields" :value="item.id">{{ '#' + item.id + ' - ' + item.title }}</option>
                 </mc-select>
 
@@ -47,15 +47,15 @@ $this->import('
                     </div>
                     <div class="field affirmative-policy--bonus-config__row" v-if="getFieldType(quota) === 'select' || getFieldType(quota) === 'multiselect'">
                         <label v-for="option in getFieldOptions(quota)">
-                            <input class="input" type="checkbox" :value="option" v-model="quota.value[option]" @change="checkboxUpdate($event,quota)">
-                            {{option}}
+                            <input class="input" type="checkbox" :value="optionValue(option)" v-model="quota.value[option]" @change="checkboxUpdate($event,quota)">
+                            {{optionLabel(option)}}
                         </label>
                     </div>
 
                 <div v-if="getFieldType(quota) === 'checkboxes'" class="field">
                     <div class="field field--horizontal">
                         <label v-for="option in getFieldOptions(quota)">
-                            <input type="checkbox" :value="option" :true-value="[]" v-model="quota.eligibleValues" @change="autoSave()" />
+                            <input type="checkbox" :value="option" :true-value="[]" v-model="quota.eligibleValues" />
                             <span>{{option}}</span>
                         </label>
                     </div>
@@ -64,11 +64,11 @@ $this->import('
                     <div class="field__column" v-if="getFieldType(quota) === 'checkbox' || getFieldType(quota) === 'boolean'">
                         <label>
 
-                            <input class="input" type="radio" :name="quota.fieldName + ':' + index" :value="true" v-model="quota.value" @change="autoSave()">
+                            <input class="input" type="radio" :name="quota.fieldName + ':' + index" :value="true" v-model="quota.value">
                             <?= i::__('Sim / Marcado') ?>
                         </label>
                         <label>
-                            <input class="input" type="radio" :name="quota.fieldName + ':' + index" :value="false" v-model="quota.value" @change="autoSave()">
+                            <input class="input" type="radio" :name="quota.fieldName + ':' + index" :value="false" v-model="quota.value">
                             <?= i::__('Não / Desmarcado') ?>
                         </label>
                     </div>
@@ -78,7 +78,7 @@ $this->import('
             <div class="affirmative-policy--bonus-config__column">
                 <label class="field"><?= i::__('Porcentagem') ?>
                     <div>
-                        <input type="number" v-model="quota.fieldPercent" @change="autoSave()" min="0" max="100"> %
+                        <input type="number" v-model="quota.fieldPercent" min="0" max="100"> %
                     </div>
                 </label>
             </div>

@@ -69,6 +69,8 @@ trait ControllerEntityActions {
         }
 
         $entity->enqueueToPCacheRecreation($users);
+
+        $this->json(true);
     }
 
     /**
@@ -105,13 +107,6 @@ trait ControllerEntityActions {
         }
 
         if($errors = $entity->validationErrors){
-            if ($entity->getEntityType() == 'Opportunity' && in_array("term-area", array_keys($errors)) && $errors['term-area']) {
-                foreach($errors['term-area'] as &$termError) {
-                    if(strpos($termError, i::__('área de atuação')) !== false) {
-                        $termError = str_replace(i::__('área de atuação'), i::__('área de interesse'), $termError);
-                    }
-                }
-            }
             $this->errorJson($errors);
         }else{
             $this->_finishRequest($entity, true);
@@ -198,6 +193,8 @@ trait ControllerEntityActions {
 
         $app = App::i();
 
+        $force_save = (bool) ($app->request->headers['MAPAS-Force-Save'] ?? false);
+
         $app->applyHookBoundTo($this, "PATCH({$this->id}.single):data", ['data' => &$data]);
 
         $entity = $this->requestedEntity;
@@ -236,6 +233,9 @@ trait ControllerEntityActions {
             }
 
             if($errors) {
+                if($force_save){
+                    $entity->save(true);
+                }
                 $this->errorJson($errors);
             }
         }

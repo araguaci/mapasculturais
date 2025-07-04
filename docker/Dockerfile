@@ -1,4 +1,6 @@
-FROM php:8.2-fpm
+ARG COMPOSER_ARGS="--no-dev"
+
+FROM php:8.3-fpm
 
 RUN apt-get update
 
@@ -37,12 +39,20 @@ RUN docker-php-ext-install -j$(nproc) iconv && \
     docker-php-ext-install -j$(nproc) gd
 
 # Install APCu
-RUN no | pecl install apcu \
+RUN echo no | pecl install apcu \
     && echo "extension=apcu.so" > /usr/local/etc/php/conf.d/apcu.ini
 
-# Install imagick
-RUN autodetect | pecl install imagick \
-    && echo "extension=imagick.so" > /usr/local/etc/php/conf.d/ext-imagick.ini
+# install imagick from git
+RUN git clone https://github.com/Imagick/imagick.git --depth 1 /tmp/imagick && \
+    cd /tmp/imagick && \
+    git fetch origin master && \
+    git switch master && \
+    cd /tmp/imagick && \
+    phpize && \
+    ./configure && \
+    make && \
+    make install && \
+    docker-php-ext-enable imagick
 
 # Install redis
 RUN no | pecl install -o -f redis \
@@ -68,7 +78,10 @@ COPY composer.lock /var/www/composer.lock
 WORKDIR /var/www/
 
 ENV COMPOSER_ALLOW_SUPERUSER=1 
-RUN composer.phar install
+ENV COMPOSER_ARGS=${COMPOSER_ARGS}
+
+RUN composer.phar install $COMPOSER_ARGS
+RUN composer.phar dump-autoload --optimize
 
 COPY config /var/www/config
 COPY public /var/www/html
@@ -77,11 +90,11 @@ COPY src /var/www/src
 COPY var /var/www/var
 
 WORKDIR /var/www/src/
+RUN rm -rf node_modules
 RUN pnpm install && pnpm run build
 
 RUN sass themes/BaseV1/assets/css/sass/main.scss:themes/BaseV1/assets/css/main.css
 
-RUN chown www-data:www-data -R /var/www
 
 COPY docker/recreate-pending-pcache-cron.sh /recreate-pending-pcache-cron.sh
 COPY docker/jobs-cron.sh /jobs-cron.sh
@@ -94,6 +107,8 @@ COPY docker/production/php.ini /usr/local/etc/php/php.ini
 COPY docker/timezone.ini /usr/local/etc/php/conf.d/timezone.ini
 
 RUN ln -s /var/www/html /var/www/public
+
+RUN chown -R www-data:www-data /var/www/public/
 
 # arquivos exclusivos dos ambientes de desenvolvimento
 COPY docker/development/router.php /var/www/dev/router.php

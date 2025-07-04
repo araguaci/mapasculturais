@@ -12,7 +12,10 @@ use Doctrine\Common\Collections\Criteria;
  * @property-read array $propertiesMetadata Properties Metadata
  * @property-read Controller $controller The controller with the class with the same name of this entity class in the parent namespace.
  * @property-read string $controllerId The controller id for this entity
+ * @property-read string $className 
  * @property-read Entities\User $ownerUser The User owner of this entity
+ * @property-read array $userPermissions Returns the user's permission list. If no user is specified, returns the authenticated user.
+
  * 
  * @property-read string $hookClassPath
  * @property-read string $hookPrefix
@@ -417,17 +420,46 @@ abstract class Entity implements \JsonSerializable{
             return true;
         } 
         
-        if ($this->usesNested() && $this->parent && $this->parent->canUser('@control')) {
+        if ($this->usesNested() && $this->parent && $this->parent->canUser('@control', $user)) {
             return true;
         } 
         
-        if (isset($this->owner) && $this->owner->canUser('@control')) {
+        if (isset($this->owner) && $this->owner->canUser('@control', $user)) {
             return true;
         }
 
         return false;
     }
 
+    /** 
+     * Retorna o prefixo para as chaves de cache de permissão
+     * 
+     * @return bool
+     */
+    protected function getPermissionCacheKeyPrefix(): string {
+        $app = App::i();
+        $key = "{$this}:permissionCachePrefix";
+        if($app->cache->contains($key)){
+            return $app->cache->fetch($key);
+        } else {
+            $prefix = "$this" . uniqid(more_entropy: true) . ":";
+            $app->cache->save($key, $prefix, DAY_IN_SECONDS);
+            return $prefix;
+        }
+    }
+
+    /** 
+     * Limpa o cache de permissão
+     * 
+     * @return void
+     */
+    public function clearPermissionCache(){
+        $app = App::i();
+        $key = "{$this}:permissionCachePrefix";
+        $app->cache->delete($key); 
+    }
+
+    
     public function canUser($action, $userOrAgent = null){
         $app = App::i();
         if(!$app->isAccessControlEnabled()){
@@ -445,6 +477,10 @@ abstract class Entity implements \JsonSerializable{
         $result = false;
 
         if (!empty($user)) {
+            $cache_key = "{$this->permissionCacheKeyPrefix}:canUser({$user->id}):{$action}";
+            if($app->config['app.usePermissionsCache'] && $app->cache->contains($cache_key)){
+                return $app->cache->fetch($cache_key);
+            }
             $class_parts = explode('\\', $this->getClassName());
             $permission = end($class_parts);
 
@@ -465,6 +501,9 @@ abstract class Entity implements \JsonSerializable{
             $app->applyHookBoundTo($this, 'can(' . $this->getHookClassPath() . '.' . $action . ')', ['user' => $user, 'result' => &$result]);
             $app->applyHookBoundTo($this, $this->getHookPrefix() . '.canUser(' . $action . ')', ['user' => $user, 'result' => &$result]);
 
+            if($app->config['app.usePermissionsCache']){
+                $app->cache->save($cache_key, $result, $app->config['app.permissionsCache.lifetime']);
+            }
         }
 
         return $result;
@@ -486,7 +525,32 @@ abstract class Entity implements \JsonSerializable{
         }
     }
 
+    /**
+     * Retorna a lista de permissões do usuário. Caso nenhum usuário tenha sido informado, retorna o usuario autenticado
+     * @param Entities\User|GuestUser|null $user
+     * @return array
+     */
+    public function getUserPermissions(Entities\User|GuestUser|null $user = null): array
+    {
+        $app = App::i();
+        $user = $user ?: $app->user;
+        
+        $entity_class_name = $this->className;
+        $permissions_list = $entity_class_name::getPermissionsList();
+        $permissions = [];
+        foreach($permissions_list as $action) {
+            $permissions[$action] = $this->canUser($action, $user);
+        }
+
+        return $permissions;
+    }
+    
+
     public function isUserAdmin(UserInterface $user, $role = 'admin'){
+        if($user->is('guest')) {
+            return false;
+        }
+        
         $result = false;
         if($this->usesOriginSubsite()){
             if($user->is($role, $this->_subsiteId)){
@@ -561,6 +625,26 @@ abstract class Entity implements \JsonSerializable{
         }
         
         return self::$__permissions[$class_name];
+    }
+
+    /** 
+     * Retorna a lista de permissões que devem ser salvas na tabela de cache de permissões
+     * 
+     * @return array
+     */
+    static function getPCachePermissionsList() {
+        $app = App::i();
+        $prefix = self::getHookPrefix();
+
+        $permissions = [
+            '@control',
+            'view',
+            'modify'
+        ];
+
+        $app->applyHook("{$prefix}.pcachePermissionsList", [&$permissions]);
+
+        return $permissions;
     }
 
 
@@ -810,6 +894,14 @@ abstract class Entity implements \JsonSerializable{
 
         $hook_prefix = $this->getHookPrefix();
 
+        if(!$app->user->is('admin') && $this->usesLock() && $this->isLocked()) {
+            $lock_info = $this->isLocked();
+
+            if($lock_info['userId'] != $app->user->id) {
+                throw new Exceptions\PermissionDenied($app->user, message: i::__('A entidade está bloqueada por outro usuário.'), code: Exceptions\PermissionDenied::CODE_ENTITY_LOCKED);
+            }
+        }
+
         try {
             $app->applyHookBoundTo($this, "{$hook_prefix}.save:requests", [&$requests]);
             $app->applyHookBoundTo($this, "entity({$this}).save:requests", [&$requests]);
@@ -869,7 +961,6 @@ abstract class Entity implements \JsonSerializable{
                     $app->em->flush();
                 }
             }
-            $this->refresh();
 
             if($this->usesRevision()) {
                 if($is_new){
@@ -1137,12 +1228,15 @@ abstract class Entity implements \JsonSerializable{
         elseif($this->usesTypes() && !$this->validateType())
             $errors['type'] = [\MapasCulturais\i::__('Tipo inválido')];
 
-        if($this->usesMetadata())
+        if($this->usesMetadata()) {
             $errors = $errors + $this->getMetadataValidationErrors();
+        }
 
         if($this->usesTaxonomies())
             $errors = $errors + $this->getTaxonomiesValidationErrors();
 
+        $app->applyHookBoundTo($this, "{$this->hookPrefix}.validationErrors", [&$errors]);
+        
         return $errors;
     }
 
@@ -1318,5 +1412,7 @@ abstract class Entity implements \JsonSerializable{
         $hook_prefix = $this->getHookPrefix();
 
         $app->applyHookBoundTo($this, "{$hook_prefix}.update:after");
+
+        $this->clearPermissionCache();
     }
 }

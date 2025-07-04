@@ -27,6 +27,8 @@ return [
         
     'app.cache.namespace' => env('CACHE_NAMESPACE', @$_SERVER['HTTP_HOST']),
 
+    'app.useMagicGetterCache' => __env_not_false('CACHE_MAGIC_GETTER'),
+
     'app.useRegisteredAutoloadCache' => __env_not_false('CACHE_AUTOLOAD'),
     'app.useAssetsUrlCache'          => __env_not_false('CACHE_ASSETS_URL'),
     'app.useFileUrlCache'            => __env_not_false('CACHE_FILE_URL'),
@@ -36,7 +38,7 @@ return [
     'app.useRegisterCache'           => __env_not_false('CACHE_REGISTER'),
     'app.useApiCache'                => env('CACHE_API', false),
     'app.useQuotasCache'             => env('CACHE_QUOTAS', false),
-    'app.useOpportunitySummaryCache' =>false,
+    'app.useOpportunitySummaryCache' => __env_not_false('CACHE_OPPORTUNITY_SUMARY'),
 
 
     'app.registeredAutoloadCache.lifetime'  => env('CACHE_AUTOLOAD', YEAR_IN_SECONDS),
@@ -44,7 +46,7 @@ return [
     'app.fileUrlCache.lifetime'             => env('CACHE_FILE_URL', 604800),
     'app.eventsCache.lifetime'              => env('CACHE_EVENTS', 600),
     'app.subsiteIdsCache.lifetime'          => env('CACHE_SUBSITE_ID', 120),
-    'app.permissionsCache.lifetime'         => env('CACHE_PERMISSIONS', YEAR_IN_SECONDS),
+    'app.permissionsCache.lifetime'         => env('CACHE_PERMISSIONS', 30),
     'app.registerCache.lifeTime'            => env('CACHE_REGISTER', 600),
     'app.apiCache.lifetime'                 => env('CACHE_API', 30),
     'app.quotasCache.lifetime'              => env('CACHE_QUOTAS', 300),

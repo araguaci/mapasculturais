@@ -18,7 +18,7 @@ app.component('mc-select', {
             default: false,
         },
 
-        hideFilter: {
+        showFilter: {
             type: Boolean,
             default: false,
         },
@@ -30,6 +30,56 @@ app.component('mc-select', {
 
         options: {
             type: Array,
+            default: []
+        },
+
+        disabled: {
+            type: Boolean,
+            default: false,
+        },
+    },
+
+    watch: {
+        defaultValue(newValue, oldValue) {
+            setTimeout(() => {
+                const options = this.$refs.options.children;
+                this.defaultOptions = Object.freeze(Array.from(options));
+                
+                for (const [index, option] of Object.entries(options)) {                            
+                    const refOptions = this.$refs.options;
+                    const refSelected = this.$refs.selected;
+    
+                    while (!option.hasAttribute('value') && option != refOptions) {
+                        option = option.parentElement;
+                    }
+        
+                    if (!option.hasAttribute('value')) {
+                        console.error('Atributo value não encontrado');
+                        return;
+                    }
+    
+                    if (newValue != null || newValue != '') {
+                        
+        
+                        let optionText = option.text ?? option.textContent;
+                        let optionValue = option.value ?? option.getAttribute('value');
+                        let optionItem = option.outerHTML;
+        
+                        if (optionValue == newValue) {
+                            this.optionSelected = {
+                                text: optionText,
+                                value: optionValue,
+                            }
+        
+                            refSelected.innerHTML = optionItem;
+                        }
+                    }
+                }
+        
+                if (newValue === null || newValue === '' || this.$refs.selected.innerHTML === '') {
+                    this.$refs.selected.innerHTML = this.placeholder;
+                }
+            });
         },
     },
 
@@ -41,15 +91,19 @@ app.component('mc-select', {
     },
 
     mounted() {
-
         setTimeout(() => {
-            const options = this.$refs.options.children;
+            if (!this.$refs.options) {
+                return;
+            }
+
+            const options = this.$refs.options.querySelectorAll('[value]');
+            
             this.defaultOptions = Object.freeze(Array.from(options));
             
             for (const [index, option] of Object.entries(options)) {                            
                 const refOptions = this.$refs.options;
                 const refSelected = this.$refs.selected;
-                
+
                 while (!option.hasAttribute('value') && option != refOptions) {
                     option = option.parentElement;
                 }
@@ -73,6 +127,8 @@ app.component('mc-select', {
     
                         refSelected.innerHTML = optionItem;
                     }
+                } else {
+                    this.setMatchingOption(option);
                 }
             }
     
@@ -120,9 +176,8 @@ app.component('mc-select', {
     computed: {
         selectOptions() {
             const result = [];
-
+            
             for(let option of this.options) {
-                // debugger;
                 if (typeof option == "string") {
                     result.push({
                         value: option,
@@ -139,7 +194,7 @@ app.component('mc-select', {
 
     methods: {
         focus() {
-            const inputs = this.$refs.filter.getElementsByTagName('input');
+            const inputs = this.$refs.selected.getElementsByTagName('input');
             if (inputs.length) {
                 setTimeout(() => {
                     if (inputs[0].getAttribute("type") == 'text') {
@@ -165,7 +220,9 @@ app.component('mc-select', {
             const refOptions = this.$refs.options;
             const refSelected = this.$refs.selected;
 
-            refOptions.style.minWidth = refSelected.clientWidth + 'px'; 
+            if(refOptions) {
+                refOptions.style.minWidth = refSelected.clientWidth + 'px'; 
+            }
         },
 
         selectOption(event) {
@@ -245,5 +302,30 @@ app.component('mc-select', {
                 this.$refs.options.innerHTML = 'Nenhuma opção encontrada';
             }
         },
+
+        setMatchingOption(option) {
+            const refSelected = this.$refs.selected;
+            
+            if (!option.hasAttribute('value')) {
+                console.error('Atributo value não encontrado');
+                return;
+            }
+
+            if (this.defaultValue != null || this.defaultValue != '') {
+
+                let optionText = option.text ?? option.textContent;
+                let optionValue = option.value ?? option.getAttribute('value');
+                let optionItem = option.outerHTML;
+
+                if (optionValue == this.defaultValue) {
+                    this.optionSelected = {
+                        text: optionText,
+                        value: optionValue,
+                    }
+
+                    refSelected.innerHTML = optionItem;
+                }
+            }
+        }
     },
 });

@@ -4,8 +4,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 CDIR=$( pwd )
 cd $DIR
 
-
 BUILD="0"
+DOWN="0"
 
 for i in "$@"
 do
@@ -14,16 +14,12 @@ case $i in
             BUILD="1"
 	    shift
     ;;
-    -s|--shell)
-            SHELL="1"
-	    shift
-    ;;
     -h|--help)
     	    echo "
-	run-tests.sh [-b] [-s=25]
+	bash.sh [-b] [-u] [-d] [-s=25]
 
-	-b   | --build    builda a imagem Docker
-	-s   | --shell    entra no container de teste
+    -b=  | --build      builda a imagem Docker
+    -h=  | --help       Imprime este texto de ajuda
 		    "
     	    exit
     ;;
@@ -31,15 +27,9 @@ esac
 done
 
 if [ $BUILD = "1" ]; then
-   sudo docker-compose -f docker-compose.tests.yml build
+   docker compose build
 fi
 
-sudo docker-compose -f docker-compose.tests.yml down
-
-if [ $SHELL = "1" ]; then
-    sudo docker-compose -f docker-compose.tests.yml run --service-ports mapas_tests bash
-else
-    sudo docker-compose -f docker-compose.tests.yml run --service-ports mapas_tests /var/www/scripts/run-tests-docker.sh $@
-fi
-
+docker compose down --remove-orphans
+docker compose run --service-ports mapas phpunit /var/www/tests $@
 cd $CDIR

@@ -60,6 +60,7 @@ class Site extends \MapasCulturais\Controller {
     
     function ALL_error() {
         $app = \MapasCulturais\App::i();
+        $this->layout = 'default';
 
         $status = $this->data['code'];
 
@@ -67,7 +68,7 @@ class Site extends \MapasCulturais\Controller {
             $this->errorJson($this->data['e']->getMessage(), $status);
         } else{
             $app->response = $app->response->withStatus($status);
-            $this->render('error-' . $status, $this->data);
+            $this->render('error-' . $status, $this->data + ['display_details' => \env('DISPLAY_ERROR_DETAIL', \env('APP_MODE') != 'production')]);
         }
     }
 

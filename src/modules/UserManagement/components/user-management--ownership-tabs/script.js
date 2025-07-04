@@ -42,14 +42,31 @@ app.component('user-management--ownership-tabs', {
             default: 'id,name,status,subsite.name,files'
         },
     },
+
+    data() {
+        return {
+            recreatingPCache: false
+        };
+    },
     computed: {
         newSelect() {
             if(this.type=='registration') {
                 return this.select+',owner.name,number,createTimestamp,opportunity.{files.avatar,name}';
+            } if(this.type=='agent') {
+                return this.select+',parent';
             } else {
                 return this.select;
             }
         },
 
     },
+
+    methods: {
+        recreatePCache(entity) {
+            entity.recreatingPCache = true;
+            entity.POST('enqueuePCache',{callback: () => {
+                entity.recreatingPCache = false;
+            }});
+        }
+    }
 });

@@ -18,19 +18,23 @@ $field_types = [
 
 $parse_agent_field = function ($field) use ($agent_description, $field_types) {
     $agent_field_name = $field->config['entityField'];
-    $agent_field = $agent_description[$agent_field_name];
-    if (in_array($agent_field['type'], $field_types)) {
-        $field->fieldType = $agent_field['type'];
-        return $field;
-    } else {
-        return null;
+
+    if(in_array($agent_field_name, array_keys($field_types))) {
+        $agent_field = $agent_description[$agent_field_name];
+        if (in_array($agent_field['type'], $field_types)) {
+            $field->fieldType = $agent_field['type'];
+            return $field;
+        }
     }
+    
+    return null;
+
 };
 
 $phase_fields = [];
 $opportunity = $this->controller->requestedEntity->firstPhase;
 while ($opportunity) {
-    if ($opportunity->evaluationMethodConfiguration && $opportunity->evaluationMethodConfiguration->definition->slug == "technical") {
+    if ($opportunity->evaluationMethodConfiguration && $opportunity->evaluationMethodConfiguration->definition && $opportunity->evaluationMethodConfiguration->definition->slug == "technical") {
         $fields = $opportunity->getFields(all:true);
         $fields = array_filter($fields, function ($field) use ($field_types, $parse_agent_field) {
             if ($field->fieldType == "agent-owner-field") {

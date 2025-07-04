@@ -13,14 +13,22 @@ use MapasCulturais\Traits;
 /**
  * User
  *
- * @property-read \MapasCulturais\Entities\Agent[] $agents Active Agents
- * @property-read \MapasCulturais\Entities\Space[] $spaces Active Spaces
- * @property-read \MapasCulturais\Entities\Project[] $projects Active Projects
- * @property-read \MapasCulturais\Entities\Event[] $events Active Events
- * @property-read \MapasCulturais\Entities\Subsite[] $subsite Active Subsite
- * @property-read \MapasCulturais\Entities\Seal[] $seals Active Seals
+ * @property-read Agent[] $agents Active Agents
+ * @property-read Space[] $spaces Active Spaces
+ * @property-read Project[] $projects Active Projects
+ * @property-read Event[] $events Active Events
+ * @property-read Subsite[] $subsite Active Subsite
+ * @property-read Seal[] $seals Active Seals
  *
- * @property-read \MapasCulturais\Entities\Agent $profile User Profile Agent
+ * @property int $id
+ * @property string $authProvider
+ * @property string $authUid
+ * @property string $email
+ * @property-read \DateTimes $lastLoginTimestamp
+ * @property-read $createTimestamp
+ * @property $status = self::STATUS_ENABLED
+ * @property-read $roles
+ * @property Agent $profile User Profile Agent
  *
  * @ORM\Table(name="usr")
  * @ORM\Entity
@@ -30,7 +38,8 @@ use MapasCulturais\Traits;
 class User extends \MapasCulturais\Entity implements \MapasCulturais\UserInterface{
     use Traits\EntityMetadata,
         Traits\EntitySoftDelete,
-        Traits\EntityPermissionCache;
+        Traits\EntityPermissionCache,
+        Traits\EntityFiles;
 
     const STATUS_ENABLED = 1;
 
@@ -225,6 +234,8 @@ class User extends \MapasCulturais\Entity implements \MapasCulturais\UserInterfa
             $role->name = $role_name;
             $role->subsiteId = $role_definition->subsiteContext ? $subsite_id : null;
             $role->save(true);
+
+            $this->roles[] = $role;
             return true;
         }
 
@@ -767,10 +778,17 @@ class User extends \MapasCulturais\Entity implements \MapasCulturais\UserInterfa
 
     function getHasControlSeals(){
         $this->checkPermission('modify');
+       
+        $app = App::i();
+        $seals = [];
 
-        if(!($seals = App::i()->repo('Seal')->findByAgentRelationUser($this, true)))
-            $seals = [];
-
+        $query = new ApiQuery(Seal::class, ['@permissions' => 'applySeal', '@order' => 'name ASC']);
+        $seal_ids = $query->findIds();
+        
+        if ($seal_ids) {
+            $seals = $app->repo('Seal')->findBy(['id' => $seal_ids]);
+        }
+        
         return $seals;
     }
 

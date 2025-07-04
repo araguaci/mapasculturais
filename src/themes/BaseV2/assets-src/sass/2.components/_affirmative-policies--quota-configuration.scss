@@ -54,6 +54,7 @@
         display: grid;
         gap: size(20);
         padding: size(18) size(23);
+        max-width: size(1018);
     }
 
     &__card-footer {
@@ -63,17 +64,24 @@
     // Estilização interna
     &__quota-field {
         border-top: var(--mc-border-hairline) var(--mc-gray-300);
-        display: grid;
-        gap: size(15) size(30);
-        grid-template-columns: 
-            calc(100% - size(100))
-            size(70);
+        
         padding-top: size(20);
 
         &:first-child {
             padding-top: 0;
             border: 0;
         }
+
+        .mc-select {
+            max-width: size(870);
+        }
+        .field--horizontal {
+            flex-wrap: wrap;
+        }
+    }
+
+    &__field {
+        margin-bottom:1rem;
     }
 
     &__quota-field-sufix {
@@ -81,5 +89,10 @@
         display: grid;
         grid-template-columns: 1fr size(20);
         justify-items: center;
+    }
+
+    .field--horizontal {
+        max-width: size(870);
+        flex-wrap: wrap;
     }
 }
