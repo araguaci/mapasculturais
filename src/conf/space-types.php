@@ -15,7 +15,7 @@ use MapasCulturais\Utils;
             13 => array( 'name' => \MapasCulturais\i::__('Espaço Público Para Projeção de Filmes') ),
             14 => array( 'name' => \MapasCulturais\i::__('Sala de cinema')),
         ),
-        
+
     ),
 
     \MapasCulturais\i::__('Bibliotecas') => array(
@@ -232,7 +232,7 @@ use MapasCulturais\Utils;
 
 function ordenaSubcategorias(&$array) {
     ksort($array);
-    
+
     foreach ($array as &$item) {
         if (isset($item['items'])) {
             uasort($item['items'], function($a, $b) {
@@ -349,7 +349,8 @@ return array(
                 \MapasCulturais\i::__('Sanitário adaptado'),
                 \MapasCulturais\i::__('Telefone público adaptado'),
                 \MapasCulturais\i::__('Vaga de estacionamento exclusiva para deficientes'),
-                \MapasCulturais\i::__('Vaga de estacionamento exclusiva para idosos')
+                \MapasCulturais\i::__('Vaga de estacionamento exclusiva para idosos'),
+                '@NA' => \MapasCulturais\i::__('Não possui')
             )
         ),
         'capacidade' => array(
@@ -420,7 +421,7 @@ return array(
 
         'horario' => array(
             'label' => \MapasCulturais\i::__('Horário de funcionamento'),
-            'type' => 'text',
+            'type' => 'textarea',
             'available_for_opportunities' => true
         ),
 
@@ -548,7 +549,18 @@ return array(
             'placeholder' => \MapasCulturais\i::__('nomedousuario'),
             'available_for_opportunities' => true
         ),
-
+        'fediverso' => array(
+            'type' => "socialMedia",
+            'label' => \MapasCulturais\i::__('Fediverso'),
+            'available_for_opportunities' => true,
+            'serialize' => function ($value) {
+                return $value;
+            },
+            'validations' => array(
+                "v::url()" => \MapasCulturais\i::__("A url informada é inválida.")
+            ),
+            'placeholder' => \MapasCulturais\i::__('https://nomedoservidor.com.br/@nomedousuario'),
+        ),
     ),
 
 /**

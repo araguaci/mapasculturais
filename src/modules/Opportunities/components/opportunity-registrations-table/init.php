@@ -3,6 +3,12 @@
 use MapasCulturais\i;
 use MapasCulturais\Entities\Registration;
 
+$opportunity = $this->controller->requestedEntity;
+$data = [];
+
+$evaluation_method_configuration = $opportunity->evaluationMethodConfiguration;
+$statuses_names = $opportunity->statusLabels ?: $evaluation_method_configuration->defaultStatuses;
+
 $data['evaluationStatusDict'] = [
     'simple' => [
         '0'  => i::__('Não avaliada'),
@@ -33,11 +39,17 @@ $data['evaluationStatusDict'] = [
 $phase = $this->controller->requestedEntity;
 
 $skipFields = ["previousPhaseRegistrationId", "nextPhaseRegistrationId", "id"];
-$default_select = "agentsData,number,consolidatedResult,score,status,sentTimestamp,createTimestamp,files,owner.{name,geoMesoregiao},editSentTimestamp,editableUntil,editableFields";
+$default_select = "agentsData,number,singleUrl,consolidatedResult,score,status,sentTimestamp,createTimestamp,files,owner.{name,geoMesoregiao},editSentTimestamp,editableUntil,editableFields";
 $default_headers = [
     [
         'text' => i::__('inscrição'),
         'value' => 'number',
+        'sticky' => true,
+        'width' => '160px',
+    ],
+    [
+        'text' => i::__('Link da inscrição'),
+        'value' => 'singleUrl',
         'sticky' => true,
         'width' => '160px',
     ],
@@ -88,6 +100,28 @@ foreach ($definitions as $field => $def) {
             'slug' => $field
         ];
         $default_headers[] = $header;
+    }
+
+    if(isset($def['type']) && $def['type'] == 'location' && $can_see($def)) {
+        $field_id = str_replace('field_', '', $field);
+
+        $level_labels = $app->config['address.defaultLevelsLabels'];
+        $state_label = $level_labels[2];
+        $city_label = $level_labels[4];
+
+        $header_state = [
+            'text' => "#{$field_id} - {$state_label}",
+            'value' => "{$field}.address_level2",
+            'slug' => $field
+        ];
+        $default_headers[] = $header_state;
+
+        $header_city = [
+            'text' => "#{$field_id} - {$city_label}",
+            'value' => "{$field}.address_level4",
+            'slug' => $field
+        ];
+        $default_headers[] = $header_city;
     }
 }
 
@@ -205,27 +239,7 @@ $data['defaultSelect'] = $default_select;
 $data['defaultHeaders'] = $default_headers;
 $data['defaultAvailable'] = $available_fields;
 
-$data['evaluationStatusDict'] = [
-    'simple' => [
-        '0'  => i::__('Não avaliada'),
-        '2'  => i::__('Inválida'),
-        '3'  => i::__('Não selecionada'),
-        '8'  => i::__('Suplente'),
-        '10' => i::__('Selecionada')
-    ],
-    'documentary' => [
-        '0'  => i::__('Não avaliada'),
-        '1'  => i::__('Válida'),
-        '-1' => i::__('Inválida'),
-    ],
-    'qualification' => [
-        '0'  => i::__('Não avaliada'),
-        'Habilitado' => i::__('Habilitado'),
-        'Inabilitado' => i::__('Inabilitado'),
-    ]
-];
-
-foreach (Registration::getStatusesNames() as $status => $status_name) {
+foreach ($statuses_names as $status => $status_name) {
     if (in_array($status, [0, 1, 2, 3, 8, 10])) {
         $data["registrationStatusDict"][] = ["label" => $status_name, "value" => $status];
     }

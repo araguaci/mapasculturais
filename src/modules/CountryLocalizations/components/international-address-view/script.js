@@ -16,10 +16,6 @@ app.component('international-address-view', {
             type: Entity,
             required: true
         },
-        editable: {
-            type: Boolean,
-            default: false,
-        },
         hideLabel: {
             type: Boolean,
             default: false,
@@ -40,5 +36,13 @@ app.component('international-address-view', {
 
             return result;
         },
+
+        showAddress() {
+            if(!this.entity.address && !this.entity.endereco) {
+                return false;
+            }
+            
+            return this.entity.address || this.entity.endereco;
+        }
     }
 });

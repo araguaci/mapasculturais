@@ -11,62 +11,61 @@ A plataforma já está em uso em diversos municipios, estados, no governo federa
 
 ### Instalações em nível federal ou internacional
 - IberculturaViva - https://mapa.iberculturaviva.org/
-- Mapa Uruguai - http://culturaenlinea.uy/
-- SNIIC - http://mapas.cultura.gov.br/
-- Museus - http://museus.cultura.gov.br/
-- Sistema Nacional de Bibliotecas Públicas - http://bibliotecas.cultura.gov.br/
-- Cultura Viva - http://culturaviva.gov.br/
-- Pontos de Memória - http://pontosdememoria.cultura.gov.br/
+- Mapa Uruguai - https://culturaenlinea.uy/
+- SNIIC - https://mapa.cultura.gov.br/
+- Cultura Viva - https://culturaviva.cultura.gov.br/
+- Rede das Artes - https://rededasartes.cultura.gov.br/
 
 ### Instalações estaduais
-- Distrito Federal - http://mapa.cultura.df.gov.br/
+- Amapá - https://mapacultural.ap.gov.br/
 - Ceará - https://mapacultural.secult.ce.gov.br/
 - Espírito Santo - https://mapa.cultura.es.gov.br/
 - Goiás - https://mapagoiano.cultura.go.gov.br/
 - Maranhão - https://mapadacultura.ma.gov.br/
 - Mato Grosso - https://mapas.mt.gov.br/
-- Mato Grosso do Sul - https://www.mapacultural.ms.gov.br/
 - Pará - https://mapacultural.pa.gov.br/
-- Paraíba - http://pb.mapas.cultura.gov.br/
 - Pernambuco - https://www.mapacultural.pe.gov.br/
-- Sergipe - http://mapas.cultura.se.gov.br/
+- Paraíba - https://mapacultural.pb.gov.br/
+- Piauí - https://www.mapadacultura.pi.gov.br/
 - Tocantins - https://mapadacultura.secult.to.gov.br/
-- Acre - https://mapadacultura.ac.gov.br/
-- Roraima - https://mapadacultura.rr.gov.br/
 
 ### Instalações municipais
-
 - Aparecida de Goiânia - https://portaldacultura.aparecida.go.gov.br/
-- Ilheus - http://ilheus.ba.mapas.cultura.gov.br/
+- Apucarana - https://cultura.apucarana.pr.gov.br/
+- Aracaju - http://mapa.cultura.aracaju.se.gov.br/
+- Belo Horizonte - https://mapaculturalbh.pbh.gov.br/
+- Bento Gonçalvez - http://mapacultural.bentogoncalves.rs.gov.br/
+- Campo Mourão - https://mapas.campomourao.pr.gov.br/
+- Campos dos Goytacazes - https://mapasculturais.campos.rj.gov.br/
 - Camaçari - https://mapacultural.camacari.ba.gov.br/
-- Senhor do Bonfim - http://senhordobonfim.ba.mapas.cultura.gov.br/
+- Campinas - https://mapacultural.campinas.sp.gov.br/
 - Chorozinho - https://mapacultural.chorozinho.ce.gov.br/
-- Sobral - https://cultura.sobral.ce.gov.br/
-- Juazeiro do Norte - https://mapacultural.juazeiro.ce.gov.br/
-- Belo Horizonte - http://mapaculturalbh.pbh.gov.br/
-- Santa Luzia - http://mapacultural.santaluzia.mg.gov.br/
-- Ipatinga - http://mapacultural.ipatinga.mg.gov.br/
-- Varzea Grande - http://varzeagrande.mt.mapas.cultura.gov.br/
-- João Pessoa - http://jpcultura.joaopessoa.pb.gov.br/
-- Londrina - https://londrinacultura.londrina.pr.gov.br/
-- Foz do Iguaçu - http://mapadaculturafoz.pmfi.pr.gov.br/
-- Maringa - http://maringacultura.maringa.pr.gov.br:38081/
-- Toledo/PR - https://cultura.toledo.pr.gov.br/
-- Rio das Ostras - http://mapadacultura.riodasostras.rj.gov.br/
-- Laguna - http://laguna.sc.mapas.cultura.gov.br/
-- Novo Hamburgo - http://mapacultural.novohamburgo.rs.gov.br/
-- Rio Grande - http://mapacultural.riogrande.rs.gov.br/
-- São Paulo - http://spcultura.prefeitura.sp.gov.br/
-- Santo André - http://culturaz.santoandre.sp.gov.br/
-- São Caetano do Sul - http://mapacultural.saocaetanodosul.sp.gov.br/
-- Osasco - http://osasco.sp.mapas.cultura.gov.br/
-- Franco da Rocha - http://francodarocha.sp.mapas.cultura.gov.br/
-- Guaruja - http://mapadacultura.guaruja.sp.gov.br/
-- Varzea Paulista - http://janelacultural.varzeapaulista.sp.gov.br/
-- Itu - http://mapacultural.itu.sp.gov.br/
-- Guarulhos - http://grucultura.guarulhos.sp.gov.br/
-- Itapetininga - http://mapacultural.itapetininga.sp.gov.br/
+- Gravataí - https://mapacultural.gravatai.rs.gov.br/
+- Iguatu - http://mapacultural.iguatu.ce.gov.br/
+- João Pessoa - https://jpcultura.joaopessoa.pb.gov.br/
 - Lagoa Santa - https://mapacultural.lagoasanta.mg.gov.br/
+- Londrina - https://londrinacultura.londrina.pr.gov.br/
+- Maringá - https://maringacultura.maringa.pr.gov.br/
+- Mauá - https://mapacultural.maua.sp.gov.br/
+- Natal - https://mapacultural.natal.rn.gov.br/
+- Nova Lima - https://mapacultural.novalima.mg.gov.br/
+- Parauapebas - https://mapacultural.parauapebas.pa.gov.br/
+- Petrolina - https://mapacultural.petrolina.pe.gov.br/
+- Ribeirão das Neves - http://mapaculturaneves.com.br/
+- Santa Luzia - http://mapacultural.santaluzia.mg.gov.br/
+- Santo André - https://culturaz.santoandre.sp.gov.br/
+- São Gonçalo do Amarante - https://mapacultural.saogoncalodoamarante.ce.gov.br/
+- São Bernardo - https://mapacultural.saobernardo.sp.gov.br/
+- Sarandi - https://cultura.sarandi.pr.gov.br/
+- Toledo/PR - https://cultura.toledo.pr.gov.br/
+
+### Outras instalações
+- Floresta Ativista - https://rede.florestaativista.org/
+- AMFRIMapa Cultural CIM-AMFRI / SC - https://mapacultural.cim-amfri.sc.gov.br/
+- Mapa Cultural AGIMOS - UFPel - https://mapacultural.ufpel.edu.br/
+- Mapa da Inovação do ES - https://mapa.inovacao.es.gov.br/
+- Balaio Cultural UFPR - https://mapadacultura.ufpr.br/
+- Periferia Viva - Ministério das Cidades - https://iniciativas-mapadasperiferias.cidades.gov.br/
 
 ## Sobre a aplicação
 Mapas Culturais é uma aplicação web server-side baseada em linguagem PHP e banco de dados Postgres, entre outras tecnologias e componentes, que propicia um ambiente virtual para mapeamento, divulgação e gestão de ativos culturais. 
@@ -75,8 +74,6 @@ Mapas Culturais é uma aplicação web server-side baseada em linguagem PHP e ba
 * [Mapas Cuturais Base Project](https://github.com/hacklabr/mapasculturais-app) - Repositório de projeto base para novas instalações.
 * [Multiple Local Auth](https://github.com/mapasculturais/mapasculturais-MultipleLocalAuth) - Plugin de autenticação local + oauth.
 * [Mapas SDK](https://github.com/centroculturalsp/MapasSDK)
-* [Mapas Culturais APP](https://github.com/hacklabr/mapasculturais-app)
-* [Cultural Magazine Theme](https://github.com/hacklabr/cultural)
 
 ## Instalação
 A maneira mais simples e segura para instalar o Mapas Culturais é utilizando o [Mapas Culturais Base Project](https://github.com/mapasculturais/mapasculturais-base-project) como base para a criação de um repositório próprio para o seu projeto, que reunirá o tema, os plugins e as configurações da aplicação. O Mapas Culturais Base Project utiliza o Docker e o Docker Composer para rodar a aplicação, facilitando os processos de deploy e de atualizaçao.
@@ -96,67 +93,45 @@ A documentação pode ser navegada no endereço (http://docs.mapasculturais.org)
 Toda documentação da aplicação está na pasta [documentation](documentation). Principais referências: 
 - [API](http://docs.mapasculturais.org/apidoc/index.html?doctype=api)
 - [API - exemplos](documentation/docs/mc_config_api.md)
-- [Guia do desenvolvedor](documentation/docs/mc_developer_guide.md)
 - [Como contribuir](documentation/docs/mc_developer_contribute.md)
-- [Desenvolver um novo tema](documentation/docs/mc_developer_theme.md)
 - [Importação de arquivos de dados geoespaciais (Shapefiles)](documentation/docs/mc_deploy_shapefiles.md)
 - [Deploy diretamente no sistema operacional](https://docs.mapasculturais.org/mc_deploy/) - **NÃO RECOMENDADO**
-- [Habilitar um novo tema](documentation/docs/mc_deploy_theme.md)
 
 ### [Software] Requisitos para Instalação
 Lista dos principais softwares que compõe e aplicação. Maiores detalhes, ver documentação de [instalação](documentation/docs/mc_deploy.md) ou [guia do desenvolvedor](documentation/docs/mc_developer_guide.md). 
 
-- [Ubuntu Server >= 18.04](http://www.ubuntu.com) ou [Debian Server >= 10](https://www.debian.org.)
-- [PHP = 7.2](http://php.net)
-  - [php-gd](http://php.net/manual/pt_BR/book.image.php)
-  - [php-cli](https://packages.debian.org/pt-br/jessie/php5-cli)
-  - [php-json](http://php.net/manual/pt_BR/book.json.php)
-  - [php-curl](http://php.net/manual/pt_BR/book.curl.php)
-  - [php-pgsql](http://php.net/manual/pt_BR/book.pgsql.php)
-  - [php-apc](http://php.net/manual/pt_BR/book.apc.php)
+- [PHP = 8.3](http://php.net)
 - [Composer](https://getcomposer.org/)
-- [PostgreSQL >= 10](http://www.postgresql.org/)
+- [PostgreSQL >= 14](http://www.postgresql.org/)
 - [Postgis >= 2.2](http://postgis.net)
-- [Node.JS >= 8.x](https://nodejs.org/en/)
-  - [NPM](https://www.npmjs.com/)
-  - [Terser](https://terser.org/)
-  - [UglifyCSS](https://www.npmjs.com/package/gulp-uglifycss)
-- [Ruby](https://www.ruby-lang.org/pt)
-  - [Sass gem](https://rubygems.org/gems/sass/versions/3.4.22)
+- [Node.JS >= 20](https://nodejs.org/en/)
 
-### [Hardware] Requisitos para instalação
+## Hardware
 
-Para instalações de pequeno/medio porte nas quais o número de entidades, isto é, número de agentes, espaços, projetos e evento,giram em torno de 2000 ativos, recomenda-se o mínimo de recursos para um servidor (aplicação + base de dados):
+As estimativas abaixo podem variar de acordo com a velocidade dos cores, velocidade do disco, entre outros fatores, por isso recomenda-se que o sysadmin monitore o sistema para ajustar os recursos de acordo com a demanda.
 
-* 2 cores de CPU;
-* 2gb de RAM;
-* 50mbit de rede;
+Sobre o armazenamento deve-se considerar que a tendência é que o uso de espaço em disco cresça constantemente a medida que novos editais vão sendo cadastrados. A quantidade indicada nas tabelas abaixo são uma estimativa para o primeiro ano de uso da plataforma, mas deve ser monitorado e ajustado de acordo com a demanda.
 
-Desejável:
+### Instalações de pequeno porte (até 2.000 usuários ativos)
 
-*  4 cores de CPU;
-* 4gb de RAM;
-* 100mbit de rede;
+<table><thead><tr><th> </th><th width="150">CPUs</th><th width="150">RAM</th><th>Armazenamento</th></tr></thead><tbody><tr><td>mínimo</td><td>2</td><td>2GB</td><td>25GB SSD</td></tr><tr><td>recomendado</td><td>4</td><td>4GB</td><td>50GB SSD</td></tr><tr><td>durante grandes editais</td><td>6</td><td>6GB</td><td>50GB SSD</td></tr></tbody></table>
 
-Para instalações em cidades de grande porte onde o número de entidades, isto é, número de agentes, espaços, projetos e evento, giram em torno de dezenas de milhares de ativos de cada, recomenda-se o mínimo de recursos para um servidor:
+### Instalações de médio porte (entre 2.000 e 10.000 usuários ativos)
 
-* 4 cores de CPU
-* 4gb de RAM
-* 100mbit de rede
+<table><thead><tr><th> </th><th width="150">CPUs</th><th width="150">RAM</th><th>Armazenamento</th></tr></thead><tbody><tr><td>mínimo</td><td>4</td><td>4GB</td><td>50GB SSD</td></tr><tr><td>recomendado</td><td>6</td><td>6GB</td><td>75GB SSD</td></tr><tr><td>durante grandes editais</td><td>8</td><td>8GB</td><td>75GB SSD</td></tr></tbody></table>
 
-Recomendado:
-* 8 cores de CPU
-* 8gb de RAM
-* 500mbit de rede
+### Instalações de grante porte (acima de 10.000 usuários ativos)
+
+<table><thead><tr><th> </th><th width="150">CPUs</th><th width="150">RAM</th><th>Armazenamento</th></tr></thead><tbody><tr><td>mínimo</td><td>6</td><td>6GB</td><td>150GB SSD</td></tr><tr><td>recomendado</td><td>8</td><td>8GB</td><td>250GB SSD</td></tr><tr><td>durante grandes editais</td><td>16</td><td>16GB</td><td>250GB SSD</td></tr></tbody></table>
 
 Vale lembrar que os requisitos de hardware podem variar de acordo com a latência da rede, velocidade dos cores dos cpus, uso de proxies, entre outros fatores. Recomendamos aos sysadmin da rede em que a aplicação será instalada um monitoramento de tráfego e uso durante o período de 6 meses a 1 ano para avaliação de cenário de uso. 
 
 ## Canais de comunicação
 
 * Jitsi: https://meet.jit.si/MapasCulturais
-* Canal do Telegram: [![Join the chat at https://t.me/joinchat/WCYOkiRbAWmxQM2y](https://patrolavia.github.io/telegram-badge/chat.png)](https://t.me/joinchat/WCYOkiRbAWmxQM2y)
+* Canal do Telegram: [![Join the chat at https://t.me/RedeMapas](https://patrolavia.github.io/telegram-badge/chat.png)](https://t.me/RedeMapas)
 
-###Regras do grupo do Telegram MAPAS CULTURAIS [DEV]
+### Regras do grupo do Telegram Mapas Culturais
 
 * Antes de postar, releia e analise se o conteúdo:
 Ofenda as pessoas do grupo;
@@ -167,8 +142,7 @@ Evite “ser chato”;
 Qualquer membro que se sentir ofendido por outro, poderá informar aos admins para análise do conteúdo
 Não faça publicidade e propagandas fora do tema Preferencialmente mande mensagem, mas audio não está proibido Nada de correntes: Repassar correntes é de muito mau gosto, até mesmo aquelas de “utilidade pública”. **Evite *
 
-* Atitutdes proibidas, com possibilidade de ser removido do grupo:
-
+#### Atitutdes proibidas, com possibilidade de ser removido do grupo:
 Fazer propaganda, sem a permissão dos moderadores;
 Envio de links de grupos sem a prévia autorização dos moderadores;
 Postar assuntos que não sejam pertinentes ao propósito do grupo;
@@ -179,4 +153,5 @@ Debates políticos com propósitos partidários.
 ## Licença de uso e desenvolvimento
 
 Mapas Culturais é um software livre licenciado com [GPLv3](http://gplv3.fsf.org). 
+
 

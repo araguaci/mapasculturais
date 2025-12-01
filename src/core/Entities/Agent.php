@@ -210,7 +210,7 @@ class Agent extends \MapasCulturais\Entity
 
 
     /**
-    * @ORM\OneToMany(targetEntity="MapasCulturais\Entities\AgentMeta", mappedBy="owner", cascade={"remove","persist"}, orphanRemoval=true)
+    * @ORM\OneToMany(targetEntity="MapasCulturais\Entities\AgentMeta", mappedBy="owner", cascade={"remove","persist"}, orphanRemoval=true, fetch="EAGER")
     */
     protected $__metadata;
 
@@ -334,12 +334,11 @@ class Agent extends \MapasCulturais\Entity
     {
         $app = App::i();
 
-        if(!$app->user->is('admin') && $this->isNew() && $this->owner){
-            $this->_type = 2;
-        }else{
+        if($this->canUser('changeType')) {
             $this->_type = $type;
+        } else {
+            $this->_type = 2;
         }
-
     }
 
     function setAsUserProfile(){

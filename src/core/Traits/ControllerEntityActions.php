@@ -21,9 +21,14 @@ trait ControllerEntityActions {
         unset($data['id']);
 
         $metadata = $entity->propertiesMetadata;
-        
-        foreach($data as $property => $value) {
-            if($type = $metadata[$property]['type'] ?? false) {
+
+        foreach ($data as $key => $value) {
+            // Verifica se key é válido
+            if (!is_string($key) || empty($key)) {
+                continue;
+            }
+            
+            if($type = $metadata[$key]['type'] ?? false) {
                 if(in_array($type, ['bool', 'boolean'])) {
                     if($value === 'false') {
                         $value = false;
@@ -37,10 +42,15 @@ trait ControllerEntityActions {
                 }
             }
             
-            $current_value = $entity->$property;
+            $current_value = $entity->$key;
 
             if($current_value !== $value) {
-                $entity->$property = $value;
+                // Tratamento especial para a propriedade parent em entidades aninhadas
+                if($key === 'parent' && method_exists($entity, 'setParent')) {
+                    $entity->setParent($value);
+                } else {
+                    $entity->$key = $value;
+                }
             }
         }
     }
@@ -193,7 +203,13 @@ trait ControllerEntityActions {
 
         $app = App::i();
 
-        $force_save = (bool) ($app->request->headers['MAPAS-Force-Save'] ?? false);
+        $force_save = false;
+
+        foreach($app->request->headers as $key => $value) {
+            if(strtolower($key) == 'mapas-force-save') {
+                $force_save = true;
+            }
+        }
 
         $app->applyHookBoundTo($this, "PATCH({$this->id}.single):data", ['data' => &$data]);
 

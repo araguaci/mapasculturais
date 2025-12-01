@@ -24,16 +24,12 @@ app.component('registration-status', {
         return {
             processing: false, 
             entity: null,
-            appealPhaseRegistrationFrom: this.registration.opportunity.appealPhase?.registrationFrom,
-            appealPhaseRegistrationTo: this.registration.opportunity.appealPhase?.registrationTo,
-            appealPhaseEvaluationFrom: this.registration.opportunity.appealPhase?.evaluationMethodConfiguration.evaluationFrom,
-            appealPhaseEvaluationTo: this.registration.opportunity.appealPhase?.evaluationMethodConfiguration.evaluationTo,
         }
     },
 
     computed: {
         firstPhase() {
-            return this.phase.parent || this.phase;
+            return this.opportunity.parent || this.opportunity;
         },
         firstPhaseRegistration() {
             return $MAPAS.registrationPhases[this.firstPhase.id];
@@ -60,6 +56,10 @@ app.component('registration-status', {
                 return false;
             }
 
+            if(this.registration.opportunity.appealPhase && (this.appealRegistration || this?.registration?.opportunity?.appealPhase?.registrationFrom?.isFuture() || this?.registration?.opportunity?.appealPhase?.registrationTo?.isPast())) {
+                return false;
+            }
+
             return this.registration.status > 1 && this.registration.status < 10;
         },
 
@@ -75,21 +75,33 @@ app.component('registration-status', {
             const { isReportingPhase, __objectType, publishEvaluationDetails } = this.phase;
             const { allow_proponent_response } = this.registration.opportunity;
 
-            if (isReportingPhase === '1' && __objectType === 'opportunity' && allow_proponent_response == '1') {
+            if (isReportingPhase === '1' && __objectType === 'opportunity' && allow_proponent_response) {
                 return false;
             }
 
-            return publishEvaluationDetails || allow_proponent_response === '1';
+            return publishEvaluationDetails || allow_proponent_response;
         },
+
+        statuses() {
+            return this.registration.opportunity.statusLabels;
+        }
     },
 
     methods: {
+        shouldDisplayEvaluationResults(registration) {
+            return $MAPAS.config.registrationResults.shouldDisplayEvaluationResults[registration.id];
+        },
 		formatNote(note) {
 			note = parseFloat(note);
 			return note.toLocaleString($MAPAS.config.locale);
 		},
 		verifyState(registration) {
-            switch (registration.status) {
+            let status = registration.status;
+            if(registration.opportunity?.isAppealPhase) {
+                status = this.shouldDisplayEvaluationResults(registration) ? status : 1;
+            }
+
+            switch (status) {
                 case 10:
                 case 1:
                     return 'success__color';
@@ -141,31 +153,33 @@ app.component('registration-status', {
         },
 
         dateFrom() {
-			if (this.appealPhaseRegistrationFrom) {
-				return this.appealPhaseRegistrationFrom.date('2-digit year');
-			}	
-			if (this.appealPhaseEvaluationFrom) {
-				return this.appealPhaseEvaluationFrom.date('2-digit year');
+			if (this.appealPhase?.registrationFrom) {
+				return this.appealPhase?.registrationFrom.date('2-digit year');
+			}
+
+			if (this.appealPhase?.evaluationMethodConfiguration?.evaluationFrom) {
+				return this.appealPhase?.evaluationMethodConfiguration?.evaluationFrom.date('2-digit year');
 			}
 			return false;
 		},
 
 		dateTo() {
-			if (this.appealPhaseRegistrationTo) {
-				return this.appealPhaseRegistrationTo.date('2-digit year');
-			}	
-			if (this.appealPhaseEvaluationTo) {
-				return this.appealPhaseEvaluationTo.date('2-digit year');
+			if (this.appealPhase?.registrationTo) {
+				return this.appealPhase?.registrationTo?.date('2-digit year');
+			}
+
+			if (this.appealPhase?.evaluationMethodConfiguration?.evaluationTo) {
+				return this.appealPhase?.evaluationMethodConfiguration?.evaluationTo?.date('2-digit year');
 			}
 			return false;
 		},
 
 		hour() {
-			if (this.appealPhaseRegistrationTo) {
-				return this.appealPhaseRegistrationTo.time();
+			if (this.appealPhase?.registrationTo) {
+				return this.appealPhase?.registrationTo?.time();
 			}
-			if (this.appealPhaseEvaluationTo) {
-				return this.appealPhaseEvaluationTo.time();
+			if (this.appealPhase?.evaluationMethodConfiguration?.evaluationTo) {
+				return this.appealPhase?.evaluationMethodConfiguration?.evaluationTo.time();
 			}
 			return false;
 		},
@@ -190,5 +204,25 @@ app.component('registration-status', {
             const types = ['qualification', 'technical', 'documentary'];
             return types.includes(phase.type) || phase.publishEvaluationDetails;
         },
+
+        showRegistrationStatus(registration) {
+            if(registration.opportunity?.isReportingPhase) {
+               return this.phase.opportunity.statusLabels[registration.status];
+            }
+            
+            if(registration.opportunity.isAppealPhase) {
+                return this.shouldDisplayEvaluationResults(registration) ? this.phase.appealPhase.statusLabels[registration.status] : this.phase.appealPhase.statusLabels[1];
+            }
+
+            if(registration.status == 0) {
+                return this.text('Não enviada');
+            }
+
+            if(registration.status == 1) {
+                return this.text('Enviada');
+            }
+
+            return this.statuses[registration.status];
+        }
     }
 });

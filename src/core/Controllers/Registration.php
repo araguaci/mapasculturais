@@ -109,6 +109,20 @@ class Registration extends EntityController {
             $this->tmpFile = $tmpFile;
         });
 
+        $app->hook('entity(Registration).file(rfc_<<*>>).insert:after', function() use ($app){
+            $registeredGroup = $app->getRegisteredFileGroup($this->owner->controllerId, $this->group);
+            
+            if($registeredGroup->unique) {
+                if($old_files = $app->repo($this->className)->findBy(['owner' => $this->owner, 'group' => $this->group])) {
+                    foreach($old_files as $old_file) {
+                        if($old_file->id != $this->id) {
+                            $old_file->delete(true);
+                        }
+                    }
+                }
+            }
+        });
+
         $app->hook('<<GET|POST|PUT|PATCH|DELETE>>(registration.<<*>>):before', function() {
             $registration = $this->getRequestedEntity();
            
@@ -127,6 +141,25 @@ class Registration extends EntityController {
         parent::__construct();
     }
     
+
+    function PATCH_single($data = null)
+    {
+        $entity = $this->requestedEntity;
+        $data = $this->postData;
+
+        // se estiver no modo "editableFields", filtra os dados da requisição para 
+        // passar somente os que estão abertos para edição
+        if ($entity->status > 0 && $entity->canUser('sendEditableFields')) {
+            foreach(array_keys($data) as $key) {
+                if(!in_array($key, $entity->editableFields)) {
+                    unset($data[$key]);
+                }
+            }
+        }
+        
+        parent::PATCH_single($data);
+    }
+
      /**
      * metodo vindo da edição da oportunidade, no campo de ESPAÇO CULTURAL tem que fazer a 
      * verificação se já tem registro na tabela, se tiver deve fazer um update para o novo
@@ -288,8 +321,15 @@ class Registration extends EntityController {
     }
     
     function getPreviewEntity(){
-        if(preg_match('/^(\d+)-preview$/', $this->urlData[0] ?? '', $matches)){
-            $app = App::i();
+        $app = App::i();
+        
+        $id = isset($this->urlData['id']) ? $this->urlData['id'] : (isset($this->urlData[0]) ? $this->urlData[0] : null);
+        $referer = $app->request->getReferer()[0] ?? "";
+        if($id == -1 && $referer && preg_match("#/(\d+-preview)/#", $referer, $matches)) {
+            $id = $matches[1];
+        }
+
+        if(preg_match('/^(\d+)-preview$/', $id ?? '', $matches)){
             $opportunity = $app->repo('Opportunity')->find($matches[1]);
 
             $registration = new $this->entityClassName;
@@ -309,12 +349,27 @@ class Registration extends EntityController {
     /**
      * @return \MapasCulturais\Entities\Registration
      */
-    function getRequestedEntity(): EntityRegistration {
-        if($preview_entity = $this->getPreviewEntity()) {
-            return $preview_entity;
-        } else {
-            return parent::getRequestedEntity();
-        }   
+    function getRequestedEntity(): ?EntityRegistration {
+        $app = App::i();
+
+        if($preview_entity = $this->getPreviewEntity()){
+            if($app->request->getMethod() != "GET"){
+                $this->errorJson(['message' => [\MapasCulturais\i::__('Este formulário é um pré-visualização da da ficha de inscrição.')]]);
+            } else {
+                return $preview_entity;
+            }
+        }
+
+        /**
+         * @var EntityRegistration
+         */
+        $requested_entity = parent::getRequestedEntity();
+        
+        if($app->auth->isUserAuthenticated() && !$app->isEntityPermissionCacheRecreated($requested_entity)) {
+            $requested_entity->recreatePermissionCache([$app->user]);
+        }
+
+        return $requested_entity;
     }
 
     /**
@@ -715,8 +770,8 @@ class Registration extends EntityController {
 
 
     function GET_evaluation() {
-
         $this->requireAuthentication();
+
         $app = App::i();
 
         $entity = $app->repo('Registration')->find($this->data['id']);
@@ -727,15 +782,18 @@ class Registration extends EntityController {
         
         $entity->checkPermission('viewUserEvaluation');
 
-        $valuer_user = $app->repo('User')->find($this->data['user'] ?? -1);
-
+        $valuer_user = $app->repo('User')->find($this->data['user'] ?? -1) ?: $app->user;
+        
         $evaluation = $entity->getUserEvaluation($valuer_user);
+
         if (!$evaluation) {
             $entity->checkPermission('evaluate', $valuer_user);
+            
             $evaluation = new RegistrationEvaluation();
             $evaluation->registration = $entity;
             $evaluation->user = $valuer_user;
             $evaluation->status = RegistrationEvaluation::STATUS_DRAFT;
+            
             $evaluation->save(true);
         }
 
@@ -766,7 +824,7 @@ class Registration extends EntityController {
         $this->requireAuthentication();
 
         $entity = $this->requestedEntity;
-        $entity->opportunity->checkPermission('@control');
+        $entity->checkPermission('view');
 
         if (!$entity) {
             $app->pass(); 

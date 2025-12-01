@@ -8,16 +8,62 @@ use MapasCulturais\Definitions\ChatThreadType;
 use MapasCulturais\Entities;
 use MapasCulturais\Entities\ChatMessage;
 use MapasCulturais\Entities\ChatThread;
+use MapasCulturais\Entities\EvaluationMethodConfiguration;
 use MapasCulturais\Entities\Notification;
 use MapasCulturais\Entities\Registration;
 use MapasCulturais\Entities\RegistrationEvaluation;
 use MapasCulturais\Entities\RegistrationFieldConfiguration;
 use MapasCulturais\Entities\RegistrationFileConfiguration;
 use MapasCulturais\i;
-class Module extends \MapasCulturais\EvaluationMethod {
+class Module extends \MapasCulturais\EvaluationMethod 
+{
     const CHAT_THREAD_TYPE = 'EvaluationMethodContinuous';
 
     public $internal = true;
+
+    protected function _export(EvaluationMethodConfiguration $evaluation_method_configuration): array { 
+        return [
+            'allow_proponent_response' => $evaluation_method_configuration->opportunity->allow_proponent_response
+        ];
+    }
+
+    protected function _import(EvaluationMethodConfiguration $evaluation_method_configuration, array $data) { 
+        $evaluation_method_configuration->opportunity->allow_proponent_response = $data['allow_proponent_response'];
+    }
+
+    protected function _getDefaultStatuses(EvaluationMethodConfiguration $evaluation_method_configuration): array
+    {
+        if($evaluation_method_configuration->opportunity->isReportingPhase){
+            return [
+                Registration::STATUS_DRAFT => i::__('Rascunho'),
+                Registration::STATUS_SENT => i::__('Pendente'),
+                Registration::STATUS_INVALID => i::__('Inválida'),
+                Registration::STATUS_NOTAPPROVED => i::__('Reprovado'),
+                Registration::STATUS_WAITLIST => i::__('Aprovado com ressalvas'),
+                Registration::STATUS_APPROVED => i::__('Aprovado')
+            ];
+        }
+
+        return [
+            Registration::STATUS_DRAFT => i::__('Rascunho'),
+            Registration::STATUS_SENT => i::__('Aguardando resposta'),
+            Registration::STATUS_INVALID => i::__('Negado'),
+            Registration::STATUS_NOTAPPROVED => i::__('Indeferido'),
+            Registration::STATUS_APPROVED => i::__('Deferido')
+        ];
+    }
+
+    public function getDefaultStatusesConfigKey(EvaluationMethodConfiguration $evaluation_method_configuration): string {
+        if($evaluation_method_configuration->opportunity->isReportingPhase){
+            return "opportunityPhase.defaultStatuses.reporting";
+        }
+
+        if($evaluation_method_configuration->opportunity->isAppealPhase){
+            return "opportunityPhase.defaultStatuses.appeal";
+        }
+
+        return parent::getDefaultStatusesConfigKey($evaluation_method_configuration);
+    }
 
     public function getSlug() {
         return 'continuous';
@@ -50,6 +96,13 @@ class Module extends \MapasCulturais\EvaluationMethod {
         $this->registerOpportunityMetadata('allow_proponent_response', [
             'type' => "checkbox",
             'label' => \MapasCulturais\i::__('Possibilitar mais de uma resposta do proponente'),
+            'unserialize' => function($value) {
+                if($value == 1) {
+                    return true;
+                }
+
+                return false;
+            }
         ]);
 
         $thread_type_description = i::__('Conversação entre proponente e avaliador');
@@ -308,13 +361,13 @@ class Module extends \MapasCulturais\EvaluationMethod {
             if ($this->thread->ownerEntity instanceof Entities\Registration && 
                 $this->thread->ownerEntity->evaluationMethod instanceof $self && 
                 $app->user->canUser('evaluateOnTime')) {
-                    $data = (object) $this->payload;
+                    $payload = (object) $this->payload;
 
                     // altera o status de uma avaliação de acordo com o status da mensagem do chat
                     $evaluation = $app->repo('RegistrationEvaluation')->findOneBy(['registration' => $this->thread->ownerEntity]);
-                    if ($evaluation && isset($data->status)) {
+                    if ($evaluation && isset($payload->status)) {
 
-                        $evaluation->result = $data->status;
+                        $evaluation->result = $payload->status;
                         $app->disableAccessControl();
                         $evaluation->save(true);
                         $app->enableAccessControl();
@@ -323,20 +376,12 @@ class Module extends \MapasCulturais\EvaluationMethod {
                         $opportunity = $registration->opportunity;
                         
                         if($opportunity->evaluationMethodConfiguration->autoApplicationAllowed) {
-                            $data = [
-                                'registrationEvaluation' => $evaluation,
-                                'registration' => $registration,
-                                'opportunity' => $opportunity,
-                                'newStatus' => $data->status 
-                            ];
-            
-                            $start_string = (new DateTime())->modify('+1 minute 20 seconds')->format('Y-m-d H:i:s');
-                            $app->enqueueOrReplaceJob(\Opportunities\Jobs\AutoApplicationResult::SLUG, $data, $start_string);
+                            $opportunity->evaluationMethod->applyConsolidatedResult($registration, $payload->status);
                         }
                     }
 
                     // altera o status do chat de acordo com o checkbox `endChat` da mensagem
-                    $end_chat = $data->endChat ?? false;
+                    $end_chat = $payload->endChat ?? false;
                     if ($end_chat) {
                         $thread = $app->repo('ChatThread')->findOneBy(['id' => $this->thread->id]);
                         if ($thread) {
@@ -479,6 +524,17 @@ class Module extends \MapasCulturais\EvaluationMethod {
         return $result;
     }
 
+    /**
+     * Retorna o resultado consolidado aplicado
+     *
+     * @param Entities\Registration $registration
+     * @return string|int
+     */
+    public function _getConsolidatedAutoApplicationResult(Entities\Registration $registration, $status_force = null): string|int
+    {
+        return $status_force ?: $registration->consolidatedResult;
+    }
+
     public function getEvaluationResult(Entities\RegistrationEvaluation $evaluation) {
         if ($evaluation->evaluationData->status) {
             return $evaluation->evaluationData->status;
@@ -513,6 +569,17 @@ class Module extends \MapasCulturais\EvaluationMethod {
 
     function _getConsolidatedDetails(Entities\Registration $registration): ?array {
         return null;
+    }
+
+    /**
+     * Retorna se os detalhes de uma avaliação pode ou não serem exibidos
+     *
+     * @param Registration $registration
+     * @return boolean
+     */
+    function shouldDisplayEvaluationResults(Registration $registration): bool
+    {
+        return $registration->opportunity->publishedRegistrations || $registration->opportunity->allow_proponent_response;
     }
 
 }

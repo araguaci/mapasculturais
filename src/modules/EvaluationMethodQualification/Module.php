@@ -5,6 +5,7 @@ namespace EvaluationMethodQualification;
 use MapasCulturais\i;
 use MapasCulturais\App;
 use MapasCulturais\Entities;
+use MapasCulturais\Entities\EvaluationMethodConfiguration;
 use MapasCulturais\Entities\Registration;
 
 const STATUS_INVALID = 'invalid';
@@ -13,6 +14,29 @@ const STATUS_VALID = 'valid';
 
 class Module extends \MapasCulturais\EvaluationMethod
 {
+    protected function _export(EvaluationMethodConfiguration $evaluation_method_configuration): array 
+    { 
+        return [
+            'sections' => $evaluation_method_configuration->sections,
+            'criteria' => $evaluation_method_configuration->criteria
+        ];
+    }
+
+    protected function _import(EvaluationMethodConfiguration $evaluation_method_configuration, array $data) 
+    {
+        $evaluation_method_configuration->sections = $data['sections'];
+        $evaluation_method_configuration->criteria = $data['criteria'];
+    }
+
+    protected function _getDefaultStatuses(EvaluationMethodConfiguration $evaluation_method_configuration): array
+    {
+        return [
+            Registration::STATUS_DRAFT => i::__('Rascunho'),
+            Registration::STATUS_SENT => i::__('Pendente'),
+            Registration::STATUS_NOTAPPROVED => i::__('Inabilitado'),
+            Registration::STATUS_APPROVED => i::__('Habilitado')
+        ];
+    }
 
     public function getSlug()
     {
@@ -60,6 +84,17 @@ class Module extends \MapasCulturais\EvaluationMethod
 
     }
 
+    /**
+     * Retorna o resultado consolidado aplicado
+     *
+     * @param Entities\Registration $registration
+     * @return string|int
+     */
+    public function _getConsolidatedAutoApplicationResult(Entities\Registration $registration): string|int
+    {
+        return $registration->consolidatedResult == 'valid' ? Registration::STATUS_APPROVED : Registration::STATUS_NOTAPPROVED;
+    }
+
     public function getEvaluationStatues()
     {
         $status = [
@@ -95,6 +130,7 @@ class Module extends \MapasCulturais\EvaluationMethod
         $cfg = $evaluation->getEvaluationMethodConfiguration();
         
         foreach(($cfg->sections ?? []) as $section) {
+            $max_non_eliminatory = $section->maxNonEliminatory ?? false;
             $number_max_non_liminatory = $section->numberMaxNonEliminatory ?? 0;
             $non_eliminatory_count = 0;
 
@@ -127,7 +163,7 @@ class Module extends \MapasCulturais\EvaluationMethod
                     }
                 }
 
-                if($non_eliminatory_count > $number_max_non_liminatory){
+                if($max_non_eliminatory && $non_eliminatory_count > $number_max_non_liminatory){
                     $result = 'invalid';
                     break;
                 }

@@ -142,9 +142,9 @@ app.component('opportunity-phases-timeline', {
 
 			const phaseOpportunity = item.__objectType == 'opportunity' ? item : item.opportunity;
 
-			const allowProponentResponse = phaseOpportunity.allow_proponent_response === '1';
+			const allowProponentResponse = phaseOpportunity.allow_proponent_response;
 
-			return (phaseOpportunity.publishedRegistrations || registration.status >= 0) && (isRegistrationOnly || isEvaluation) || allowProponentResponse;
+			return phaseOpportunity.publishedRegistrations && (isRegistrationOnly || isEvaluation) || allowProponentResponse;
 		},
 
 		getRegistration(item) {

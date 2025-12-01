@@ -23,6 +23,10 @@ class SendMailNotification extends JobType
         $registration = $app->repo("Registration")->find($job->registrationId);
         $phase = $registration->opportunity;
         $first_phase = $registration->opportunity->firstPhase;
+        if (!$registration || !$phase || !$first_phase) {
+            return true;
+        }
+
 
 
         $params = [
@@ -45,10 +49,11 @@ class SendMailNotification extends JobType
         $app->applyHook("sendMailNotification.registrationStart",[&$registration, &$template, &$params]);
 
         $message = $app->renderMailerTemplate($template, $params);
-      
+        
+        $mail_to = $registration->owner->emailPrivado ?: $registration->owner->user->email;
         $email_params = [
             'from' => $app->config['mailer.from'],
-            'to' => $registration->owner->emailPrivado,
+            'to' => $mail_to ,
             'subject' => $message['title'],
             'body' => $message['body'],
         ];

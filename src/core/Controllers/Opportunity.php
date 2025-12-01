@@ -376,7 +376,6 @@ class Opportunity extends EntityController {
 
     function apiFindRegistrations($opportunity, $query_data, $enalble_quota = false) {
         $app = App::i();
-        $app->registerFileGroup('registration', new \MapasCulturais\Definitions\FileGroup('zipArchive',[], '', true, null, true));
         $data = $query_data;
 
         $data['opportunity'] = API::EQ($opportunity->id);
@@ -531,8 +530,6 @@ class Opportunity extends EntityController {
     function API_findRegistrations() {
         $app = App::i();
         
-        $app->registerFileGroup('registration', new \MapasCulturais\Definitions\FileGroup('zipArchive',[], '', true, null, true));
-
         $opportunity = $this->_getOpportunity();
         
         $query_data = $this->data;
@@ -634,6 +631,26 @@ class Opportunity extends EntityController {
                 '@permissions' => 'view',
                 '@order' => $order
             ];
+
+            $_opportunity = $opportunity;
+            $opportunity_tree = [$opportunity];
+            while($_opportunity && ($parent = $_opportunity->previousPhase)){
+                $opportunity_tree[] = $parent;
+                $_opportunity = $parent;
+            }
+
+            $opportunity_tree = array_reverse($opportunity_tree);
+            
+            foreach($opportunity_tree as $phase) {
+                foreach($phase->registrationFieldConfigurations as $field){        
+                    // adiciona os metadados existentes na fase atual que estejam sendo usados como filtro
+                    if(isset($query_data[$field->fieldName])){
+                        $rdata[$field->fieldName] = $query_data[$field->fieldName];
+                        unset($query_data[$field->fieldName]);
+                    }
+                }
+            }
+
             
             foreach($query_data as $k => $v){
                 if(strtolower(substr($k, 0, 13)) === 'registration:' && $k != 'registration:@select'){
@@ -981,7 +998,8 @@ class Opportunity extends EntityController {
                 registration_number, 
                 evaluation_id, 
                 valuer_agent_id,
-                evaluation_status
+                evaluation_status,
+                valuer_committee
             FROM evaluations
             WHERE
                 {$complement_where}
@@ -1029,7 +1047,8 @@ class Opportunity extends EntityController {
                     e.evaluation_id, 
                     e.valuer_agent_id,
                     e.registration_number,
-                    e.evaluation_status
+                    e.evaluation_status,
+                    e.valuer_committee
                 FROM evaluations e
                 LEFT JOIN registration_evaluation re ON re.registration_id = e.registration_id
                 WHERE
@@ -1060,12 +1079,15 @@ class Opportunity extends EntityController {
         $_result = [];
 
         foreach($evaluations as $eval) {
-            $_result[] = [
-                'registration_id' => $eval['registration_id'],
-                'evaluation' => $_evaluations[$eval['evaluation_id']] ?? null,
-                'registration' => $_registrations[$eval['registration_id']] ?? null,
-                'valuer' => $valuer_by_id[$eval['valuer_agent_id']] ?? null
-            ];
+            if($_registrations[$eval['registration_id']]) {
+                $_result[] = [
+                    'registration_id' => $eval['registration_id'],
+                    'evaluation' => $_evaluations[$eval['evaluation_id']] ?? null,
+                    'registration' => $_registrations[$eval['registration_id']] ?? null,
+                    'valuer' => $valuer_by_id[$eval['valuer_agent_id']] ?? null,
+                    'committee' => $eval['valuer_committee'] ?? null
+                ];
+            }
         }
 
         // Verifica se há uma diretiva de ordenação

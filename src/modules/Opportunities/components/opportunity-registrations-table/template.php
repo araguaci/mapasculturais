@@ -85,7 +85,7 @@ $entity = $this->controller->requestedEntity;
 
                 <template #status="{entity}">
                     <mc-select v-if="!statusNotEditable" small :default-value="entity.status" @change-option="setStatus($event, entity)">
-                        <mc-status v-for="item in statusDict" :value="item.value" :status-name="item.label"></mc-status>
+                        <mc-status v-for="item in statusDict" :value="item.value" :status-name="item"></mc-status>
                     </mc-select>
                     
                     <mc-status v-if="statusNotEditable" :value="getStatus(entity.status).status" :status-name="getStatus(entity.status).label"></mc-status>
@@ -122,6 +122,10 @@ $entity = $this->controller->requestedEntity;
 
                 <template #number="{entity}">
                     <a :href="entity.singleUrl">{{entity.number}}</a>
+                </template>
+
+                 <template #singleUrl="{entity}">
+                    <a :href="entity.singleUrl">{{entity.singleUrl}}</a>
                 </template>
 
                 <template #eligible="{entity}">

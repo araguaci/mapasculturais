@@ -5,9 +5,32 @@ namespace EvaluationMethodSimple;
 use MapasCulturais\i;
 use MapasCulturais\App;
 use MapasCulturais\Entities;
+use MapasCulturais\Entities\EvaluationMethodConfiguration;
 use MapasCulturais\Entities\Registration;
 
-class Module extends \MapasCulturais\EvaluationMethod {
+class Module extends \MapasCulturais\EvaluationMethod
+{
+    protected function _export(EvaluationMethodConfiguration $evaluation_method_configuration): array
+    {
+        return [];
+    }
+
+    protected function _import(EvaluationMethodConfiguration $evaluation_method_configuration, array $data)
+    {
+        /** não precisa fazer nada */
+    }
+
+    protected function _getDefaultStatuses(EvaluationMethodConfiguration $evaluation_method_configuration): array
+    {
+        return [
+            Registration::STATUS_DRAFT => i::__('Rascunho'),
+            Registration::STATUS_SENT => i::__('Pendente'),
+            Registration::STATUS_INVALID => i::__('Inválida'),
+            Registration::STATUS_NOTAPPROVED => i::__('Não selecionada'),
+            Registration::STATUS_WAITLIST => i::__('Suplente'),
+            Registration::STATUS_APPROVED => i::__('Selecionada')
+        ];
+    }
 
     public function getSlug() {
         return 'simple';
@@ -303,6 +326,17 @@ class Module extends \MapasCulturais\EvaluationMethod {
         }
 
         return $result;
+    }
+
+    /**
+     * Retorna o resultado consolidado aplicado
+     *
+     * @param Entities\Registration $registration
+     * @return string|int
+     */
+    public function _getConsolidatedAutoApplicationResult(Entities\Registration $registration): string|int
+    {
+        return $registration->consolidatedResult;
     }
 
     public function getEvaluationResult(Entities\RegistrationEvaluation $evaluation) {

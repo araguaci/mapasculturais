@@ -842,6 +842,10 @@ return [
         __exec("CREATE INDEX job_search_idx ON job (next_execution_timestamp, iterations_count, status);");
     },
 
+    'remove comment of table job' => function () {
+        __exec("COMMENT ON COLUMN job.metadata is ''");
+    },
+
     'alter job.metadata comment' => function () {
         __exec("COMMENT ON COLUMN job.metadata IS '(DC2Type:json)';");
     },
@@ -1276,6 +1280,16 @@ return [
         ];
 
         foreach ($tabelas as $tabela => $tipo_entidade) {
+            __exec("
+                DELETE FROM $tabela T1
+                USING $tabela T2
+                WHERE
+                    T1.id < T2.id AND
+                    T1.object_id = T2.object_id AND
+                    T1.key = T2.key AND
+                    T1.value = T2.value
+            ");
+
             $duplicates = $conn->fetchAllAssociative("
                 SELECT key, object_id
                 FROM {$tabela}
@@ -1337,6 +1351,23 @@ return [
             $app->log->debug("Aplicado Índice Único na tabela auxiliar {$table}");
         }
     },
+
+    'adiciona coluna pk à tabela de job' => function () {
+        __exec('DROP SEQUENCE IF EXISTS job_pk_seq');
+        __exec("CREATE SEQUENCE job_pk_seq
+                                START WITH 1
+                                INCREMENT BY 1
+                                NO MINVALUE
+                                NO MAXVALUE
+                                CACHE 1;");
+                                
+        __exec("ALTER TABLE job ADD COLUMN pk bigint not null DEFAULT nextval('job_pk_seq'::regclass)");
+        
+        __exec("ALTER TABLE job DROP CONSTRAINT job_pkey");
+        __exec("ALTER TABLE job ADD CONSTRAINT job_pk PRIMARY KEY (pk);");
+
+    },
+
     /// MIGRATIONS - DATA CHANGES =========================================
 
     'migrate gender' => function() use ($conn) {
@@ -1936,7 +1967,7 @@ $$
         __try("DROP MATERIALIZED VIEW evaluations");
     },
 
-    'Recria view evaluations!!!!!!' => function() use($conn) {
+    'Recria view evaluations!!!!!!!' => function() use($conn) {
         __try("DROP VIEW IF EXISTS evaluations");
 
         $conn->executeQuery("
@@ -1996,7 +2027,7 @@ $$
                         JOIN evaluation_method_configuration emc
                             ON emc.opportunity_id = r2.opportunity_id
                     WHERE                          
-                        r2.status = 1
+                        r2.status >= 1
                 ) AS evaluations_view 
                 GROUP BY
                     registration_id,
@@ -2658,7 +2689,171 @@ $$
                 object_type = 'MapasCulturais\Entities\EvaluationMethodConfiguration'
         ", ['type' => $name]);
     },
-    
+
+    "Ajusta estrutura de avaliação para interpretar as comissões" => function () use ($conn) {
+        $name = i::__('Comissão de avaliação');
+        $conn->executeQuery("
+            UPDATE registration
+            SET valuers = (
+                SELECT jsonb_object_agg(key, 
+                    CASE value
+                        WHEN 'group-admin' THEN :type
+                        ELSE value
+                    END
+                )
+                FROM jsonb_each_text(valuers)
+            )
+            WHERE valuers::text LIKE '%group-admin%'
+        ", ['type' => $name]);
+
+        $conn->executeQuery("UPDATE registration_evaluation set committee = :type WHERE committee = 'group-admin'", ['type' => $name]);
+    },
+
+    'Ajusta distribuição de avaliações caso nao exista regra de distribuição anteriormente definida' => function () use ($conn, $app) {
+        $sql = "
+        SELECT em.*
+        FROM evaluationmethodconfiguration_meta em
+        JOIN evaluation_method_configuration emc ON em.object_id = emc.id
+        JOIN opportunity_meta o ON emc.opportunity_id = o.id
+        WHERE em.key IN ('fetch', 'fetchCategories', 'fetchRanges', 'fetchProponentTypes')
+          AND EXISTS (
+              SELECT 1
+              FROM agent_relation ar
+              WHERE 
+                  ar.object_type = 'MapasCulturais\Entities\EvaluationMethodConfiguration'
+                  AND ar.object_id = emc.id
+                  AND (ar.create_timestamp < (
+                      SELECT exec_time 
+                      FROM db_update 
+                      WHERE name = 'Ajusta estrutura de avaliação para interpretar as comissões'
+                      LIMIT 1
+                  ) or ar.create_timestamp is null)
+          )
+          AND o.id IN (
+              SELECT r.opportunity_id 
+              FROM registration r 
+              WHERE r.valuers_exceptions_list = '{\"exclude\": [], \"include\": []}'
+          )";
+
+        $rows = $conn->fetchAll($sql);
+
+        if (!$rows) {
+            return false;
+        }
+
+        // Agrupa os registros por object_id
+        $dataByObject = [];
+        foreach ($rows as $row) {
+            $dataByObject[$row['object_id']][$row['key']] = $row['value'];
+        }
+
+
+        $isAllEmpty = function (array $keys): bool {
+            foreach (['fetch', 'fetchCategories', 'fetchRanges', 'fetchProponentTypes'] as $key) {
+                $json = $keys[$key] ?? null;
+
+                if (!$json) {
+                    continue;
+                }
+                $decoded = json_decode($json, true);
+
+                if (is_array($decoded) && !empty(array_filter($decoded))) {
+                    return false;
+                }
+            }
+            return true;
+        };
+
+        $object_ids = [];
+        foreach ($dataByObject as $object_id => $keys) {
+
+            if ($isAllEmpty($keys)) {
+                $object_ids[] = $object_id;
+            }
+        }
+
+        foreach ($object_ids as $object_id) {
+            $committee = $conn->fetchAll("
+            SELECT 
+                a.user_id 
+            FROM 
+                agent_relation ar 
+            LEFT JOIN agent a ON a.id = ar.agent_id
+            WHERE 
+                ar.object_type = 'MapasCulturais\Entities\EvaluationMethodConfiguration' AND ar.object_id = {$object_id}");
+
+            if (!$committee) {
+                continue;
+            }
+
+            $data = [];
+            foreach ($committee as $val) {
+                $data[$val['user_id']] = "00-99";
+            }
+
+            $jsonData = json_encode($data);
+
+            $conn->executeQuery("UPDATE evaluationmethodconfiguration_meta SET value = '{$jsonData}' WHERE key = 'fetch' AND object_id = {$object_id}");
+        }
+
+        return false;
+    },
+
+    'Ajusta distribuição de avaliações caso nao exista regra de distribuição anteriormente definida Parte 2' => function () use ($conn, $app) {
+        $sql = "
+            SELECT emm.*
+            FROM evaluationmethodconfiguration_meta emm
+            JOIN evaluation_method_configuration emc ON emm.object_id = emc.id
+            JOIN opportunity_meta o ON emc.opportunity_id = o.id
+            WHERE 
+                emm.object_id NOT in (
+                    SELECT emm2.object_id
+                    FROM evaluationmethodconfiguration_meta emm2
+                    where emm2.key IN ('fetch', 'fetchCategories', 'fetchRanges', 'fetchProponentTypes')
+                )
+                AND o.id IN (
+                    SELECT r.opportunity_id 
+                    FROM registration r 
+                    WHERE r.valuers_exceptions_list = '{\"exclude\": [], \"include\": []}'
+                )";
+
+        $rows = $conn->fetchAll($sql);
+
+        if (!$rows) {
+            return false;
+        }
+
+        $dataByObject = [];
+        foreach ($rows as $row) {
+            $dataByObject[$row['object_id']] = $row['object_id'];
+        }
+
+        foreach ($dataByObject as $object_id) {
+            $committee = $conn->fetchAll("
+            SELECT 
+                a.user_id 
+            FROM 
+                agent_relation ar 
+            LEFT JOIN agent a ON a.id = ar.agent_id
+            WHERE 
+                ar.object_type = 'MapasCulturais\Entities\EvaluationMethodConfiguration' AND ar.object_id = {$object_id}");
+
+
+            if (!$committee) {
+                continue;
+            }
+
+            $data = [];
+            foreach ($committee as $val) {
+                $data[$val['user_id']] = "00-99";
+            }
+
+            $jsonData = json_encode($data);
+            $insert = "INSERT INTO evaluationmethodconfiguration_meta (object_id, key, value) VALUES ({$object_id}, 'fetch', '{$jsonData}' )";
+            $conn->executeQuery($insert);
+        }
+    },
+
     'Limpa entradas duplicadas na tabela pcache e cria novos indices' => function() use($conn) {
         __exec("DELETE 
                 FROM 

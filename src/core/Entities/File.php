@@ -13,11 +13,12 @@ use Doctrine\ORM\Mapping as ORM;
  * @property-read int $id File Id
  * @property-read string $md5 File MD5
  * @property-read string $mimeType File Mime Type
- * @property-read string $name File name
- * @property-read string $group File Group (gallery|avatar|download|etc.)
- * @property-read \MapasCulturais\Entity $owner File Owner
+ * @property string $name File name
+ * @property string $description File description
+ * @property string $group File Group (gallery|avatar|download|etc.)
+ * @property \MapasCulturais\Entity $owner File Owner
  * @property-read \DateTime $createTimestamp File Create Timestamp
- * @property-read \MapasCulturais\Entity $owner The Owner of this File
+ * @property \MapasCulturais\Entity $owner The Owner of this File
  * 
  * @property bool $private Is this file private?
  *
@@ -299,15 +300,17 @@ abstract class File extends \MapasCulturais\Entity
 
         if($files){
             foreach($files as $file){
-                $registeredGroup = $app->getRegisteredFileGroup($file->owner->controllerId, $file->group);
+                $group_key = trim($file->group);
+                $registeredGroup = $app->getRegisteredFileGroup($file->owner->controllerId, $group_key);
 
-                if($registeredGroup && $registeredGroup->unique || $file->group === 'zipArchive' || strpos($file->group, 'rfc_') === 0){
-                    $result[trim($file->group)] = $file;
+                if($registeredGroup && $registeredGroup->unique || strpos($group_key, 'rfc_') === 0){
+                    $last_file = $result[$group_key] ?? null;
+                    $result[$group_key] = (!$last_file || $file->id > $last_file->id) ? $file : $last_file;
                 }else{
-                    if(!key_exists($file->group, $result))
-                        $result[trim($file->group)] = [];
+                    if(!key_exists($group_key, $result))
+                        $result[$group_key] = [];
 
-                    $result[trim($file->group)][] = $file;
+                    $result[$group_key][] = $file;
                 }
             }
         }

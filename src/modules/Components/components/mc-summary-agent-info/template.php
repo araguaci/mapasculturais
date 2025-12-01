@@ -7,12 +7,12 @@
 use MapasCulturais\i;
 
 $this->import('
-    mc-icon    
+    mc-icon
 ');
 ?>
 
-<div class="mc-summary-agent-info" :class="classes">
-    <div v-if="opportunity && canSee('agentsSummary')" class="mc-summary-agent-info__section">
+<div v-if="opportunity && canSee('agentsSummary')" class="mc-summary-agent-info" :class="classes">
+    <div  class="mc-summary-agent-info__section">
         <h3><?= i::__("Dados do proponente") ?></h3>
 
         <h4 v-if="owner.id"> <span class="bold"><?= i::__("ID:") ?></span> {{owner.id}} </h4>
@@ -39,6 +39,7 @@ $this->import('
         <h4 v-if="owner.site"> <span class="bold"><?= i::__("Site:") ?></span> {{owner.site}} </h4>
         <h4 v-if="owner.facebook"> <span class="bold"><?= i::__("Facebook:") ?></span> {{owner.facebook}} </h4>
         <h4 v-if="owner.twitter"> <span class="bold"><?= i::__("Twitter:") ?></span> {{owner.twitter}} </h4>
+        <h4 v-if="owner.fediverso"> <span class="bold"><?= i::__("Fediverso:") ?></span> {{owner.fediverso}} </h4>
     </div>
 
     <div v-if="opportunity.useAgentRelationColetivo && opportunity.useAgentRelationColetivo !== 'dontUse'" class="mc-summary-agent-info__section">

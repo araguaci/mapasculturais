@@ -27,6 +27,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\TransactionRequiredException;
 use Exception as GlobalException;
 use Doctrine\Persistence\Mapping\MappingException;
+use MailNotification\JobTypes\MailMessage;
 use MapasCulturais\Definitions\ChatThreadType;
 use MapasCulturais\Definitions\JobType;
 use MapasCulturais\Definitions\RegistrationAgentRelation;
@@ -39,6 +40,8 @@ use MapasCulturais\Exceptions\WorkflowRequest;
 use ReflectionException;
 use RuntimeException;
 use Slim\App as SlimApp;
+
+use Scienta\DoctrineJsonFunctions\Query\AST\Functions\Postgresql as DqlFunctions;
 
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler;
@@ -699,6 +702,8 @@ class App {
         $this->rcache = new Cache($rcache_adapter);
     }
 
+    protected \Doctrine\ORM\Configuration $doctrineConfiguration;
+
     /**
      * Inicializa o Doctrine
      * 
@@ -715,8 +720,6 @@ class App {
             isDevMode: (bool) $this->config['doctrine.isDev'],
             cache: $this->cache->adapter
         );
-
-        
 
         // tells the doctrine to ignore hook annotation.
         AnnotationReader::addGlobalIgnoredName('hook');
@@ -756,26 +759,17 @@ class App {
         $doctrine_config->addCustomNumericFunction('st_within', 'MapasCulturais\DoctrineMappings\Functions\STWithin');
         $doctrine_config->addCustomNumericFunction('st_makepoint', 'MapasCulturais\DoctrineMappings\Functions\STMakePoint');
 
+
+        // para trabalhar com JSONS
+        $doctrine_config->addCustomStringFunction(DqlFunctions\JsonbExists::FUNCTION_NAME, DqlFunctions\JsonbExists::class);
+        $doctrine_config->addCustomStringFunction(DqlFunctions\JsonbContains::FUNCTION_NAME, DqlFunctions\JsonbContains::class);
+
         $metadata_cache_adapter = new \Symfony\Component\Cache\Adapter\PhpFilesAdapter();
         $doctrine_config->setMetadataCache($metadata_cache_adapter);
         $doctrine_config->setQueryCache($this->mscache->adapter);
         $doctrine_config->setResultCache($this->mscache->adapter);
 
         $doctrine_config->setAutoGenerateProxyClasses(\Doctrine\Common\Proxy\AbstractProxyFactory::AUTOGENERATE_FILE_NOT_EXISTS);
-        
-        // obtaining the entity manager
-        $connection = DriverManager::getConnection([
-            'driver' => 'pdo_pgsql',
-            'dbname' => $this->config['db.dbname'],
-            'user' => $this->config['db.user'],
-            'password' => $this->config['db.password'],
-            'host' => $this->config['db.host'],
-            'wrapperClass' => Connection::class
-        ], $doctrine_config);
-        
-        
-        // obtaining the entity manager
-        $this->em = new EntityManager($connection, $doctrine_config);
 
         DoctrineMappings\Types\Frequency::register();
         DoctrineMappings\Types\Point::register();
@@ -787,7 +781,23 @@ class App {
             DoctrineEnumTypes\PermissionAction::getTypeName() => DoctrineEnumTypes\PermissionAction::class
         ]);
 
-        $platform = $this->em->getConnection()->getDatabasePlatform();
+        $this->doctrineConfiguration = $doctrine_config;
+
+        $this->initEntityManager();
+    }
+
+    public function initEntityManager() {
+        // obtaining the entity manager
+        $connection = DriverManager::getConnection([
+            'driver' => 'pdo_pgsql',
+            'dbname' => $this->config['db.dbname'],
+            'user' => $this->config['db.user'],
+            'password' => $this->config['db.password'],
+            'host' => $this->config['db.host'],
+            'wrapperClass' => Connection::class
+        ], $this->doctrineConfiguration);
+
+        $platform = $connection->getDatabasePlatform();
 
         $platform->registerDoctrineTypeMapping('_text', 'text');
         $platform->registerDoctrineTypeMapping('point', 'point');
@@ -795,6 +805,9 @@ class App {
         $platform->registerDoctrineTypeMapping('geometry', 'geometry');
         $platform->registerDoctrineTypeMapping('object_type', 'object_type');
         $platform->registerDoctrineTypeMapping('permission_action', 'permission_action');
+        
+        // obtaining the entity manager
+        $this->em = new EntityManager($connection, $this->doctrineConfiguration);
     }
 
     /**
@@ -1875,7 +1888,7 @@ class App {
         }
 
         /** @var Entities\Job $job */
-        if ($job = $this->repo('Job')->find($id)) {
+        if (!$replace && ($job = $this->repo('Job')->findOneBy(['id' => $id]))) {
             $job_create_timestamp = $job->createTimestamp;
 
             // o job tem mais que 5 minutos?
@@ -1951,7 +1964,7 @@ class App {
 
         $id = $type->generateId($data, $start_string, $interval_string, $iterations);
 
-        if ($job = $this->repo('Job')->find($id)) {
+        if ($job = $this->repo('Job')->findOneBy(['id' => $id])) {
             $job->delete(true);
         }
     }
@@ -1988,7 +2001,7 @@ class App {
         if ($job_id) {
             /** @var Job $job */
             $conn->executeQuery("UPDATE job SET status = 1 WHERE id = '{$job_id}'");
-            $job = $this->repo('Job')->find($job_id);
+            $job = $this->repo('Job')->findOneBy(['id' => $job_id]);
             if( $job->subsite) {
                 $this->_initSubsite($job->subsite->url);
                 $path = (array) $this->view->path;
@@ -2419,13 +2432,26 @@ class App {
         return $message;
     }
 
+    function enqueueMailMessageJob(Email $message): void {
+        $data = [
+            'message' => serialize($message)
+        ];
+
+        $this->enqueueJob(MailMessage::SLUG, $data);
+    }
+
     /**
      * Envia uma mensagem de email
      * 
      * @param Email $message 
      * @return bool 
      */
-    function sendMailMessage(Email $message): bool {
+    function sendMailMessage(Email $message, bool $create_job = false): bool {
+        if($create_job) {
+            $this->enqueueMailMessageJob($message);
+            return true;
+        }
+
         $mailer = $this->getMailer();
 
         if (!is_object($mailer))
@@ -2676,7 +2702,6 @@ class App {
             'share' => new Definitions\FileGroup('share',['^image/(jpeg|png)$'], i::__('O arquivo enviado não é uma imagem válida.'),true),
             'institute'  => new Definitions\FileGroup('institute',['^image/(jpeg|png)$'], i::__('O arquivo enviado não é uma imagem válida.'), true),
             'favicon'  => new Definitions\FileGroup('favicon',['^image/(jpeg|png|x-icon|vnd.microsoft.icon)$'], i::__('O arquivo enviado não é uma imagem válida.'), true),
-            'zipArchive'  => new Definitions\FileGroup('zipArchive',['^application/zip$'], i::__('O arquivo não é um ZIP.'), true, null, true),
             'chatImage' => new Definitions\FileGroup('chatImage', ['^image/(jpeg|png)$'], i::__('O arquivo enviado não é uma imagem válida.'), true),
             'chatAttachment' => new Definitions\FileGroup('chatAttachment', unique:true),
             'evaluationImage' => new Definitions\FileGroup('evaluationImage', ['^image/(jpeg|png)$'], i::__('O arquivo enviado não é uma imagem válida.'), true),
@@ -2724,8 +2749,7 @@ class App {
         $this->registerFileGroup('seal', $file_groups['gallery']);
 
         $this->registerFileGroup('registrationFileConfiguration', $file_groups['registrationFileConfiguration']);
-        $this->registerFileGroup('registration', $file_groups['zipArchive']);
-
+        
         $this->registerFileGroup('subsite',$file_groups['header']);
         $this->registerFileGroup('subsite',$file_groups['avatar']);
         $this->registerFileGroup('subsite',$file_groups['downloads']);

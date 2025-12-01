@@ -136,7 +136,7 @@ class Subsite extends \MapasCulturais\Entity
     protected $namespace = 'Subsite';
 
     /**
-     * @ORM\OneToMany(targetEntity="MapasCulturais\Entities\SubsiteMeta", mappedBy="owner", cascade={"remove","persist"}, orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="MapasCulturais\Entities\SubsiteMeta", mappedBy="owner", cascade={"remove","persist"}, orphanRemoval=true, fetch="EAGER")
      */
     protected $__metadata;
 
@@ -187,8 +187,8 @@ class Subsite extends \MapasCulturais\Entity
      * @return string
      */
     public function getSubsiteUrl(): string {
-        $protocol = $_SERVER['REQUEST_SCHEME'] ?? 'http';
-        return "{$protocol}://{$this->url}/";
+        $app = App::i();
+        return preg_replace("#(https?://)[^\/\:]+(:\d+)?/?#","$1{$this->url}$2/", $app->config['base.url']);
     }
 
 
@@ -375,7 +375,7 @@ class Subsite extends \MapasCulturais\Entity
         $assets_folder = "assets/{$domain}/";
 
         $app->config['base.assetUrl'] = $app->baseUrl . $assets_folder;
-        $app->config['themes.assetManager']->config['publishPath'] = BASE_PATH . $assets_folder;
+        $app->assetManager->config['publishPath'] = BASE_PATH . $assets_folder;
 
         // @TODO: passar esta parte abaixo para o tema
         $entidades = $this->entidades_habilitadas ?: ['Agents', 'Projects', 'Spaces', 'Events', 'Opportunities'];

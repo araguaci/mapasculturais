@@ -162,24 +162,28 @@ trait ControllerUploads{
 
         foreach($files as $file){
             $upload_group = $app->getRegisteredFileGroup($this->id, $file->group);
+            $old_files = $app->repo($file_class_name)->findBy(['owner' => $owner, 'group' => $file->group]);
 
             $file->owner = $owner;
 
-            // if this group is unique, deletes the existent file
-            if($upload_group->unique){
-                $old_file = $app->repo($file_class_name)->findOneBy(['owner' => $owner, 'group' => $file->group]);
-                if($old_file)
-                    $old_file->delete();
-            }
-
             try{
+                $app->applyHookBoundTo($this, "{$file->hookPrefix}.upload.filesSave:before", [$file]);
                 $file->save();
+                $app->applyHookBoundTo($this, "{$file->hookPrefix}.upload.filesSave:after", [$file]);
             } catch (SaveFileError $e) {
-                $this->errorJson(i::__('Falha ao salvar o arquivo, por favor entre em contato com o suporte.'), 500);
+                $this->errorJson([$file->group => $e->getMessage()]);
             }
             $file_group = $file->group;
 
             if($upload_group->unique){
+                if($old_files) {
+                    foreach($old_files as $old_file) {
+                        if($old_file->id != $file->id) {
+                            $old_file->delete(true);
+                        }
+                    }
+                }
+
                 $result[$file_group] = $file;
             }else{
                 if(!key_exists($file->group, $result))

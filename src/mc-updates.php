@@ -2,6 +2,7 @@
 
 use MapasCulturais\i;
 use MapasCulturais\App;
+use MapasCulturais\Definitions\FileGroup;
 use MapasCulturais\Utils;
 use MapasCulturais\Entities\Agent;
 use MapasCulturais\Entities\Opportunity;
@@ -456,7 +457,7 @@ return [
             $app->enableAccessControl();
         });
     },
-    'Reordena campo pessoa deficiente dos agentes' => function () use ($app) {
+    'Reordena campo pessoa deficiente dos agentes again..two' => function () use ($app) {
         $ajust_array_value = function ($value) {
             $result =  array_filter($value, function ($val) {
                 $val = trim($val);
@@ -467,10 +468,14 @@ return [
                 }
             });
 
+            if (empty($result)) {
+                return '[]'; 
+            }
+
             $result = implode('","', $result);
             $result = '["' . $result . '"]';
 
-            return $result ?: [""];
+            return $result ?: [];
         };
 
         $app->disableAccessControl();
@@ -479,10 +484,10 @@ return [
             $conn = $app->em->getConnection();
             if($data = $conn->fetchAll("SELECT value from agent_meta WHERE object_id = {$agent->id} AND key = 'pessoaDeficiente'")) {
                 $_result = [""];
-                $value = json_decode($data[0]['value']);
+                $value = json_decode($data[0]['value'],true);
                 $modify = false;
                 if(is_array($value)) {
-                    $_result = $ajust_array_value($value);
+                    $_result = $ajust_array_value(array_values($value));
                     $modify = true;
                 }else {
                     $_value = explode(";", $value);
@@ -646,11 +651,73 @@ return [
                         $result[] = $area;
                     }
                 }
+                sort($areas);
+                sort($result);
 
-                $agent->terms['area'] = $result;
+                if($areas != $result) {
+                    $agent->terms['area'] = $result;
+                    $agent->disableUpdateTimestamp();
+                    $agent->save(true);
+                }
+            }
+        });
+
+    },
+    
+    'Atualiza valores do campo comunidadesTradicional' => function () {
+        $app = App::i();
+
+        $mapping = [
+            'Comunidade extrativista' => 'Extrativistas',
+            'Comunidade ribeirinha' => 'Ribeirinhos',
+            'Povos indígenas/originários' => 'Povos indígenas',
+            'Comunidades de pescadores(as) artesanais' => 'Pescadores artesanais',
+            'Povos de terreiro' => 'Povos e comunidades de terreiro/povos e comunidades de matriz africana',
+            'Povos de quilombola' => 'Quilombolas',
+            'Pomeranos' => 'Povo Pomerano',
+        ];
+
+        $old_values = implode(',', array_map(fn($value) => "'$value'", array_keys($mapping)));
+
+        $agents_where = "
+            id IN (
+                SELECT object_id 
+                FROM agent_meta 
+                WHERE 
+                    key = 'comunidadesTradicional' AND 
+                    value IN ($old_values)
+                )";
+
+        DB_UPDATE::enqueue('Agent', $agents_where, function (MapasCulturais\Entities\Agent $agent) use ($mapping, $app) {
+
+            $agent->disableUpdateTimestamp();
+
+            $comunidade_tradicional = $agent->comunidadesTradicional ?: null;
+
+            if ($comunidade_tradicional && isset($mapping[$comunidade_tradicional])) {
+
+                $result =  $mapping[$comunidade_tradicional];
+                $agent->comunidadesTradicional =  $result;
+                $app->log->debug("Agente {$agent->id} - Comunidade tradicional atualizado de '{$comunidade_tradicional}' para '{$result}'");
                 $agent->save(true);
             }
         });
     },
+
+    'remove arquivos zipArchive das registrations' => function () {
+        $app = App::i();
+        
+        if(!env('CLEAN_ZIPARCHIVE')) {
+            $app->log->debug("PARA FAZER A LIMPEZA DOS ARQUIVOS zipArchive DAS INSCRIÇÕES, DEFINA A VARIAVEL DE AMBIETE CLEAN_ZIPARCHIVE=1");
+            return false;
+        }
+
+        $app->registerFileGroup('registration', new FileGroup('zipArchive',['^application/zip$'], i::__('O arquivo não é um ZIP.'), true, null, true));
+        DB_UPDATE::enqueue('File', "grp = 'zipArchive' AND object_type = 'MapasCulturais\Entities\Registration'", function (MapasCulturais\Entities\RegistrationFile $file) use($app) {
+            $app->log->debug("REMOVENDO ARQUIVO {$file->path}");
+            file_put_contents(LOGS_PATH . 'removed-zipArchives.log', "\n{$file->path}", FILE_APPEND);
+            $file->delete(true);
+        });
+    }
 
 ];

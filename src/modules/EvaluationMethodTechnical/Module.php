@@ -9,10 +9,63 @@ use MapasCulturais\App;
 use MapasCulturais\Controller;
 use MapasCulturais\Controllers\Opportunity as ControllersOpportunity;
 use MapasCulturais\Entities;
+use MapasCulturais\Entities\EvaluationMethodConfiguration;
 use MapasCulturais\Entities\Opportunity;
 use MapasCulturais\Entities\Registration;
 
-class Module extends \MapasCulturais\EvaluationMethod {
+class Module extends \MapasCulturais\EvaluationMethod
+{
+    protected function _export(EvaluationMethodConfiguration $evaluation_method_configuration): array 
+    {
+        $result = [
+            'sections' => $evaluation_method_configuration->sections,
+            'criteria' => $evaluation_method_configuration->criteria,
+            'pointReward' => $evaluation_method_configuration->pointReward,
+            'isActivePointReward' => $evaluation_method_configuration->isActivePointReward,
+            'pointRewardRoof' => $evaluation_method_configuration->pointRewardRoof,
+            'quota' => $evaluation_method_configuration->quota,
+            'enableViability' => $evaluation_method_configuration->enableViability,
+            'geoQuotaConfiguration' => $evaluation_method_configuration->geoQuotaConfiguration,
+            'tiebreakerCriteriaConfiguration' => $evaluation_method_configuration->tiebreakerCriteriaConfiguration,
+            'quotaConfiguration' => $evaluation_method_configuration->quotaConfiguration,
+            'cutoffScore' => $evaluation_method_configuration->cutoffScore,
+            
+            'enableQuotasQuestion' => $evaluation_method_configuration->opportunity->firstPhase->enableQuotasQuestion,
+            'considerQuotasInGeneralList' => $evaluation_method_configuration->opportunity->firstPhase->considerQuotasInGeneralList,
+        ];
+        
+        return $result;
+    }
+
+    protected function _import(EvaluationMethodConfiguration $evaluation_method_configuration, array $data) 
+    { 
+        $evaluation_method_configuration->sections = $data['sections'];
+        $evaluation_method_configuration->criteria = $data['criteria'];
+        $evaluation_method_configuration->pointReward = $data['pointReward'];
+        $evaluation_method_configuration->isActivePointReward = $data['isActivePointReward'];
+        $evaluation_method_configuration->pointRewardRoof = $data['pointRewardRoof'];
+        $evaluation_method_configuration->quota = $data['quota'];
+        $evaluation_method_configuration->enableViability = $data['enableViability'];
+        $evaluation_method_configuration->geoQuotaConfiguration = $data['geoQuotaConfiguration'];
+        $evaluation_method_configuration->tiebreakerCriteriaConfiguration = $data['tiebreakerCriteriaConfiguration'];
+        $evaluation_method_configuration->quotaConfiguration = $data['quotaConfiguration'];
+        $evaluation_method_configuration->cutoffScore = $data['cutoffScore'];
+
+        $evaluation_method_configuration->opportunity->firstPhase->enableQuotasQuestion = $data['enableQuotasQuestion'];
+        $evaluation_method_configuration->opportunity->firstPhase->considerQuotasInGeneralList = $data['considerQuotasInGeneralList'];
+    }
+
+    protected function _getDefaultStatuses(EvaluationMethodConfiguration $evaluation_method_configuration): array
+    {
+        return [
+            Registration::STATUS_DRAFT => i::__('Rascunho'),
+            Registration::STATUS_SENT => i::__('Pendente'),
+            Registration::STATUS_INVALID => i::__('Inválida'),
+            Registration::STATUS_NOTAPPROVED => i::__('Não selecionada'),
+            Registration::STATUS_WAITLIST => i::__('Suplente'),
+            Registration::STATUS_APPROVED => i::__('Selecionada')
+        ];
+    }
     
     protected static Module $instance;
     private $viability_status;
@@ -376,10 +429,6 @@ class Module extends \MapasCulturais\EvaluationMethod {
                
                 $app->enableAccessControl();
                 
-                // limpa o cache das cotas
-                $cache_key = "{$this->opportunity}:quota-registrations";
-                $app->cache->delete($cache_key);
-                
             }
            
         });
@@ -388,6 +437,7 @@ class Module extends \MapasCulturais\EvaluationMethod {
             /** @var ApiQuery $this */
 
             if($params['__enableQuota'] ?? false) {
+                Module::$quotaData = null;
                 unset($params['__enableQuota']);
             } else {
                 return;
@@ -413,6 +463,7 @@ class Module extends \MapasCulturais\EvaluationMethod {
                 Module::$quotaData->orderByQuota = $order == '@quota';
 
                 $quota_order = Module::$quotaData->quota->getRegistrationsOrderByScoreConsideringQuotas($params);
+
                 $opportunity = $app->repo('Opportunity')->find($phase_id);
                 $opportunity->registerRegistrationMetadata();
                 
@@ -447,7 +498,6 @@ class Module extends \MapasCulturais\EvaluationMethod {
                     $page = $params['@page'] ?? 1;
                     $offset = ($page - 1) * $limit;
                     $ids = array_slice($ids, $offset, $limit);
-                    // eval(\psy\sh());
                     
                 } else {
                     $ids = array_map(fn($reg) => $reg->id, $quota_order);
@@ -926,6 +976,16 @@ class Module extends \MapasCulturais\EvaluationMethod {
         return $errors;
     }
 
+    /**
+     * Retorna se método de avaliação deve ou não auto aplicar os resultados
+     *
+     * @return boolean
+     */
+    function useAutoApplication(): bool
+    {
+        return false;
+    }
+
     public function _getConsolidatedResult(\MapasCulturais\Entities\Registration $registration, array $evaluations) {
         if(empty($evaluations)){
             return 0;
@@ -948,6 +1008,17 @@ class Module extends \MapasCulturais\EvaluationMethod {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Retorna o resultado consolidado aplicado
+     *
+     * @param Entities\Registration $registration
+     * @return string|int
+     */
+    public function _getConsolidatedAutoApplicationResult(Entities\Registration $registration): string|int
+    {
+        return $registration->consolidatedResult;
     }
 
     public function applyPointReward($result, \MapasCulturais\Entities\Registration $registration)
@@ -1118,14 +1189,15 @@ class Module extends \MapasCulturais\EvaluationMethod {
     public function getEvaluationResult(Entities\RegistrationEvaluation $evaluation) {
         $total = 0;
 
-        $cfg = $evaluation->getEvaluationMethodConfiguration();
-        foreach($cfg->criteria as $cri){
-            $key = $cri->id;
-            if(!isset($evaluation->evaluationData->$key)){
-                return null;
-            } else {
-                $val = $evaluation->evaluationData->$key;
-                $total += is_numeric($val) ? $cri->weight * $val : 0;
+        if($cfg = $evaluation->getEvaluationMethodConfiguration()) {
+            foreach(($cfg->criteria ?: []) as $cri){
+                $key = $cri->id;
+                if(!isset($evaluation->evaluationData->$key)){
+                    return null;
+                } else {
+                    $val = $evaluation->evaluationData->$key;
+                    $total += is_numeric($val) ? $cri->weight * $val : 0;
+                }
             }
         }
 

@@ -5,24 +5,249 @@ Todas as mudanças notáveis no projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [7.6]
+## [UNRELEASED]
 ### Novas Funcionalidades
-- Novo **módulo de recursos** que permite que o gestor configure fases de recurso nos editais/oportunidades, possibilitando que proponentes contestem o resultado de fases específicas. É possível habilitar um formulário personalizado para a solicitação de recurso e definir uma comissão avaliadora responsável por analisar essas solicitações, garantindo mais transparência e formalização no processo dentro da plataforma.
-- Módulo **plano de metas** que permite ao gestor configurar um formulário, disponível já na fase de inscrição, para que os proponentes descrevam quais metas pretendem alcançar, prazos de execução e as entregas previstas para cada meta, garantindo maior clareza e detalhamento dos objetivos e compromissos dos projetos que estão submetendo.
-- Módulo de **monitoramento e prestação de contas** que permite ao gestor configurar fases de envio de informações para acompanhar o andamento das metas e entregas declaradas na inscrição (_plano de metas_) pelos proponentes contemplados. A última dessas fases é a prestação final de informações, ou prestação de contas, de preenchimento obrigatório para todos os contemplados.
-- **Documentos oficiais** - melhoria na interface de bloqueio de campos por selos verificadores de documento, como por exemplo um selo _GOV.br_ que valide os campos _CPF_, _Nome Completo_, _Telefone Privado_, exibindo ao lado do campo o ícone do selo e a data da validação do campo.
-- **Editais de fluxo contínuo**, onde as inscrições podem ficar abertas indefinidamente e os proponentes recebem os resultados conforme avançam nas fases (como análise técnica ou avaliação documental), sem depender de datas pré-fixadas para divulgação coletiva do resultado — ideal para programas de fomento contínuo ou ocupação de espaços culturais.
-- **Certificação automática de proponentes** por meio de selos vinculados às fases dos editais, que são atribuídos conforme o proponente avança no processo — por exemplo, ao ser aprovado na análise documental, recebe um selo de "CPF verificado", e ao ser contemplado na fase final, ganha o selo "Fomento 2025".
-- **Autoaplicação das avaliações** - Quando todos os avaliadores de uma inscrição finalizam suas avaliações, o sistema processa automaticamente o resultado das avaliações e atualiza o status da inscrição dispensando qualquer ação manual pela equipe gestora.
-- **Formulários de inscrição por etapas** - agora é possível dividir o formulário de inscrição em etapas, organizando os campos em blocos sequenciais. A tela de inscrição foi redesenhada para essa nova estrutura, tornando o preenchimento mais claro e fluido para os proponentes.
+- Exportador / Importador de oportunidades
+- Lista de entidades seladas na single dos selos
+- Opção para habilitar página de certificado na configuração de selo
+- Aba de eventos na single de espaços com listagem de eventos programados no local
+- Aba de eventos na single de projetos com listagem de eventos vinculados e suas ocorrências
+- Fediverso como rede social nos metadados das entidades
+
+### Melhorias
+- Redireciona usuario para o perfil quando o mesmo esta em rascunho ou com dados obrigatórios não preechidos
+- Implementa novos hooks na edit de espaço e no componente entity-field
+- Adiciona suporte a autenticação JWT nas requisições para API [(1)](#snp)
+
+### Correções
+- Corrige warnigs no navegador devido a problemas com o componente entity-field
+- Implementa verificações para evitar warnings indesejados referente ao componente de localização
+- Ajusta ApiQuery para evitar que _addFilterByMetadata crie JOIN's duplicados
+- Corrige função replaces da classe i
+- Corrige nome do hook entity().archive:after
+- Corrige busca pela chave primária da tabela Job
+
+### Melhorias não funcionais
+- LifecycleCallbacks na Entities\SealRelation
+- Função \query que faz uma consulta no banco e imprime o resultado como uma tabela ascii
+
+### Créditos
+<a name="snp"></a>
+1. <small>Melhoria desenvolvida pelo Ministério das Cidades, através da Secretaria Nacional de Periferias, para o Prêmio Periferia Viva</small>
+
+## [7.6.23] - 2025-10-31
+### Melhorias e correções não funcionais
+- Implementa novos hooks na edit dos agentes
+
+### Correções
+- Corrige erro que ocorria ao ordenar resultados com campos string vazios convertidos para FLOAT no ApiQuery
+
+## [7.6.22] - 2025-10-28
+### Correções
+- Corrige criação de avaliação na rota de nova avaliação
+
+### Melhorias e correções não funcionais
+- Corrige permissão na propagação do score e do eligible entre as fases da inscrição
+- Reformações de código para melhorar a leitura
+
+## [7.6.21] - 2025-10-24
+### Correções
+- Corrige listagem de avaliações da fase de recurso
 
 
-- **Nova interface de configuração das comissões de avaliação** que permite maior flexibilidade e controle na gestão das comissões de avaliação dos editais.
+## [7.6.20] - 2025-10-22
+### Correções
+- Corrige filtro de ordenamento na lista de avaliações "mais recentes primeiro" e "mais antigas primeiro" pela ordem de envio da inscrição
+- Corrige criação de avaliação quando não é informado o user na url da requisição, criando para o usuário autenticado
+
+### Melhorias
+- Template part para os créditos do footer
+
+## [7.6.19] - 2025-10-20
+### Correções
+- Corrige salvamento de avaliação do método de avaliação qualificação documental
+- Corrige salvamento de avaliação por usuários admins
+
+## [7.6.18] - 2025-10-16
+### Correções
+- Corrige remoção de fase de avaliação quando a próxima fase for a última fase e a fase atual não for uma fase de coleta de dados
+
+## [7.6.17] - 2025-10-16
+### Correções
+- Corrige verificação do header que força o salvamento das requisições PATCH que contenham erro de validação
+
+## [7.6.16] - 2025-10-15
+### Correções
+- Corrige funcionamento dos campos somente leitura do módulo de suporte
+
+## [7.6.15] - 2025-10-15
+### Melhorias
+- Ajuste na visualização dos status das avaliações do avaliador para que seja exibido sempre que houver avaliações, mesmo que não tenham filtros configurados
+- Ajuste na distribuição para que distribua também as inscrições já avaliadas quando houver configurações na lista de inclusão de avaliadores.
+
+## [7.6.13] - 2025-10-14
+### Correções
+- Ajuste da exibição de acessibilidade na lista de espaços
+- Ajustes de filtros de categoria, faixa e tipo de proponente no suporte
+- Ajuste da visibilidade dos campos do formulário de inscrição condicionado a pergunta "Vai concorrer por cotas"?
+- Corrige a consolidação de resultado da avaliação do tipo habilitação documental
+- Corrige exibição da data da inscrição na tela de avaliação
+- Corrige criação de espaço
+- Evita quebra no getSummary da fase de avaliação
+
+### Melhorias não funcionais
+-- Novos hooks para manipulação na página de edição dos espaços
+
+## [7.6.12] - 2025-10-08
+### Correções
+- Ajuste a estilização do campo pessoa com deficiência
+- Padroniza labels dos campos da página de edição de agente individual
+- Ajuste de estilização na tela de aceitação de termos de uso e política de privacidade
+- Corrige destinatário dos emails de início de inscrições quando o agente não tem o email privado definido
+- Evita que entidades em rascunho e lixeira sejam exportados nas planilhas
+
+### Melhorias
+- Adiciona funcionalidade de remoção do supra espaço
+
+### Melhorias não funcionais
+- Novo hook para manipulação do título da página
+- Novo hook para manipulação do tipo de requisição do salvamento das entidades, que por padrão é PATCH, possibilitando definir para PUT
+- Viabiliza, na interface, mensagem de erro para o campo de upload de avatar das entidades
+
+## [7.6.11] - 2025-10-07
+### Correções
+- Corrige erro na avaliação de qualificação documental, que exigia uma opção para desabilitação mesmo quando não existia opções configuradas
+- Corrige erro que impedia o carregamento da inscrição, quando não existia step configurado em algum campo
+- Ajusta para que o script de cotas não quebre quando não existe configurações de cotas definidas ou se as configurações  estão incompletas
+- Corrige filtros da tabela de agentes individuais
+- Corrige funcionalidade de limpar filtros da tabela de agentes
+- Corrige exibição das tabelas de agentes e agentes individuais
+
+## [7.6.10] - 2025-10-02
+### Correções
+- Corrige conflito entre a criação de inscrição e a pré visualização de formulários
+- Faz ajustes para evitar que fique arquivos duplicados na inscrição
+- Corrige db-update que ajusta o metadado pessoa com deficiência
+
+### Melhorias
+- Implementa botão de alteração de senha para ser usados em providers externos Ex.: Authentik
+- Implementa método que melhora a auto aplicação de resultados das avaliações melhorando a usabilidade da funcionalidade
+
+## [7.6.9] - 2025-09-26
+- Corrige criação de oportunidade de fluxo contínuo
+- Corrige permissão de bloquear uma entidade para edição quando a permissão de modificar foi dada por um role
+- Evita que campos @ condicionados tentem apagar a informação da entidade relacionada
+- Corrige salvamento de formulário de edição de campos de inscrição 
+
+## [7.6.8] - 2025-09-25
+### Correções
+- Corrige exibição do link da inscrição na exportação da planilhas de inscritos
+- Corrige exibição dos campos do tipo "Lista de Pessoas" na exportação da planilha de inscritos
+- Corrige erro que exibia campos indevidos para o admnistrador na ficha de inscrição
+- Corrige exibição do link da inscrição na tabela e planilha de inscritos
+- Corrige ordenação dos campos do formulário de avaliação
+- Corrige layout da tela de acompanhamento de inscrição no mobile
+- Corrige salvamento de formulário de edição de campos de inscrição quando há campos @ condicionados
+
+## [7.6.7] - 2025-09-19
+### Correções
+- Implementa db-updates para ajustar as avaliações, garantindo compatibilidade com a nova estrutura de comissões de avaliação
+
+## [7.6.6] - 2025-09-17
+### Correções
+- Corrige condição de exibição do botão de recurso para não aparecer quando o período de recurso não estiver aberto
+- Corrige a exibição dos campos condicionais do formulário, exibindo-os corretamente quando existe condicionalidade por tipo de proponente
+- Corrige exibição da pre visualização do formulário de inscrição
+- Corrige links para arquivo compactado dos anexos dos formulários de inscrição
+
+### Melhorias
+- Exibe hora de abertura e fechamento da fase de recurso nas sanfonas de configuração de fases
+
+### Outros
+- Script de limpeza dos arquivos compactados com os anexos dos formulários. Para executar o script é necesário definir a variável de ambiente `CLEAN_ZIPARCHIVE=1`
+- Mudança no entrypoint do Docker, fazendo os comandos de mudança de permissão das pastas não serem recursivos, diminuindo o tempo para subir o ambiente
+
+## [7.6.5] - 2025-09-16
+### Corrções
+- Corrige o endpoint ALL_error para capturar corretamente as exceções
+- Corrige erro no método EvaluationMethodContinuous que impedia o avaliador de encerrar o CHAT
+- Corrige a sintaxe HTML do componente de exibição dos detalhes da avaliação documental
+- Oculta o checkbox que ativa ou desativa a exibição de parecer na avaliação contínua
+- Corrige a exibição do botão de detalhamento na tela de acompanhamento da inscrição
+- Corrige a aplicação dos resultados da avaliação nos casos de avaliação documental
+- Corrige a exibição da data de publicação de resultados nos steps de configuração das fases da oportunidade
+- Impede que os pareceres sejam carregados no front-end quando não estiver permitido exibi-los
+- Corrige exibição de resultados da inscrição para mostra apenas quando a fase estiver publicada ou, em fases de recurso, tambem se o chat estiver ativo para múltiplas respostas
+- Corrige o balanceamento da distribuição de avaliações quando já existem avaliações com status maior que 1 (Iniciadas)
+- Corrige execuções de tarefas em segundo plano para evitar quebra caso a(s) entidade(s) vinculada(s) ao job não exista(m) mais
+
+### Melhorias
+- Adicionado aviso que explica que, ao ativar o chat, o detalhamento da avaliação também ficará visível mesmo sem publicação da fase
+- Implementa o método shouldDisplayEvaluationResults para verificar se uma inscrição está apta ou não a exibir os resultados da avaliação
+- Diminui a frequência da verificação do status da distribuição de avaliações no intervalo que nao esta distribuindo
+
+## [7.6.4] - 2025-09-09
+### Correções
+- Implementa mc-update para normalização das comunidades Tradicionais 
+- Corrige o método refreshed das entidades
+- Corrige componente entity-activity-card que quebrava pela falta do use da classe de internacionalização
+- Corrige layout da página de busca de eventos
+- Botão de solicitar recurso em fases avançadas do edital
+- Corrige exibição do campo de estados na estrutura de endereço internacional
+- Corrige listagem de avaliações da fase de recuros
+- Corrige exibição do status na teela de acompanhamento
+
+### Melhorias e correções não funcionais
+- Flag para desabilitar a atualização automática do update_timestamp das entidades
+
+## [7.6.3] - 2025-09-04
+### Correções
+- Corrige distribuição das comissões quando há avaliadores repetidos em comissões diferentes que tenham filtro configurados
+- Corrige resumo das avaliações dos avaliadores dentro das comissões, para exibir somente as avaliações da comissão
+- Corrige alguns warnings
+
+## [7.6.2] - 2025-08-30
+### Correções
+- Corrige ordenação por classificação quando não há faixas no edital
+
+## [7.6.1] - 2025-08-29
+### Melhorias
+- Muda o fetch mode da relação __metada para EAGER
+- Aplicação de função `text` em textos do rodapé, permitindo a manipulação e personalização por meio de temas e plugins.
+- Tradução para o inglês (wip)
+- Verificação da existência de um metadado com a mesma chave antes de salvar o metadado
+- Ajustar a label do campo "E-mail pessoal" para "E-mail privado" nos agentes individuais e coletivos.
+
+### Correções
+- Impede que a funcionalidade de duplicar oportunidade duplique a commisão de avaliação do edital de origem
+- Impede que a funcionalidade de duplicação de oportunidade mantenha os selos relacionados do edital de origem no edital copiado
+- Impede que a funcionalidade de duplicação de oportunidade mantenha os agentes relacionados do edital de origem no edital copiado
+- Impede que a data de criação permaneca igual ao edital original na funcionalidade de duplicar oportunidade
+- Impede que a funcionalidade de duplicação de oportunidade mantenha o mesmo dono do edital de origem no edital copiado
+
+### Correções
+- Corrige componente `opportunity-owner-type` que estava quebrada com as novas traduções do ES e EN
+
+## [7.6.0] - 2025-08-20
+### Novas Funcionalidades
+- Novo **módulo de recursos**[(1)](#hl-funpar) que permite que o gestor configure fases de recurso nos editais/oportunidades, possibilitando que proponentes contestem o resultado de fases específicas. É possível habilitar um formulário personalizado para a solicitação de recurso e definir uma comissão avaliadora responsável por analisar essas solicitações, garantindo mais transparência e formalização no processo dentro da plataforma.
+- Módulo **plano de metas**[(2)](#ufpr) que permite ao gestor configurar um formulário, disponível já na fase de inscrição, para que os proponentes descrevam quais metas pretendem alcançar, prazos de execução e as entregas previstas para cada meta, garantindo maior clareza e detalhamento dos objetivos e compromissos dos projetos que estão submetendo.
+- **Modelos de oportunidades**[(2)](#ufpr) - Funcionalidade que permite o salvamento de oportunidades já configuradas como modelos que podem ser utilizados para a criação de oportunidades já pré-configuradas.
+- **Duplicação de oportunidades**[(2)](#ufpr) - Funcionalidade que permite a criar uma cópia de uma outra oportunidade já inteiramente configurada.
+- Módulo de **monitoramento e prestação de contas**[(1)](#hl-funpar) que permite ao gestor configurar fases de envio de informações para acompanhar o andamento das metas e entregas declaradas na inscrição (_plano de metas_) pelos proponentes contemplados. A última dessas fases é a prestação final de informações, ou prestação de contas, de preenchimento obrigatório para todos os contemplados. (1)
+- **Documentos oficiais**[(1)](#hl-funpar) - melhoria na interface de bloqueio de campos por selos verificadores de documento, como por exemplo um selo _GOV.br_ que valide os campos _CPF_, _Nome Completo_, _Telefone Privado_, exibindo ao lado do campo o ícone do selo e a data da validação do campo. (1)
+- **Editais de fluxo contínuo**[(3)](#hl-scdc), onde as inscrições podem ficar abertas indefinidamente e os proponentes recebem os resultados conforme avançam nas fases (como análise técnica ou avaliação documental), sem depender de datas pré-fixadas para divulgação coletiva do resultado — ideal para programas de fomento contínuo ou ocupação de espaços culturais.
+- **Certificação automática de proponentes**[(3)](#hl-scdc) por meio de selos vinculados às fases dos editais, que são atribuídos conforme o proponente avança no processo — por exemplo, ao ser aprovado na análise documental, recebe um selo de "CPF verificado", e ao ser contemplado na fase final, ganha o selo "Fomento 2025".
+- **Autoaplicação das avaliações**[(3)](#hl-scdc) - Quando todos os avaliadores de uma inscrição finalizam suas avaliações, o sistema processa automaticamente o resultado das avaliações e atualiza o status da inscrição dispensando qualquer ação manual pela equipe gestora.
+- **Formulários de inscrição por etapas**[(3)](#hl-scdc) - agora é possível dividir o formulário de inscrição em etapas, organizando os campos em blocos sequenciais. A tela de inscrição foi redesenhada para essa nova estrutura, tornando o preenchimento mais claro e fluido para os proponentes.
+- **Nova interface de configuração das comissões de avaliação**[(3)](#hl-scdc) que permite maior flexibilidade e controle na gestão das comissões de avaliação dos editais.
   - **Múltiplas comissões**: Agora é possível criar diversas comissões em um mesmo edital, cada uma com critérios próprios de distribuição das inscrições.
   - **Filtros no nível da comissão**: Os filtros (antes aplicados individualmente por avaliador) agora podem ser definidos na comissão, usando qualquer campo de seleção do formulário, além de categoria, tipo de proponente e faixa. (Continua possível aplicar subfiltros específicos por avaliador dentro da comissão.)
   - **Limite de avaliadores por inscrição**: Permite definir quantos avaliadores de uma comissão analisarão cada inscrição, facilitando editais com grande volume.
   - **Comissão de voto de minerva**: Nova instância que recebe inscrições com avaliações divergentes para desempate.
   - **Maior transparência no processo de distribuição**: Interface que exibe o progresso da distribuição das inscrições entre os avaliadores, especialmente útil em grandes editais.
+- **Configuração avançada de status das inscrições**[(4)](#hl-secultpe) - agora é possível configurar quais status de inscrições estarão ativos em cada fase do edital, além de customizar seus nomes para melhor se adequar a cada organização ou situação. 
+- **Internacionalização dos endereços**[(5)](#hl-ibercultura) - para atender os distintos formatos de coleta de endereços existentes. Possibilidade de criação de componentes específicos para cada país.
 
 ### Melhorias e correções não funcionais
 - Novos tipos de metadados:
@@ -33,8 +258,85 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Refatoração da distribuição das avaliações para não dependerem mais do cache de permissão;
 - Nova estrutura para os testes automatizados 
 - Corrige função de tradução para que faça a leitura dos arquivos de tradução dos plugins
+- Operador IN para metadados de seleção múltipla
 
-  
+### Créditos
+<a name="hl-funpar"></a>
+1. <small>Funcionalidade desenvolvida pela hacklab/ por meio do contrato com a FUNPAR, referente à execução do TED Mapas MinC</small>
+<a name="ufpr"></a>
+2. <small>Funcionalidade desenvolvida pela UFPR, por meio TED Mapas MinC com colaboração da hacklab/</small>
+<a name="hl-scdc"></a>
+3. <small>Funcionalidade desenvolvida pela hacklab/ por meio de cooperação com a SCDC</small>
+<a name="hl-secultpe"></a>
+4. <small>Funcionalidade desenvolvida pela hacklab/ por meio do contrato com a SECULT/PE</small>
+<a name="hl-ibercultura"></a>
+5. <small>Funcionalidade desenvolvida pela hacklab/ por meio do contrato com o programa IberCultura Viva</small>
+
+## [7.5.68] - 2025-10-07
+### Correções
+- Corrige template de e-mail de aviso de inscrição selecionada para exibir o number da inscrição corretamente
+
+## [7.5.67] - 2025-09-26
+### Correções
+- Corrige permissão para edição via role criado na página de funções de usuário
+
+## [7.5.66] - 2025-09-05
+### Correções
+- Corrige paginação de oportunidades
+
+## [7.5.65] - 2025-09-04
+### Correções
+- Corrige erro que exibia os campos para o avaliador mesmo quando estavam bloqueados após o envio da avaliação.
+
+## [7.5.64] - 2025-08-30
+### Correções
+- Corrige ordenação por classificação quando não há faixas no edital
+
+## [7.5.63] - 2025-08-29
+### Correções
+- Corrige erro no componente entity-field-datepicker que impedia deixar vazios os campos de datas não obrigatórias
+
+## [7.5.62] - 2025-08-28
+### Correções
+- Corrige exibição da lista de últimas planilhas exportadas no componente mc-export-spreadsheet
+
+## [7.5.61] - 2025-08-27
+### Correções
+- corrige exibição dos pareceres e detalhamentos para o proponente no método de avaliação documental
+
+## [7.5.60] - 2025-08-12
+### Correções
+- Ajusta para que seja recriado o cache da inscrição quando usuário acessa a mesma
+
+## [7.5.59] - 2025-08-08
+### Correções
+- Recria o cache de permissão do usuário no momento que ele acessa a entidade
+
+## [7.5.58] - 2025-08-05
+### Correções
+- Corrige exibição e validação de campos condicionais dependentes em múltiplos níveis
+- Corrige exibição das informações de campos condicionados na configuração dos anexos
+
+## [7.5.57] - 2025-08-04
+### Correções
+- Evita que a listagem de oportunidades quebre quando exista um erro em alguma coluna
+
+## [7.5.56] - 2025-08-01
+### Correções
+- Corrige erro que impedia o acesso à inscrição quando não havia campos liberados para o avaliador e o valor retornado era null
+- Corrige erro no cálculo da pontuação total na tela de avaliação.
+
+## [7.5.55] - 2025-07-14
+### Correções
+- Ajusta cenUserSend() na entidade registration, evitando falso bloqueio causado por erros anteriores no formulário
+
+## [7.5.54] - 2025-07-10
+### Correções
+- Ajusta o método appendMetadata na classe ApiQuery para repassar corretamente os parâmetros de definição durante o processo de unserialize
+
+### Melhorias
+- Ajusta unserialize dos campos de tipo agent-owner-field, agent-collective-field e space-field para melhorar a performace
+
 ## [7.5.53] - 2025-06-02
 ### Correções
 - Ajusta verirficação de permissão para baixar arquivos ZIP das inscrições

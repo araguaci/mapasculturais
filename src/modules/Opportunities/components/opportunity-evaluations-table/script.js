@@ -161,6 +161,7 @@ app.component('opportunity-evaluations-table', {
 
             reg.evaluation = rawData.evaluation;
             reg.valuer = rawData.valuer;
+            reg.committee = rawData.committee;
 
             return reg;
         },
@@ -260,6 +261,24 @@ app.component('opportunity-evaluations-table', {
             if (filter.prop == 'status' || filter.prop == '@pending') {
                 this.selectedStatus = null;
                 delete this.query['status'];
+            }
+        },
+
+        async deleteEvaluation(entity, refresh) {
+            if (!entity.evaluation || !entity.evaluation.id) {
+                return;
+            }
+
+            try {
+                const evaluationApi = new API('registrationevaluation');
+                const evaluation = evaluationApi.getEntityInstance(entity.evaluation.id);
+                evaluation.populate(entity.evaluation, true);
+                
+                await evaluation.delete();
+                
+                refresh();
+            } catch (error) {
+                console.error(__('Erro ao excluir avaliação', 'opportunity-evaluations-table'), error);
             }
         }
     }

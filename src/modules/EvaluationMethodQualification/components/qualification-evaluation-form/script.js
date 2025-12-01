@@ -311,11 +311,13 @@ app.component('qualification-evaluation-form', {
                         isValid = true;
                     }
                     
-                    if (crit.nonEliminatory === 'false' && value.includes('invalid')) {
+                    if (crit.nonEliminatory === 'false' && value.includes('invalid') && crit.options.length > 0) {
                         let hasRecommendation = false;
+                        
+                        const isOthersActive = crit.otherReasonsOption == 'true';
 
                         if (crit.options.length > 0) {
-                            for (let option of crit.options) {
+                            for (const option of crit.options) {
                                 if (this.formData.data[crit.id]?.includes(option)) {
                                     hasRecommendation = true;
                                     break;
@@ -323,10 +325,10 @@ app.component('qualification-evaluation-form', {
                             }
                         }
 
-                        if (crit.otherReasonsOption && this.formData.data[crit.id]?.includes('others')) {
-                            const reason = this.formData.data[crit.id + '_reason'];
-                            if (reason && reason.trim() !== '') {
-                                hasRecommendation = true;
+                        if (isOthersActive && hasRecommendation) {
+                            const reason = this.formData.data[`${crit.id}_reason`];
+                            if (!reason || reason.trim() == '') {
+                                hasRecommendation = false;
                             }
                         }
 

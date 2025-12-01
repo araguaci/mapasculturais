@@ -13,7 +13,9 @@ $this->import('
     opportunity-category
     opportunity-ranges-config
     opportunity-proponent-types
+    opportunity-phase-config-status
     opportunity-appeal-phase-config
+    seals-certifier
 ');
 ?>
     <div class="opportunity-data-collection grid-12">
@@ -82,9 +84,19 @@ $this->import('
         <?php $this->applyTemplateHook('opportunity-data-collection-config-form',sufix: 'after')?>
 
 
-        <template v-if="nextPhase?.__objectType != 'evaluationmethodconfiguration' && !firstPhase?.isContinuousFlow">
+        <template v-if="nextPhase?.__objectType != 'evaluationmethodconfiguration'">
+            <div class="opportunity-data-collection__horizontal-line col-12 "></div>
+            <opportunity-phase-config-status :phase="phase"></opportunity-phase-config-status>
+        </template>
+
+        <template v-if="nextPhase?.__objectType != 'evaluationmethodconfiguration'">
             <div class="opportunity-data-collection__horizontal-line col-12 "></div>
             <opportunity-phase-publish-date-config  :phase="phase" :phases="phases" hide-description hide-button useSealsCertification></opportunity-phase-publish-date-config>
+        </template>
+
+        <template v-if="nextPhase?.__objectType != 'evaluationmethodconfiguration'">
+            <div class="opportunity-data-collection__horizontal-line col-12 "></div>
+            <seals-certifier :entity="firstPhase" :editable="seals.length > 0"></seals-certifier>
         </template>
 
         <div class="opportunity-data-collection__delete col-12" v-if="!phase.isLastPhase && !phase.isFirstPhase">

@@ -49,7 +49,7 @@ $this->import('
                 </div>
                 <div v-if="showPublishTimestamp(item) && (!firstPhase?.isContinuousFlow || (firstPhase?.isContinuousFlow && firstPhase?.hasEndDate))" class="date">
                     <div class="date__title"> <?= i::__('Data publicação') ?> </div>
-                    <div class="date__content">{{publishTimestamp(item)?.date('2-digit year')}}</div>
+                    <div class="date__content">{{publishTimestamp(item)?.date('2-digit year')}} {{publishTimestamp(item)?.time('numeric')}}</div>
                 </div>
             </div>
         </div>
@@ -72,8 +72,8 @@ $this->import('
     </template>
     <template #after-li="{index, item}">
         <template v-if="phases[index + 1]?.isLastPhase">
-            <div v-if="showButtons() && entity.registrationFrom && entity.registrationTo && !(firstPhase?.isContinuousFlow && firstPhase?.hasEndDate && !lastPhase.publishTimestamp)" class="add-phase grid-12">
-                <div class="col-12">
+            <div v-if="showButtons() && entity.registrationFrom && entity.registrationTo" class="add-phase grid-12">
+                <div class="add-phase__evaluation col-12">
                     <opportunity-create-evaluation-phase :opportunity="entity" :previousPhase="item" :lastPhase="phases[index+1]" @create="addInPhases"></opportunity-create-evaluation-phase>
                 </div>
                 <p><label class="col-12"><?= i::__("ou") ?></label></p>

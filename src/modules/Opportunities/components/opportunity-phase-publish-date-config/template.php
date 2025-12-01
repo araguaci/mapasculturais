@@ -12,10 +12,10 @@ $this->import('
     mc-link
 ');
 ?>
-<div v-if="isNotContinuousFlow" class="col-12">
+<div class="col-12">
     <div class="grid-12 opportunity-phase-publish-date-config">
         <h4 class="bold col-12">  <?= i::__("Publicação de Resultados") ?></h4>
-        <div v-if="phase.publishedRegistrations" class="published">
+        <div v-if="phase.publishedRegistrations && !firstPhase?.isContinuousFlow" class="published">
             <div class="col-4">
                 <mc-confirm-button :message="text('despublicar')" @confirm="unpublishRegistration()">
                     <template #button="modal">
@@ -77,7 +77,7 @@ $this->import('
         </div>
         
         <div class="col-12 grid-12" v-if="true">
-            <div class="col-12" v-if="phase.evaluationMethodConfiguration && !phase.isAppealPhase">
+            <div class="col-12" v-if="phase.evaluationMethodConfiguration  && !phase.isAppealPhase">
                 <entity-field :entity="phase.evaluationMethodConfiguration" prop="publishEvaluationDetails" type="checkbox" :autosave="300" ></entity-field>
             </div>
             <div class="col-12" v-if="phase.evaluationMethodConfiguration">

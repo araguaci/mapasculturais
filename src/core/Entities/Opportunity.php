@@ -39,6 +39,9 @@ use MapasCulturais\EvaluationMethod;
  * @property Agent $owner
  *
  *
+ * @property-read ?Opportunity $previousPhase
+ * @property-read ?Opportunity $nextPhase
+ * 
  * @property-read ?EvaluationMethod $evaluationMethod
  * @property-read string $specializedClassName
  * @property EvaluationMethodConfiguration $evaluationMethodConfiguration
@@ -159,6 +162,8 @@ abstract class Opportunity extends \MapasCulturais\Entity
     protected array $registrationCategories = [];
 
     /**
+     * @var MapasCulturais\Entities\RegistrationStep[]
+     * 
      * @ORM\OneToMany(targetEntity="MapasCulturais\Entities\RegistrationStep", mappedBy="opportunity", cascade={"remove"}, orphanRemoval=true)
      */
     protected $registrationSteps;
@@ -189,31 +194,31 @@ abstract class Opportunity extends \MapasCulturais\Entity
      *
      * @ORM\Column(name="auto_publish", type="boolean", options={"default" : false})
      */
-    protected $autoPublish = false;
+    protected bool $autoPublish = false;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="status", type="smallint", nullable=false)
      */
-    protected $status = self::STATUS_ENABLED;
+    protected int $status = self::STATUS_ENABLED;
 
      /**
-     * @var string
+     * @var array
      *
      * @ORM\Column(name="registration_proponent_types", type="json", nullable=false)
      */
     protected array $registrationProponentTypes = [];
 
     /**
-     * @var string
+     * @var array
      *
      * @ORM\Column(name="registration_ranges", type="json", nullable=true)
      */
     protected array $registrationRanges = [];
 
     /**
-     * @var \MapasCulturais\Entities\Opportunity
+     * @var Opportunity
      *
      * @ORM\ManyToOne(targetEntity="MapasCulturais\Entities\Opportunity")
      * @ORM\JoinColumns({
@@ -223,14 +228,14 @@ abstract class Opportunity extends \MapasCulturais\Entity
     protected $parent;
 
     /**
-     * @var \MapasCulturais\Entities\Opportunity[] Children opportunities
+     * @var Opportunity[] Children opportunities
      *
      * @ORM\OneToMany(targetEntity="MapasCulturais\Entities\Opportunity", mappedBy="parent", fetch="LAZY", cascade={"remove"})
      */
     protected $_children;
 
     /**
-     * @var \MapasCulturais\Entities\Agent
+     * @var Agent
      *
      * @ORM\ManyToOne(targetEntity="MapasCulturais\Entities\Agent", fetch="LAZY")
      * @ORM\JoinColumns({
@@ -240,19 +245,19 @@ abstract class Opportunity extends \MapasCulturais\Entity
     protected $owner;
 
     /**
-     * @var \MapasCulturais\Entities\EvaluationMethodConfiguration
+     * @var EvaluationMethodConfiguration
      *
      * @ORM\OneToOne(targetEntity="MapasCulturais\Entities\EvaluationMethodConfiguration", mappedBy="opportunity")
      */
     protected $evaluationMethodConfiguration;
 
     /**
-    * @ORM\OneToMany(targetEntity="MapasCulturais\Entities\OpportunityMeta", mappedBy="owner", cascade={"remove","persist"}, orphanRemoval=true)
+    * @ORM\OneToMany(targetEntity="MapasCulturais\Entities\OpportunityMeta", mappedBy="owner", cascade={"remove","persist"}, orphanRemoval=true, fetch="EAGER")
     */
     protected $__metadata;
 
     /**
-     * @var \MapasCulturais\Entities\OpportunityFile[] Files
+     * @var OpportunityFile[] Files
      *
      * @ORM\OneToMany(targetEntity="MapasCulturais\Entities\OpportunityFile", mappedBy="owner", cascade={"remove"}, orphanRemoval=true)
      * @ORM\JoinColumn(name="id", referencedColumnName="object_id", onDelete="CASCADE")
@@ -260,7 +265,7 @@ abstract class Opportunity extends \MapasCulturais\Entity
     protected $__files;
 
     /**
-     * @var \MapasCulturais\Entities\OpportunityAgentRelation[] Agent Relations
+     * @var OpportunityAgentRelation[] Agent Relations
      *
      * @ORM\OneToMany(targetEntity="MapasCulturais\Entities\OpportunityAgentRelation", mappedBy="owner", cascade={"remove"}, orphanRemoval=true)
      * @ORM\JoinColumn(name="id", referencedColumnName="object_id", onDelete="CASCADE")
@@ -269,7 +274,7 @@ abstract class Opportunity extends \MapasCulturais\Entity
 
 
     /**
-     * @var \MapasCulturais\Entities\OpportunityTermRelation[] TermRelation
+     * @var OpportunityTermRelation[] TermRelation
      *
      * @ORM\OneToMany(targetEntity="MapasCulturais\Entities\OpportunityTermRelation", fetch="LAZY", mappedBy="owner", cascade={"remove"}, orphanRemoval=true)
      * @ORM\JoinColumn(name="id", referencedColumnName="object_id", onDelete="CASCADE")
@@ -278,7 +283,7 @@ abstract class Opportunity extends \MapasCulturais\Entity
 
 
     /**
-     * @var \MapasCulturais\Entities\OpportunitySealRelation[] OpportunitySealRelation
+     * @var OpportunitySealRelation[] OpportunitySealRelation
      *
      * @ORM\OneToMany(targetEntity="MapasCulturais\Entities\OpportunitySealRelation", fetch="LAZY", mappedBy="owner", cascade={"remove"}, orphanRemoval=true)
      * @ORM\JoinColumn(name="id", referencedColumnName="object_id", onDelete="CASCADE")
@@ -291,14 +296,14 @@ abstract class Opportunity extends \MapasCulturais\Entity
     protected $__permissionsCache;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="subsite_id", type="integer", nullable=true)
      */
     protected $_subsiteId;
 
     /**
-    * @var \MapasCulturais\Entities\Subsite
+    * @var Subsite
     *
     * @ORM\ManyToOne(targetEntity="MapasCulturais\Entities\Subsite")
     * @ORM\JoinColumns({
@@ -322,7 +327,7 @@ abstract class Opportunity extends \MapasCulturais\Entity
     protected $avaliableEvaluationFields = [];
 
     /**
-     * @var dateTime
+     * @var \DateTime
      *
      * @ORM\Column(name="continuous_flow", type="datetime", nullable=true)
      */
@@ -629,6 +634,32 @@ abstract class Opportunity extends \MapasCulturais\Entity
         $result = $query->getArrayResult();
 
         return $result[0]['totalRegistrations'];
+    }
+
+    public function getDefaultStatuses(): array {
+        $app = App::i();
+        
+        $default_statuses = [
+            Registration::STATUS_DRAFT => i::__('Rascunho'),
+            Registration::STATUS_SENT => i::__('Pendente'),
+            Registration::STATUS_INVALID => i::__('Inválida'),
+            Registration::STATUS_NOTAPPROVED => i::__('Não selecionada'),
+            Registration::STATUS_WAITLIST => i::__('Suplente'),
+            Registration::STATUS_APPROVED => i::__('Selecionada')
+        ];
+
+        $config_key = $this->getDefaultStatusesConfigKey();
+        $config = $app->config[$config_key] ?: $default_statuses;
+        
+        return $config;
+    }
+
+    public function getDefaultStatusesConfigKey(): string {
+        if($this->isLastPhase){
+            return "opportunityPhase.defaultStatuses.lastPhase";
+        }
+
+        return "opportunityPhase.defaultStatuses.dataCollection";
     }
 
     function setRegistrationFrom($date){
@@ -1492,7 +1523,7 @@ abstract class Opportunity extends \MapasCulturais\Entity
         return $revision_data;
     }
 
-    function unregisterRegistrationMetadata(){
+    function unregisterRegistrationMetadata(bool $include_previous_phases = false){
         $app = App::i();
 
         $registered_metadata = $app->getRegisteredMetadata(Registration::class);
@@ -1505,6 +1536,10 @@ abstract class Opportunity extends \MapasCulturais\Entity
             if (isset($registered_metadata[$field_name])) {
                 $app->unregisterEntityMetadata(Registration::class, $field_name);
             }
+        }
+
+        if($include_previous_phases && ($previous_phase = $this->previousPhase)) {
+            $previous_phase->unregisterRegistrationMetadata(true);
         }
     }
 
@@ -1616,8 +1651,8 @@ abstract class Opportunity extends \MapasCulturais\Entity
 
         $app->applyHookBoundTo($this, "{$this->hookPrefix}.registrationMetadata");
 
-        if($also_previous_phases && $this->parent) {
-            $this->previousPhase->registerRegistrationMetadata();
+        if($previous_phase = $this->previousPhase) {
+            $previous_phase->registerRegistrationMetadata();
         }
 
     }
@@ -1633,7 +1668,7 @@ abstract class Opportunity extends \MapasCulturais\Entity
 
     protected function canUser_control($user) {
 
-        if ($this->ownerEntity->canUser('@control', $user)) {
+        if ($this->ownerEntity && $this->ownerEntity->canUser('@control', $user)) {
             return true;
         } else {
             return parent::canUser_control($user);

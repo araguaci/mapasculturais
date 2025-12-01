@@ -15,9 +15,11 @@ use Opportunities\Jobs\UpdateSummaryCaches;
  * @property \MapasCulturais\Entities\Opportunity $opportunity Opportunity
  * @property \DateTime $evaluationFrom
  * @property \DateTime $evaluationTo
+ * @property string $name
+ * @property \MapasCulturais\Definitions\EntityType $type
  * 
  * @property-read \MapasCulturais\Definitions\EvaluationMethod $definition The evaluation method definition object
- * @property-read \MapasCulturais\EvaluationMethod $evaluationMethod The evaluation method plugin object
+ * @property-read \MapasCulturais\EvaluationMethod $evaluationMethod The evaluation method module object
  * @property-read bool $useCommitteeGroups
  * @property-read bool $evaluateSelfApplication
  * @property-read string $summaryCacheKey Chave do cache do resumo das avaliações
@@ -103,7 +105,7 @@ class EvaluationMethodConfiguration extends \MapasCulturais\Entity {
     protected $__agentRelations;
 
     /**
-     * @ORM\OneToMany(targetEntity="MapasCulturais\Entities\EvaluationMethodConfigurationMeta", mappedBy="owner", cascade={"remove","persist"}, orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="MapasCulturais\Entities\EvaluationMethodConfigurationMeta", mappedBy="owner", cascade={"remove","persist"}, orphanRemoval=true, fetch="EAGER")
      */
     protected $__metadata;
 
@@ -338,6 +340,10 @@ class EvaluationMethodConfiguration extends \MapasCulturais\Entity {
         $data = [
             'evaluations' => []
         ];
+
+        if(!$em) {
+            return $data;
+        }
         
         // Conta as inscrições avaliadas por consolidatedResult
         $query = $app->em->createQuery("
@@ -364,14 +370,15 @@ class EvaluationMethodConfiguration extends \MapasCulturais\Entity {
             }
         }
 
-        // Conta as inscrições que tenham o status pendente
+        // Conta as inscrições que não tenham sido totalmente avaliadas
         $query = $app->em->createQuery("
             SELECT 
                 count(r) as qtd 
             FROM 
                 MapasCulturais\\Entities\\Registration r  
             WHERE 
-                r.opportunity = :opp AND r.status = 1
+                r.opportunity = :opp AND r.status = 1 AND
+                (r.consolidatedResult is null or r.consolidatedResult in ('', '0'))
         ");
 
         $query->setParameters([
@@ -400,7 +407,7 @@ class EvaluationMethodConfiguration extends \MapasCulturais\Entity {
         // Conta as inscrições com avaliações iniciadas
         $query = $app->em->createQuery("
             SELECT 
-                COUNT(re) AS qtd 
+                COUNT(DISTINCT r.id) AS qtd 
             FROM 
                 MapasCulturais\\Entities\\RegistrationEvaluation re
             JOIN 
@@ -434,7 +441,7 @@ class EvaluationMethodConfiguration extends \MapasCulturais\Entity {
         return $data;
     }
 
-    public function getValuerSummary(?User $user = null): array {
+    public function getValuerSummary(?User $user = null, ?string $committee_name = null): array {
         $app = App::i();
         
         /** @var \MapasCulturais\Connection $conn */
@@ -459,27 +466,42 @@ class EvaluationMethodConfiguration extends \MapasCulturais\Entity {
          * @param int|null $status Status da avaliação (0 = iniciada, 1 = concluída, 2 = enviada).
          * @return int Retorna a contagem de avaliações.
          */
-        $buildQuery = function ($status = null) use ($user_ids, $opportunity, $conn): int {
+        $buildQuery = function ($status = null) use ($user_ids, $opportunity, $conn, $committee_name): int {
             $statusCondition = is_null($status) ? "e.status IS NULL" : "e.status = {$status} AND e.registration_id IN (SELECT r.id FROM registration r WHERE r.opportunity_id = {$opportunity->id})";
-
+            
+            $params = [];
+            $committee_where = '';
+            if($committee_name) {
+                $committee_where = "AND committee = :committee";
+                $params['committee'] = $committee_name;
+            }
             
             $query = "
                 SELECT DISTINCT count(e.registration_id)
                 FROM registration_evaluation e
-                WHERE {$statusCondition} AND user_id IN($user_ids)
+                WHERE {$statusCondition} AND user_id IN($user_ids) $committee_where
             ";
 
-            return $conn->fetchScalar($query);
+            
+
+            return $conn->fetchScalar($query, $params);
         };
+
+        $params = [];
+        $committee_where = '';
+        if($committee_name) {
+            $committee_where = "AND valuer_committee = :committee";
+            $params['committee'] = $committee_name;
+        }
 
         // Avaliações pendentes
         $query = "
             SELECT DISTINCT count(e.registration_id)
             FROM evaluations e
-            WHERE opportunity_id = {$opportunity->id} AND e.evaluation_status IS NULL AND valuer_user_id IN ($user_ids)
+            WHERE opportunity_id = {$opportunity->id} AND e.evaluation_status IS NULL AND valuer_user_id IN ($user_ids) $committee_where
         ";
 
-        $data['pending'] = $conn->fetchScalar($query);
+        $data['pending'] = $conn->fetchScalar($query, $params);
         
         // Avaliações iniciadas
         $data['started'] = $buildQuery(0);
@@ -491,6 +513,12 @@ class EvaluationMethodConfiguration extends \MapasCulturais\Entity {
         $data['sent'] = $buildQuery(2);
         
         return $data;
+    }
+
+    public function getDefaultStatuses(): array {
+        $evaluation_method = $this->getEvaluationMethod();
+        
+        return $evaluation_method->getDefaultStatuses($this);
     }
 
     public function enqueueUpdateSummary(string $start_string = 'now') {
@@ -604,8 +632,7 @@ class EvaluationMethodConfiguration extends \MapasCulturais\Entity {
     }
 
     protected function canUser_control($user) {
-        
-        if ($this->opportunity->canUser('@control')) {
+        if ($this->opportunity && $this->opportunity->canUser('@control')) {
             return true;
         } else {
             return parent::canUser_control($user);

@@ -38,7 +38,7 @@ app.component('entity-field', {
             var typeOptions = {};
             var optionsOrder = [];
             Object.keys(description.options).forEach(function(item, index){
-                if(description.options[item] != "Individual"){
+                if(item != 1){
                     typeOptions[index] = description.options[item];
                     optionsOrder.push(parseInt(index));
                 }
@@ -75,7 +75,9 @@ app.component('entity-field', {
                 })
             );
         
-            description.optionsOrder = description.optionsOrder.filter(item => !removedOptions.includes(item));
+            description.optionsOrder = Array.isArray(description.optionsOrder)
+                ? description.optionsOrder.filter(key => !removedOptions.includes(key))
+                : Object.values(description.optionsOrder).filter(item => !removedOptions.includes(item));
         }
 
         return {
@@ -164,6 +166,11 @@ app.component('entity-field', {
         },
 
         descriptionFirst: {
+            type: Boolean,
+            default: false
+        },
+
+        editable: {
             type: Boolean,
             default: false
         },
@@ -351,6 +358,10 @@ app.component('entity-field', {
         },
 
         is(type) {
+            if (type == 'location') {
+                let fieldConfig = this.description.registrationFieldConfiguration.config;
+                return fieldConfig.entityField == '@location';
+            }
             return this.fieldType == type;
         },
 
@@ -387,6 +398,14 @@ app.component('entity-field', {
             if(lockedFieldSeals && lockedFieldSeals[this.prop]) {
                 this.readonly = true;
             }
+
+            const lockedFields = this.entity.__lockedFields || [];
+
+            if(lockedFields.includes(this.prop)) {
+                this.readonly = true;
+            }
+
+            return this.readonly;
         }
     },
 });

@@ -27,6 +27,10 @@ app.component('registration-results', {
     },
 
     computed: {
+        shouldDisplayEvaluationResults() {
+            return $MAPAS.config.registrationResults.shouldDisplayEvaluationResults 
+        },
+
         appealPhase() {
             return this.opportunity.isAppealPhase ? this.opportunity : this.opportunity.appealPhase;
         },
@@ -43,7 +47,8 @@ app.component('registration-results', {
             if (this.registration.opportunity.isReportingPhase) {
                 return false;
             }
-            return this.registration.status > 1 && this.registration.status < 10;
+
+            return this.registration.status > 1 && this.registration.status < 10 && this.opportunity.isAppealPhase && !this.appealRegistration;
         },
 
         currentEvaluation() {
@@ -69,11 +74,12 @@ app.component('registration-results', {
         },
 
         showEvaluationDetails() {
-            if (this.phase.opportunity?.allow_proponent_response && this.evaluationData?.consolidatedDetails?.sentEvaluationCount) {
+            const can = this.shouldDisplayEvaluationResults[this.registration.id]
+            if (can && this.evaluationData?.consolidatedDetails?.sentEvaluationCount) {
                 return true;
             } else {
-                return this.evaluationData?.consolidatedDetails?.sentEvaluationCount
-                    || this.registration.consolidatedDetails?.sentEvaluationCount;
+                return can && (this.evaluationData?.consolidatedDetails?.sentEvaluationCount
+                    || this.registration.consolidatedDetails?.sentEvaluationCount);
             }
         },
     },

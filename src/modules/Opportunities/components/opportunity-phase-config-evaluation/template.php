@@ -20,6 +20,7 @@ $this->import('
     v1-embed-tool
 
     affirmative-policies--geo-quota-configuration
+    opportunity-phase-config-status
 ');
 
 $evaluation_methods = $app->getRegisteredEvaluationMethods();
@@ -82,8 +83,10 @@ $evaluation_methods = $app->getRegisteredEvaluationMethods();
             <label :for="`field-info-${category}`" class="evaluation-section__label semibold" :key="index"> {{ category }}</label>
             <textarea :id="`field-info-${category}`" v-model="phase.infos[category]" @change="savePhase()" style="width: 100%" rows="10" class="evaluation-config__input"></textarea>
         </div>
+        
+        <opportunity-phase-config-status :phase="phase.opportunity"></opportunity-phase-config-status>
 
-        <opportunity-phase-publish-date-config v-if="!firstPhase?.isContinuousFlow" :phase="phase.opportunity" :phases="phases" hide-button hide-description useSealsCertification></opportunity-phase-publish-date-config>
+        <opportunity-phase-publish-date-config :phase="phase.opportunity" :phases="phases" hide-button hide-description></opportunity-phase-publish-date-config>
         
         <seals-certifier :entity="firstPhase" :editable="seals.length > 0"></seals-certifier>
 

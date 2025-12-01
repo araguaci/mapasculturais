@@ -4,13 +4,33 @@ namespace EvaluationMethodDocumentary;
 use MapasCulturais\i;
 use MapasCulturais\App;
 use MapasCulturais\Entities;
+use MapasCulturais\Entities\EvaluationMethodConfiguration;
 use MapasCulturais\Entities\Registration;
 
 const STATUS_INVALID = 'invalid';
 const STATUS_VALID = 'valid';
 
-class Module extends \MapasCulturais\EvaluationMethod {
+class Module extends \MapasCulturais\EvaluationMethod
+{
+    protected function _export(EvaluationMethodConfiguration $evaluation_method_configuration): array
+    {
+        return [];
+    }
 
+    protected function _import(EvaluationMethodConfiguration $evaluation_method_configuration, array $data)
+    {
+        /** não precisa fazer nada */
+    }
+
+    protected function _getDefaultStatuses(EvaluationMethodConfiguration $evaluation_method_configuration): array
+    {
+        return [
+            Registration::STATUS_DRAFT => i::__('Rascunho'),
+            Registration::STATUS_SENT => i::__('Pendente'),
+            Registration::STATUS_APPROVED  => i::__('Válida'),
+            Registration::STATUS_INVALID => i::__('Inválida'),
+        ];
+    }
 
     public function getSlug() {
         return 'documentary';
@@ -332,6 +352,17 @@ class Module extends \MapasCulturais\EvaluationMethod {
         }
 
         return $result;
+    }
+
+    /**
+     * Retorna o resultado consolidado aplicado
+     *
+     * @param Entities\Registration $registration
+     * @return string|int
+     */
+    public function _getConsolidatedAutoApplicationResult(Entities\Registration $registration): string|int
+    {
+        return $registration->consolidatedResult == 1 ? Registration::STATUS_APPROVED : Registration::STATUS_INVALID;
     }
 
     public function getEvaluationResult(Entities\RegistrationEvaluation $evaluation) {

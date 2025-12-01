@@ -521,7 +521,7 @@ class Registration extends \MapasCulturais\Entity
         }
 
         $avaliableEvaluationFields = ($this->opportunity->avaliableEvaluationFields != "null") ? $this->opportunity->avaliableEvaluationFields : [];
-        if(in_array($key, array_keys($avaliableEvaluationFields))){
+        if($avaliableEvaluationFields && in_array($key, array_keys($avaliableEvaluationFields))){
             return true;
         }
 
@@ -572,10 +572,15 @@ class Registration extends \MapasCulturais\Entity
     function sendEditableFields() {
         $app = App::i();
         $this->checkPermission('sendEditableFields');
+
+        $app->applyHookBoundTo($this, "entity({$this->getHookClassPath()}).sendEditableFields:before");
+
         $this->editSentTimestamp = new DateTime();
         $app->disableAccessControl();
         $this->save(true);
         $app->enableAccessControl();
+
+        $app->applyHookBoundTo($this, "entity({$this->getHookClassPath()}).sendEditableFields:after");
     }
 
     function setOwnerId($id){
@@ -1236,7 +1241,8 @@ class Registration extends \MapasCulturais\Entity
      * @return bool Verdadeiro se a etapa deve ser exibida, falso caso contrário.
      */
     function isStepVisible(RegistrationStep $step): bool {
-        $conditional = $step->metadata['conditional'] ?? null;
+        $metadata = (array) $step->metadata;
+        $conditional = $metadata['conditional'] ?? null;
 
         if (!$conditional) {
             return true;
@@ -1270,7 +1276,8 @@ class Registration extends \MapasCulturais\Entity
      * @param RegistrationFieldConfiguration|RegistrationFileConfiguration $field O campo a ser verificado.
      * @return bool Verdadeiro se o campo deve ser exibido, falso caso contrário.
      */
-    function isFieldVisisble(RegistrationFieldConfiguration|RegistrationFileConfiguration $field): bool {
+    function isFieldVisisble(RegistrationFieldConfiguration|RegistrationFileConfiguration $field): bool
+    {
         $opportunity = $this->opportunity;
 
         $use_category = (bool) $opportunity->registrationCategories;
@@ -1300,23 +1307,64 @@ class Registration extends \MapasCulturais\Entity
         if(!$field->conditional || !$field->conditionalField) {
             return true;
         }
- 
+
         $_fied_name = $field->conditionalField;
+        $_fied_value = $field->conditionalValue;
+        
+
+        // Busca o campo pai (pode estar na lista de campos ou de arquivos)
+        $parentField = $this->findParentField($_fied_name);
+
+        // Se o pai existe e não está visível, este também não está
+        if ($parentField && !$this->isFieldVisisble($parentField)) {
+            return false;
+        }
+
+        // Se o pai estiver visível, checa o valor esperado
+        if ($_fied_name === 'appliedForQuota') {
+            return $opportunity->enableQuotasQuestion && $this->appliedForQuota;
+        }
 
         if (is_array($this->$_fied_name)) {
             return in_array($_fied_value, $this->$_fied_name);
         }
 
-        $_fied_value = $field->conditionalValue;
-
-        if ($_fied_name == 'appliedForQuota') {
-            return $opportunity->enableQuotasQuestion && $this->appliedForQuota;
-        }
-
         return $this->$_fied_name == $_fied_value;
     }
 
+    /**
+     * Localiza e retorna a configuração de campo ou arquivo correspondente ao nome informado.
+     * 
+     * Pode ser utilizada para identificar o campo pai de um campo condicional,
+     * permitindo a verificação recursiva de dependências em cascata.
+     *
+     * @param string $fieldName Nome do campo ou grupo de arquivos a ser localizado.
+     *
+     * @return RegistrationFieldConfiguration|RegistrationFileConfiguration|null
+     *         Retorna a configuração correspondente ou null caso não seja encontrada.
+     */
+    private function findParentField(string $fieldName): RegistrationFieldConfiguration|RegistrationFileConfiguration|null
+    {
+        // Procura entre os campos normais
+        foreach ($this->opportunity->registrationFieldConfigurations as $f) {
+            if ($f->fieldName === $fieldName) {
+                return $f;
+            }
+        }
+        // Procura entre os arquivos
+        foreach ($this->opportunity->registrationFileConfigurations as $f) {
+            if ($f->fileGroupName === $fieldName || $f->fieldName === $fieldName) {
+                return $f;
+            }
+        }
+        return null;
+    }
+
     function getValidationErrors() {
+        if($previous_phase_opportunity = $this->opportunity->previousPhase){
+            $previous_phase_opportunity->unregisterRegistrationMetadata(include_previous_phases:true);
+        }
+
         if($this->isNew()) {
             $errors = parent::getValidationErrors();
         } else {
@@ -1747,11 +1795,7 @@ class Registration extends \MapasCulturais\Entity
         if(!$this->opportunity->isRegistrationOpen()){
             return false;
         }
-
-        if($this->getSendValidationErrors()){
-            return false;
-        }
-
+       
         if($this->isUserAdmin($user)){
             return true;
         }
@@ -1760,6 +1804,10 @@ class Registration extends \MapasCulturais\Entity
     }
 
     protected function canUserSendEditableFields(User | GuestUser $user):bool {
+        if($this->status == self::STATUS_DRAFT) {
+            return false;
+        }
+
         if (!$this->canUser('@control')) {
             return false;
         }
@@ -1809,47 +1857,37 @@ class Registration extends \MapasCulturais\Entity
             return false;
         }
 
-        $valuers = $evaluation_method_configuration->getAgentRelations();
-        
-        $is_valuer = false;
-        
-        foreach ($valuers as $agent_relation) {
-            if ($agent_relation->status != EvaluationMethodConfigurationAgentRelation::STATUS_ENABLED) {
-                continue;
-            }
+        $is_valuer = isset($this->valuers[$user->id]);
 
-            $agent = $agent_relation->agent;
-            if($agent->user->id == $user->id ){
-                $is_valuer = true;
-            }
-        }
-        
         if(!$is_valuer){
             return false;
         }
         
-        return $this->canUserViewUserEvaluation($user, true);
+        $result = $this->canUserViewUserEvaluation($user, true);
+
+        return $result;
     }
 
     protected function canUserEvaluate($user){
-        if (!$this->opportunity->evaluationMethodConfiguration) {
+        $emc = $this->opportunity->evaluationMethodConfiguration;
+        
+        if (!$emc) {
             return false;
         }
         
-        if(new DateTime('now') < $this->opportunity->evaluationMethodConfiguration->evaluationFrom || new DateTime('now') > $this->opportunity->evaluationMethodConfiguration->evaluationTo){
+        if(new DateTime('now') < $emc->evaluationFrom || new DateTime('now') > $emc->evaluationTo){
             return false;
         }
 
         $can = $this->canUserEvaluateOnTime($user);
 
         $evaluation = $this->getUserEvaluation($user);
-
+        
         $evaluation_sent = false;
 
         if($evaluation){
             $evaluation_sent = $evaluation->status === RegistrationEvaluation::STATUS_SENT;
         }
-
         return $can && !$evaluation_sent;
     }
 
@@ -1920,6 +1958,10 @@ class Registration extends \MapasCulturais\Entity
     }
     
     function getExtraEntitiesToRecreatePermissionCache(): array {
+        if(!$this->id) {
+            return [];
+        }
+
         $result = [];
 
         if ($previous_phase = $this->previousPhase) {
@@ -1979,7 +2021,7 @@ class Registration extends \MapasCulturais\Entity
      * @return EvaluationMethodConfiguration
      */
     public function getEvaluationMethodConfiguration() {
-        return $this->opportunity->evaluationMethodConfiguration;
+        return $this->opportunity ? $this->opportunity->evaluationMethodConfiguration : null;
     }
 
     /**

@@ -81,6 +81,11 @@ app.component('opportunity-phases-config', {
         },
 
         publishTimestamp(phase) {
+            const _phase = phase.__objectType == "evaluationmethodconfiguration" ? phase.opportunity : phase;
+            if(!_phase.publishTimestamp) {
+                return null;
+            }
+
             if (phase.__objectType == 'opportunity') {
                 return phase.publishTimestamp;
             } 
@@ -102,7 +107,7 @@ app.component('opportunity-phases-config', {
 
         showButtons() {
             const lastPhase = this.phases[this.phases.length - 1];
-
+            
             if(lastPhase.publishedRegistrations || (lastPhase.publishTimestamp && lastPhase.publishTimestamp.isPast())) {
                 return false;
             } else {

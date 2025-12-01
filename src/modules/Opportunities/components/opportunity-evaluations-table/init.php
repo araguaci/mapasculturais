@@ -7,12 +7,12 @@
 use MapasCulturais\i;
 use MapasCulturais\Entities\Registration;
 
-$entity = $this->controller->requestedEntity;
-
 $committee = [];
 $valuersMetadata = [];
 
-if ($comm = $entity->getEvaluationCommittee()) {
+$opportunity = $this->getOpportunityFromEntity($entity);
+
+if ($comm = $opportunity->getEvaluationCommittee()) {
     foreach($comm as $member) {
         $user_id = $member->agent->owner->user->id;
         if (empty($committee[$user_id])) {
@@ -52,6 +52,14 @@ foreach ($definitions as $field => $def) {
         $default_headers[] = $header;
     }
 }
+
+$default_headers[] = [
+    'text' => i::__('Comissão de avaliação'),
+    'value' => 'committee',
+    'slug' => 'committee',
+    'required' => true,
+    'visible' => true
+];
 
 // Função para separar campos no select
 function splitSelectFields($str) {
@@ -142,6 +150,7 @@ $headers = [
     [ 'text' => i::__('Tipo de proponente', 'opportunity-evaluations-table'), 'value' => 'proponentType', 'slug' => 'proponentType'],
     [ 'text' => i::__('Categoria', 'opportunity-evaluations-table'), 'value' => 'category', 'slug' => 'category'],
     [ 'text' => i::__('Faixa', 'opportunity-evaluations-table'), 'value' => 'range', 'slug' => 'range'],
+    [ 'text' => i::__('Ações', 'opportunity-evaluations-table'), 'value' => '', 'slug' => 'delete', 'visible' => true, 'width' => '100px'],
 ];
 
 $default_headers = array_merge($default_headers, $headers);
