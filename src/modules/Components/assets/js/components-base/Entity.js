@@ -200,7 +200,17 @@ class Entity {
     }
 
     catchErrors(res, data) {
-        const message = data.data?.message;
+        let message = null;
+        
+        if (typeof data.data === 'string') {
+            message = data.data;
+        } else if (data.data && typeof data.data === 'object' && data.data.message !== undefined) {
+            if (Array.isArray(data.data.message)) {
+                message = data.data.message[0] || data.data.message.join(', ');
+            } else {
+                message = data.data.message;
+            }
+        }
         
         if (res.status >= 500 && res.status <= 599) {
             this.sendMessage(message || this.text('erro inesperado'), 'error');
@@ -802,11 +812,15 @@ class Entity {
             this.doPromise(res, (data) => {
                 let index;
                 
-                index = this.agentRelations[group].indexOf(agent);
-                this.agentRelations[group].splice(index,1);
+                index = this.agentRelations[group]?.findIndex(relation => relation.agent?.id === agent.id);
+                if (index != undefined && index != -1) {
+                    this.agentRelations[group].splice(index, 1);
+                }
                 
-                index = this.relatedAgents[group].indexOf(agent);
-                this.relatedAgents[group].splice(index,1);
+                index = this.relatedAgents[group]?.findIndex(a => a.id === agent.id);
+                if (index != undefined && index != -1) {
+                    this.relatedAgents[group].splice(index, 1);
+                }
             
             });
         } catch (error) {

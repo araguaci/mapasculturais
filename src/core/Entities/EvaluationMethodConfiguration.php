@@ -6,6 +6,7 @@ use DateTime;
 use MapasCulturais\i;
 use MapasCulturais\App;
 use MapasCulturais\Traits;
+use MapasCulturais\GuestUser;
 use Doctrine\ORM\Mapping as ORM;
 use Opportunities\Jobs\UpdateSummaryCaches;
 
@@ -40,6 +41,7 @@ class EvaluationMethodConfiguration extends \MapasCulturais\Entity {
     use Traits\EntityTypes,
         Traits\EntityMetadata,
         Traits\EntityAgentRelation,
+        Traits\EntityRevision,
         Traits\EntityPermissionCache{
             Traits\EntityTypes::setType as traitSetType;
         }
@@ -637,6 +639,17 @@ class EvaluationMethodConfiguration extends \MapasCulturais\Entity {
         } else {
             return parent::canUser_control($user);
         }
+    }
+
+    /**
+     * Verifica se o usuário pode substituir um avaliador
+     * 
+     * @param User $user
+     * @return bool
+     */
+    protected function canUserReplaceEvaluator(GuestUser|User $user): bool
+    {
+        return $this->opportunity->canUser('@control', $user);
     }
     
     function getExtraEntitiesToRecreatePermissionCache(){

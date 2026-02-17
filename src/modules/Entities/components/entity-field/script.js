@@ -53,6 +53,18 @@ app.component('entity-field', {
             fieldType = 'textarea';
         }
 
+        // Tratamento especial para campos de galeria/vídeos/downloads
+        if(description.registrationFieldConfiguration?.config?.entityField) {
+            const entityField = description.registrationFieldConfiguration.config.entityField;
+            if(entityField === '@gallery') {
+                fieldType = 'gallery';
+            } else if(entityField === '@videos') {
+                fieldType = 'videos';
+            } else if(entityField === '@downloads') {
+                fieldType = 'downloads';
+            }
+        }
+
         if (!description.min) {
             description.min = 0;
         }
@@ -234,6 +246,26 @@ app.component('entity-field', {
         entitiesFildTypes() {
             return ['agent-owner-field', 'agent-collective-field']
         },
+        fileGroupTypes() {
+            return ['@gallery', '@downloads']
+        },
+        metaListTypes() {
+            return ['@videos', '@links']
+        },
+        isFileGroup() {
+            let registrationFieldConfiguration = this.description.registrationFieldConfiguration;
+            if(registrationFieldConfiguration?.config?.entityField) {
+                return this.fileGroupTypes().includes(registrationFieldConfiguration.config.entityField);
+            }
+            return false;
+        },
+        isMetaList() {
+            let registrationFieldConfiguration = this.description.registrationFieldConfiguration;
+            if(registrationFieldConfiguration?.config?.entityField) {
+                return this.metaListTypes().includes(registrationFieldConfiguration.config.entityField);
+            }
+            return false;
+        },
     },
     
     methods: {
@@ -359,8 +391,20 @@ app.component('entity-field', {
 
         is(type) {
             if (type == 'location') {
-                let fieldConfig = this.description.registrationFieldConfiguration.config;
-                return fieldConfig.entityField == '@location';
+                let fieldConfig = this.description.registrationFieldConfiguration?.config;
+                return fieldConfig?.entityField == '@location';
+            }
+            if (type == 'gallery') {
+                let fieldConfig = this.description.registrationFieldConfiguration?.config;
+                return fieldConfig?.entityField == '@gallery';
+            }
+            if (type == 'videos') {
+                let fieldConfig = this.description.registrationFieldConfiguration?.config;
+                return fieldConfig?.entityField == '@videos';
+            }
+            if (type == 'downloads') {
+                let fieldConfig = this.description.registrationFieldConfiguration?.config;
+                return fieldConfig?.entityField == '@downloads';
             }
             return this.fieldType == type;
         },
@@ -387,12 +431,34 @@ app.component('entity-field', {
             const userPermission = this.entity.currentUserPermissions?.modifyReadonlyData;
             const lockedFieldSeals = this.entity.__lockedFieldSeals;
 
-            if(this.description.readonly) {
-                if(userPermission || !this.value) {
-                    this.readonly = false;
-                } else {
+            if(this.entity.__objectType == "registration") {
+                const editableFields = this.entity.editableFields || [];
+
+                if(editableFields.length > 0 && !editableFields.includes(this.prop) && !userPermission) {
                     this.readonly = true;
+                    return this.readonly;
                 }
+            }
+
+            if(this.entity.__objectType == "registration" && this.description.registrationFieldConfiguration) {
+                const registrationConfig = this.description.registrationFieldConfiguration;
+                
+                if(registrationConfig.fieldType == 'agent-owner-field' && registrationConfig.config?.entityField) {
+                    const agentFieldName = registrationConfig.config.entityField;
+                    
+                    if($DESCRIPTIONS.agent && $DESCRIPTIONS.agent[agentFieldName]) {
+                        const agentDescription = $DESCRIPTIONS.agent[agentFieldName];
+                        
+                        if(agentDescription.readonly) {
+                            this.readonly = !(userPermission || !this.value);
+                            return this.readonly;
+                        }
+                    }
+                }
+            }
+
+            if(this.description.readonly) {
+                this.readonly = !(userPermission || !this.value);
             }
 
             if(lockedFieldSeals && lockedFieldSeals[this.prop]) {

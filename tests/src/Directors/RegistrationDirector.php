@@ -82,8 +82,8 @@ class RegistrationDirector extends Director
                 ->fillRequiredProperties()
                 ->getInstance();
 
-        $this->setRegistrationData($registration, data: $data, save: true);
-
+        $this->setRegistrationData($registration, data: $data);
+                
         $registration->send();
 
         return $registration->refreshed();

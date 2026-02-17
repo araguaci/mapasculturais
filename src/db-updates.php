@@ -1147,7 +1147,10 @@ return [
         __exec("ALTER TABLE subsite_meta ALTER column id SET DEFAULT nextval('subsite_meta_id_seq');");
         __exec("ALTER TABLE evaluationmethodconfiguration_meta ALTER column id SET DEFAULT nextval('evaluationmethodconfiguration_meta_id_seq');");
     },
-    
+    'define default para o id da tabela seal' => function() {
+        __exec("ALTER TABLE seal ALTER column id SET DEFAULT nextval('seal_id_seq');");
+    },
+
     'Criação da coluna update timestemp' => function() use($conn) {
 
         if(!__column_exists('registration', 'update_timestamp')){
@@ -1214,6 +1217,13 @@ return [
             __exec("ALTER TABLE opportunity ADD COLUMN continuous_flow TIMESTAMP NULL");
         }
     },
+    
+    "Cria coluna publicity_only na tabela opportunity" => function() use ($conn) {
+        if (!__column_exists('opportunity', 'publicity_only')) {
+            __exec("ALTER TABLE opportunity ADD COLUMN publicity_only BOOLEAN DEFAULT FALSE NOT NULL");
+        }
+    },
+    
     'Cria a tabela da entidade RegistrationStep' => function () {
         $app = App::i();
         $em = $app->em;
@@ -2073,7 +2083,6 @@ $$
         __try("CREATE INDEX agent_relation_owner_agent ON agent_relation (object_type, object_id, agent_id);");
         __try("CREATE INDEX agent_relation_has_control ON agent_relation (has_control);");
         __try("CREATE INDEX agent_relation_status ON agent_relation (status);");
-        __try("ALTER INDEX idx_54585edd3414710b RENAME TO agent_relation_agent;");
     },
 
     'valuer disabling refactor' => function() use($conn) {
@@ -2891,7 +2900,7 @@ $$
         __exec("CREATE UNIQUE INDEX unique_evaluation_user_id ON registration_evaluation (registration_id, user_id)");
     },
 
-    'cria novos índices em diversas tabelas ' => function() {
+    'Adiciona novos índices em diversas tabelas' => function() {
         __exec('CREATE INDEX idx_usr_profile ON usr (profile_id);');
         __exec('CREATE INDEX id_agent_relation_agent ON agent_relation (agent_id);');
         __exec('CREATE INDEX idx_space_agent_id ON space (agent_id);');
@@ -3111,6 +3120,112 @@ $$
                      USING registration_step rs
                      WHERE rs.id = rfc.step_id
                        AND rs.opportunity_id != rfc.opportunity_id;");
-    }
+    },
+
+    "Adiciona coluna allowed_file_types na tabela registration_file_configuration para restringir tipos de arquivo" => function() {
+        if(!__column_exists('registration_file_configuration', 'allowed_file_types')) {
+            __exec("ALTER TABLE registration_file_configuration ADD COLUMN allowed_file_types JSON DEFAULT NULL");
+        }
+    },
+    "incrementa a sequencia do id dos selos para evitar erro na primeira tentativa de criar um selo pois já existe o id 1" => function () {
+        __exec("SELECT nextval('seal_id_seq')");
+    },
+
+    "limpa chaves incompatíveis com a v7.7" => function ()  {
+        __exec("DELETE FROM user_app");
+    },
+
+    "Migra configurações de distribuição de evaluationmethodconfiguration_meta para agent_relation" => function() use ($conn, $app) {
+        $keys = ['fetchCategories', 'fetchRanges', 'fetchProponentTypes', 'fetch', 'fetchSelectionFields'];
+        $keys_sql = implode("','", $keys);
+        
+        $meta_records = $conn->fetchAllAssociative("
+            SELECT object_id, key, value FROM evaluationmethodconfiguration_meta
+            WHERE key IN ('{$keys_sql}') ORDER BY object_id
+        ");
+
+        if (empty($meta_records)) {
+            $app->log->debug("Nenhum registro encontrado para migração.");
+            return true;
+        }
+
+        $decode_json = fn($val) => ($val && $val !== '{}') ? json_decode($val, true) : null;
+        
+        $get_value = fn($data, $user_id) => is_array($data) 
+            ? ($data[(string)$user_id] ?? $data[$user_id] ?? null) 
+            : null;
+
+        $configs_by_object = [];
+        foreach ($meta_records as $record) {
+            $configs_by_object[$record['object_id']][$record['key']] = $record['value'];
+        }
+
+        $total = count($configs_by_object);
+        $processed = $updated = $skipped = 0;
+
+        foreach ($configs_by_object as $emc_id => $configs) {
+            $app->log->debug("(" . ++$processed . "/{$total}) Processando EMC {$emc_id}");
+
+            $data = [
+                'categories' => $decode_json($configs['fetchCategories'] ?? null),
+                'ranges' => $decode_json($configs['fetchRanges'] ?? null),
+                'proponentTypes' => $decode_json($configs['fetchProponentTypes'] ?? null),
+                'distribution' => $decode_json($configs['fetch'] ?? null),
+                'selectionFields' => $decode_json($configs['fetchSelectionFields'] ?? null),
+            ];
+
+            $agent_relations = $conn->fetchAllAssociative("
+                SELECT ar.id, ar.agent_id, ar.metadata, u.id as user_id
+                FROM agent_relation ar
+                JOIN agent a ON a.id = ar.agent_id
+                JOIN usr u ON u.profile_id = a.id
+                WHERE ar.object_type = 'MapasCulturais\Entities\EvaluationMethodConfiguration'
+                  AND ar.object_id = :emc_id
+            ", ['emc_id' => $emc_id]);
+
+            if (empty($agent_relations)) {
+                $app->log->debug("  Sem agent_relation. Pulando...");
+                $skipped++;
+                continue;
+            }
+
+            foreach ($agent_relations as $ar) {
+                $user_id = (int) $ar['user_id'];
+                $new_data = [];
+
+                foreach (['categories', 'ranges', 'proponentTypes'] as $field) {
+                    $val = $get_value($data[$field], $user_id);
+                    if (is_array($val)) $new_data[$field] = $val;
+                }
+
+                $dist = $get_value($data['distribution'], $user_id);
+                if ($dist !== null && $dist !== '') $new_data['distribution'] = $dist;
+
+                $sel = $get_value($data['selectionFields'], $user_id);
+                if (is_array($sel) || is_object($sel)) {
+                    $sel = array_filter((array)$sel, fn($v) => !empty($v));
+                    if (!empty($sel)) $new_data['selectionFields'] = $sel;
+                }
+
+                if (empty($new_data)) continue;
+
+                $metadata = json_decode($ar['metadata'], true) ?: [];
+                $metadata = array_merge($metadata, $new_data);
+                $metadata['summary'] ??= ["pending" => 0, "started" => 0, "completed" => 0, "sent" => 0];
+
+                $conn->executeQuery(
+                    "UPDATE agent_relation SET metadata = :metadata WHERE id = :id",
+                    ['metadata' => json_encode($metadata), 'id' => $ar['id']]
+                );
+
+                $updated++;
+                $info = array_map(fn($k) => isset($new_data[$k]) ? "$k:" . (is_array($new_data[$k]) ? count($new_data[$k]) : $new_data[$k]) : null, array_keys($new_data));
+                $app->log->debug("  AR {$ar['id']} (user:{$user_id}) - " . implode(', ', array_filter($info)));
+            }
+        }
+
+        $app->log->debug("Migração concluída! Atualizados: {$updated} | Sem relations: {$skipped}");
+        return true;
+    },
     
 ] + $updates ;   
